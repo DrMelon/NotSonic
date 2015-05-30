@@ -227,12 +227,12 @@ namespace NotSonic.Components
             // Sensor A: Positioned at -9, 0 to -9, 20.
             float SensorAX = XPos - 9;
             float SensorATop = YPos + 0;
-            float SensorABottom = YPos + 0 + 20;
+            float SensorABottom = YPos + 0 + CurrentHeight;
 
             // Sensor B: Positioned at 9, 0 to 9, 20.
             float SensorBX = XPos + 9;
             float SensorBTop = YPos + 0;
-            float SensorBBottom = YPos + 0 + 20;
+            float SensorBBottom = YPos + 0 + CurrentHeight;
 
             // The tiles that will be located.
             Tile sensorATile = null;
@@ -330,7 +330,7 @@ namespace NotSonic.Components
                 }
 
 
-                if (CurrentMoveType == MoveType.GROUND)
+                if (CurrentMoveType == MoveType.GROUND || YSpeed >= 0)
                 {
                     if (heightOfA >= heightOfB && sensorATile != null)
                     {
