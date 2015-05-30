@@ -48,6 +48,7 @@ namespace NotSonic.Entities
         {
 
             spriteSheet.FlippedX = !myMovement.FacingRight;
+            
 
             if(myMovement.Rolling)
             {
