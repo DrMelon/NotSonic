@@ -78,6 +78,16 @@ namespace NotSonic.Components
             base.Added();
         }
 
+        public float HexAngleToDec(int hexangle)
+        {
+            return (hexangle) * 1.40625f;
+
+            // D = (256 - H) * 1.4...
+            // D / 1.4 = (256 - H)
+            // (D / 1.4) - 256 = -H
+        }
+
+
         /// <summary>
         /// Updates the Movement.
         /// </summary>
@@ -289,52 +299,88 @@ namespace NotSonic.Components
             else
             {
                 // At least one was encountered, we must be on the ground.
+                // Store collision info
+                int heightOfA = 0;
+                int heightOfB = 0;
+                float angleOfA = 0.0f;
+                float angleOfB = 0.0f;
+
+                if (sensorATile != null)
+                {
+                    // Capture sensor A's result.
+                    int heightMapArrayIndex = (int)SensorAX - sensorATile.XPos;
+                    heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
+                    heightOfA = sensorATile.flatheightArray[heightMapArrayIndex];
+                    angleOfA = sensorATile.Angle;
+
+
+                }
+                if (sensorBTile != null)
+                {
+                    // Capture sensor B's result.
+                    int heightMapArrayIndex = (int)SensorBX - sensorBTile.XPos;
+                    heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
+                    heightOfB = sensorBTile.flatheightArray[heightMapArrayIndex];
+                    angleOfB = sensorBTile.Angle;
+                }
+
+                if (heightOfA >= heightOfB && sensorATile != null)
+                {
+                    YPos = sensorATile.YPos - heightOfA - 20;
+                    Angle = angleOfA;
+
+                }
+                else if (heightOfB > heightOfA && sensorBTile != null)
+                {
+                    YPos = sensorBTile.YPos - heightOfB - 20;
+                    Angle = angleOfB;
+                }
+
 
                 // If we were in the air, reset the groundspeed.
                 if(CurrentMoveType == MoveType.AIR && YSpeed >= 0)
                 {
                     CurrentMoveType = MoveType.GROUND;
                     Rolling = false;
-                    GroundSpeed = XSpeed;
+                    // The speeds are set like so:
+                    Otter.Debugger.Instance.Log(HexAngleToDec(0x01));
+                    // If the angle is between 0x00 and 0x0F or 0xF0 and 0xFF...
+                    if ((Angle >= HexAngleToDec(0x00) && Angle <= HexAngleToDec(0x0F)) || (Angle >= HexAngleToDec(0xF0) && Angle <= HexAngleToDec(0xFF)))
+                    {
+                        // Then the angle is shallow enough to say that it's just the normal ground.
+                        GroundSpeed = XSpeed;
+                        
+                    }
+
+                    // If the angle is between 0xE0-0xEF and 0x10-0x1F then it's the same but only if abs(xSpeed) > ySpeed.
+                    if ((Angle >= HexAngleToDec(0xE0) && Angle <= HexAngleToDec(0xEF)) || (Angle >= HexAngleToDec(0x10) && Angle <= HexAngleToDec(0x1F)))
+                    {
+                        if (Math.Abs(XSpeed) > YSpeed)
+                        {
+                            GroundSpeed = XSpeed;
+                        }
+                        else
+                        {
+                            GroundSpeed = YSpeed * 0.5f * -(float)Math.Sign(Math.Cos(Angle));
+                        }
+                    }
+
+                    // If the angle is between 0xC0-0xDF or 0x20 - 0x3F, same but steeper
+                    if ((Angle >= HexAngleToDec(0xC0) && Angle <= HexAngleToDec(0xDF)) || (Angle >= HexAngleToDec(0x20) && Angle <= HexAngleToDec(0x3F)))
+                    {
+                        if (Math.Abs(XSpeed) > YSpeed)
+                        {
+                            GroundSpeed = XSpeed;
+                        }
+                        else
+                        {
+                            GroundSpeed = YSpeed * -(float)Math.Sign(Math.Cos(Angle));
+                        }
+                    }
+                    
                 }
             }
 
-            // Store collision info
-            int heightOfA = 0;
-            int heightOfB = 0;
-            float angleOfA = 0.0f;
-            float angleOfB = 0.0f;
-
-            if(sensorATile != null)
-            {
-                // Capture sensor A's result.
-                int heightMapArrayIndex = (int)SensorAX - sensorATile.XPos;
-                heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
-                heightOfA = sensorATile.flatheightArray[heightMapArrayIndex];
-                angleOfA = sensorATile.Angle;
-          
-
-            }
-            if(sensorBTile != null)
-            {
-                // Capture sensor B's result.
-                int heightMapArrayIndex = (int)SensorBX - sensorBTile.XPos;
-                heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
-                heightOfB = sensorBTile.flatheightArray[heightMapArrayIndex];
-                angleOfB = sensorBTile.Angle;
-            }
-
-            if(heightOfA >= heightOfB && sensorATile != null)
-            {
-                YPos = sensorATile.YPos - heightOfA - 20;
-                Angle = angleOfA;
-                
-            }
-            else if(heightOfB > heightOfA && sensorBTile != null)
-            {
-                YPos = sensorBTile.YPos - heightOfB - 20;
-                Angle = angleOfB;
-            }
 
             return;
             
