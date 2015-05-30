@@ -54,6 +54,7 @@ namespace NotSonic.Components
         public float Gravity = 0.21875f;
         public float Angle = 0.0f;
         public float SlopeFactor = 0.0f;
+        public float CurrentHeight = 20.0f;
 
         // Position in world
         public float XPos = 0.0f;
@@ -74,17 +75,13 @@ namespace NotSonic.Components
         public override void Added()
         {
             XPos = Entity.X + 16;
-            YPos = Entity.Y;
+            YPos = Entity.Y + CurrentHeight;
             base.Added();
         }
 
         public float HexAngleToDec(int hexangle)
         {
             return (hexangle) * 1.40625f;
-
-            // D = (256 - H) * 1.4...
-            // D / 1.4 = (256 - H)
-            // (D / 1.4) - 256 = -H
         }
 
 
@@ -124,7 +121,15 @@ namespace NotSonic.Components
                     }
                 }
 
-
+                // Check heights
+                if(Rolling)
+                {
+                    CurrentHeight = 15;
+                }
+                else
+                {
+                    CurrentHeight = 20;
+                }
 
 
                 // Slope factor is added to Ground Speed. This slows sonic when moving uphill, and speeds him up when moving downhill.
@@ -140,7 +145,7 @@ namespace NotSonic.Components
 
             // Apply to parent ent
             Entity.X = XPos - 16;
-            Entity.Y = YPos;
+            Entity.Y = YPos - CurrentHeight;
 
             // Check left/right flip
             if(XSpeed > 0)
@@ -171,7 +176,7 @@ namespace NotSonic.Components
         public void CheckWallSensor()
         {
             // Check for tiles that are at the sides of sonic, relative to Y+4.
-            float LineY = YPos + 4;
+            float LineY = YPos - 4;
 
             // Left and Right edges are at +-10 on the X axis.
             float LineXLeft = XPos - 10;
@@ -222,12 +227,12 @@ namespace NotSonic.Components
             // Sensor A: Positioned at -9, 0 to -9, 20.
             float SensorAX = XPos - 9;
             float SensorATop = YPos + 0;
-            float SensorABottom = YPos + 40;
+            float SensorABottom = YPos + 0 + 20;
 
             // Sensor B: Positioned at 9, 0 to 9, 20.
             float SensorBX = XPos + 9;
             float SensorBTop = YPos + 0;
-            float SensorBBottom = YPos + 40;
+            float SensorBBottom = YPos + 0 + 20;
 
             // The tiles that will be located.
             Tile sensorATile = null;
@@ -324,16 +329,20 @@ namespace NotSonic.Components
                     angleOfB = sensorBTile.Angle;
                 }
 
-                if (heightOfA >= heightOfB && sensorATile != null)
-                {
-                    YPos = sensorATile.YPos - heightOfA - 20;
-                    Angle = angleOfA;
 
-                }
-                else if (heightOfB > heightOfA && sensorBTile != null)
+                if (CurrentMoveType == MoveType.GROUND)
                 {
-                    YPos = sensorBTile.YPos - heightOfB - 20;
-                    Angle = angleOfB;
+                    if (heightOfA >= heightOfB && sensorATile != null)
+                    {
+                        YPos = sensorATile.YPos + 16 - heightOfA - 20;
+                        Angle = angleOfA;
+
+                    }
+                    else if (heightOfB > heightOfA && sensorBTile != null)
+                    {
+                        YPos = sensorBTile.YPos + 16 - heightOfB - 20;
+                        Angle = angleOfB;
+                    }
                 }
 
 
