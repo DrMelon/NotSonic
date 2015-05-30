@@ -45,6 +45,8 @@ namespace NotSonic
             Global.playerSession.GetController<SegaController>().Down.AddKey(Key.Down);
 
 
+            Global.theGame.FirstScene = new LevelScene();
+            Global.theGame.Color = new Color("736763");
 
             // Begin otter!
             Global.theGame.Start();

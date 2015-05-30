@@ -16,7 +16,7 @@ using Otter;
 
 namespace NotSonic.Components
 {
-    class Tile
+    class Tile : Entity
     {
         public int[] flatheightArray = new int[16];
         public int[] wallheightArray = new int[16];
@@ -29,6 +29,21 @@ namespace NotSonic.Components
         public float Angle;
 
         // Otter image etc
+        public Image spriteImage;
 
+        public Tile(float x = 0, float y = 0)
+        {
+            X = x;
+            Y = y;
+
+            spriteImage = new Image(Assets.EXAMPLE_TILE);
+            XPos = (int)X;
+            YPos = (int)Y;
+
+            Angle = 0.0f;
+
+            Graphic = spriteImage;
+            
+        }
     }
 }

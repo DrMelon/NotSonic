@@ -20,7 +20,7 @@ namespace NotSonic.Components
 {
     class Sensor
     {
-        struct CollisionInfo
+        public struct CollisionInfo
         {
             // Whether this collision is valid or not
             public bool thisIsNull;

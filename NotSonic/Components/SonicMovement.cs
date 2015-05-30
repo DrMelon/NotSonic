@@ -18,14 +18,14 @@ namespace NotSonic.Components
     class SonicMovement : Component
     {
         // Sonic has multiple movement types.
-        enum MoveType
+        public enum MoveType
         {
             GROUND,
             AIR
         }
 
         // Sonic also has multiple ground directions (floor mode, wall modes, etc)
-        enum FloorMode
+        public enum FloorMode
         {
             FLOOR, 
             RIGHTWALL, 
@@ -45,11 +45,13 @@ namespace NotSonic.Components
         public float GroundSpeed = 0.0f; // GroundSpeed tracks momentum - it's used to calculate how fast sonic is going to move along the ground.
         public float XSpeed = 0.0f;
         public float YSpeed = 0.0f;
-        public float Acceleration = 0.0f;
-        public float Deceleration = 0.0f;
-        public float Friction = 0.0f;
-        public float JumpVelocity = 0.0f;
-        public float Gravity = 0.0f;
+        public float Acceleration = 0.046875f;
+        public float Deceleration = 0.5f;
+        public float AirAccel = 0.09375f;
+        public float Friction = 0.046875f;
+        public float TopSpeed = 6.0f;
+        public float JumpVelocity = -6.5f;
+        public float Gravity = 0.21875f;
         public float Angle = 0.0f;
         public float SlopeFactor = 0.0f;
 
@@ -63,7 +65,16 @@ namespace NotSonic.Components
         // Are we rolling?
         public bool Rolling = false;
 
+        // Mid-jump?
+        public bool Jumping = false;
+
         #region Public Methods
+
+        public SonicMovement()
+        {
+            XPos = Entity.X;
+            YPos = Entity.Y;
+        }
 
         /// <summary>
         /// Updates the Movement.
@@ -72,8 +83,12 @@ namespace NotSonic.Components
         {
             base.Update();
 
-            // Check sensors for solid ground:
+            // Handle input
+            HandleInput();
 
+            // Check sensors for solid ground:
+            CheckGroundSensors();
+            CheckWallSensor();
 
             // Update Slope Factor
             if (CurrentMoveType != MoveType.AIR)
@@ -96,16 +111,24 @@ namespace NotSonic.Components
                         SlopeFactor = 0.3125f;
                     }
                 }
+
+
+
+
+                // Slope factor is added to Ground Speed. This slows sonic when moving uphill, and speeds him up when moving downhill.
+                GroundSpeed += SlopeFactor * (float)Math.Sin(Angle);
+
+                // Use ground speed to calculate the X and Y Speeds.
+                XSpeed = GroundSpeed * (float)Math.Cos(Angle);
+                YSpeed = GroundSpeed * -(float)Math.Sin(Angle);
             }
-            // Slope factor is added to Ground Speed. This slows sonic when moving uphill, and speeds him up when moving downhill.
-            GroundSpeed += SlopeFactor * (float)Math.Sin(Angle);
-            
-            // Use ground speed to calculate the X and Y Speeds.
-            XSpeed = GroundSpeed * (float)Math.Cos(Angle);
-            YSpeed = GroundSpeed * -(float)Math.Sin(Angle);
 
             XPos += XSpeed;
             YPos += YSpeed;
+
+            // Apply to parent ent
+            Entity.X = XPos;
+            Entity.Y = YPos;
         }
 
         public void Jump()
@@ -113,6 +136,7 @@ namespace NotSonic.Components
             // When sonic jumps, we need to make sure we jump perpendicular to the angle of travel.
             XSpeed -= JumpVelocity * (float)Math.Sin(Angle);
             YSpeed -= JumpVelocity * (float)Math.Cos(Angle);
+            Jumping = true;
         }
 
         // Sensor checks. [MESSY]
@@ -248,6 +272,13 @@ namespace NotSonic.Components
             else
             {
                 // At least one was encountered, we must be on the ground.
+
+                // If we were in the air, reset the groundspeed.
+                if(CurrentMoveType == MoveType.AIR)
+                {
+                    CurrentMoveType = MoveType.GROUND;
+                    GroundSpeed = XSpeed;
+                }
             }
 
             // Store collision info
@@ -285,6 +316,154 @@ namespace NotSonic.Components
 
             return;
             
+        }
+
+        public void HandleInput()
+        {
+            // Get ref to controller
+            NotSonic.System.SegaController theController = Global.playerSession.GetController<NotSonic.System.SegaController>();
+
+            /// Check d-pad.
+            /// GROUND:
+            if (CurrentMoveType == MoveType.GROUND)
+            {
+                /// RUNNING:
+                if (!Rolling)
+                {
+                    if (theController.Left.Down)
+                    {
+                        if (GroundSpeed > 0) //Heading right, now going left
+                        {
+                            GroundSpeed -= Deceleration;
+                        }
+                        else if (GroundSpeed > -TopSpeed)
+                        {
+                            // Zoom!
+                            GroundSpeed -= Acceleration;
+                        }
+                        else
+                        {
+                            GroundSpeed = -TopSpeed;
+                        }
+
+                    }
+                    else if (theController.Right.Down)
+                    {
+                        if (GroundSpeed < 0)
+                        {
+                            GroundSpeed += Deceleration;
+                        }
+                        else if (GroundSpeed < TopSpeed)
+                        {
+                            GroundSpeed += Acceleration;
+                        }
+                        else
+                        {
+                            GroundSpeed = TopSpeed;
+                        }
+                    }
+                    else
+                    {
+                        // FRICTION
+                        if (Math.Abs(GroundSpeed) < Friction)
+                        {
+                            GroundSpeed = 0;
+                        }
+                        else
+                        {
+                            GroundSpeed -= Friction * Math.Sign(GroundSpeed);
+                        }
+
+                    }
+                }
+                else //ROLLING
+                {
+                    // Can only DECELERATE while rolling.
+                    if (Global.playerSession.GetController<NotSonic.System.SegaController>().Left.Down)
+                    {
+                        if (GroundSpeed > 0) //Heading right, now going left
+                        {
+                            GroundSpeed -= 0.125f;
+                        }
+
+                    }
+                    else if (Global.playerSession.GetController<NotSonic.System.SegaController>().Right.Down)
+                    {
+                        if (GroundSpeed < 0)
+                        {
+                            GroundSpeed += 0.125f;
+                        }
+                    }
+
+
+                    // FRICTION is always active during rolling.
+                    if (Math.Abs(GroundSpeed) < Friction / 2)
+                    {
+                        GroundSpeed = 0;
+                        Rolling = false;
+                    }
+                    else
+                    {
+                        GroundSpeed -= (Friction / 2) * Math.Sign(GroundSpeed);
+                    }
+                }
+
+
+                // Check for jump.
+                if(theController.A.Pressed || theController.B.Pressed || theController.C.Pressed)
+                {
+                    Jump();
+                }
+
+                // Roll up
+                if(theController.Down.Pressed && !Rolling && Math.Abs(GroundSpeed) > 1.03125)
+                {
+                    Rolling = true;
+                }
+
+            }
+            else
+            {
+                // AIR MODE
+                if(theController.Left.Down)
+                {
+                    XSpeed -= AirAccel;
+                }
+                else if(theController.Right.Down)
+                {
+                    XSpeed += AirAccel;
+                }
+
+                // Air Drag
+                if (YSpeed < 0 && YSpeed > -4.0f)
+                {
+                    if (Math.Abs(XSpeed) >= 0.125f)
+                    {
+                        XSpeed *= 0.96875f;
+                    }
+                }
+
+
+                // Gravity is applied to Y-velocity
+                YSpeed += Gravity;
+                if(YSpeed > 16.0f)
+                {
+                    // SonicCD fall speed limit
+                    //YSpeed = 16.0f;
+                }
+
+                // Cut jump short if no jump buttons held
+                if(Jumping && !theController.A.Down && !theController.B.Down && !theController.C.Down)
+                {
+                    Jumping = false;
+                    if(YSpeed < -4.0f)
+                    {
+                        YSpeed = -4.0f;
+                    }
+                }
+
+
+            }
         }
        
         #endregion
