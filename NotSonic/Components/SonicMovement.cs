@@ -118,7 +118,7 @@ namespace NotSonic.Components
 
 
                 // Slope factor is added to Ground Speed. This slows sonic when moving uphill, and speeds him up when moving downhill.
-                GroundSpeed += SlopeFactor * (float)Math.Sin(Angle);
+                GroundSpeed += SlopeFactor * -(float)Math.Sin(Angle);
 
                 // Use ground speed to calculate the X and Y Speeds.
                 XSpeed = GroundSpeed * (float)Math.Cos(Angle);
@@ -131,6 +131,16 @@ namespace NotSonic.Components
             // Apply to parent ent
             Entity.X = XPos - 16;
             Entity.Y = YPos;
+
+            // Check left/right flip
+            if(XSpeed > 0)
+            {
+                FacingRight = true;
+            }
+            if(XSpeed < 0)
+            {
+                FacingRight = false;
+            }
         }
 
         public void Jump()
@@ -143,6 +153,7 @@ namespace NotSonic.Components
             Otter.Debugger.Instance.Log("Tried to jump!");
             Otter.Debugger.Instance.Log(XSpeed);
             Otter.Debugger.Instance.Log(YSpeed);
+            Otter.Debugger.Instance.Log(Angle);
         }
 
         // Sensor checks. [MESSY]
@@ -150,7 +161,7 @@ namespace NotSonic.Components
         public void CheckWallSensor()
         {
             // Check for tiles that are at the sides of sonic, relative to Y+4.
-            float LineY = YPos + 20 + 4;
+            float LineY = YPos + 4;
 
             // Left and Right edges are at +-10 on the X axis.
             float LineXLeft = XPos - 10;
@@ -283,6 +294,7 @@ namespace NotSonic.Components
                 if(CurrentMoveType == MoveType.AIR && YSpeed >= 0)
                 {
                     CurrentMoveType = MoveType.GROUND;
+                    Rolling = false;
                     GroundSpeed = XSpeed;
                 }
             }
@@ -297,26 +309,30 @@ namespace NotSonic.Components
             {
                 // Capture sensor A's result.
                 int heightMapArrayIndex = (int)SensorAX - sensorATile.XPos;
+                heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
                 heightOfA = sensorATile.flatheightArray[heightMapArrayIndex];
                 angleOfA = sensorATile.Angle;
+          
 
             }
             if(sensorBTile != null)
             {
                 // Capture sensor B's result.
                 int heightMapArrayIndex = (int)SensorBX - sensorBTile.XPos;
+                heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
                 heightOfB = sensorBTile.flatheightArray[heightMapArrayIndex];
                 angleOfB = sensorBTile.Angle;
             }
 
             if(heightOfA >= heightOfB && sensorATile != null)
             {
-                YPos = sensorATile.YPos - heightOfA - 40;
+                YPos = sensorATile.YPos - heightOfA - 20;
                 Angle = angleOfA;
+                
             }
             else if(heightOfB > heightOfA && sensorBTile != null)
             {
-                YPos = sensorBTile.YPos - heightOfB - 40;
+                YPos = sensorBTile.YPos - heightOfB - 20;
                 Angle = angleOfB;
             }
 
@@ -419,10 +435,12 @@ namespace NotSonic.Components
                 if(theController.A.Pressed || theController.B.Pressed || theController.C.Pressed)
                 {
                     Jump();
+                    // Voluntary jumps = rolling state...
+                    Rolling = true;
                 }
 
                 // Roll up
-                if(theController.Down.Pressed && !Rolling && Math.Abs(GroundSpeed) > 1.03125)
+                if(theController.Down.Down && !Rolling && Math.Abs(GroundSpeed) > 1.03125)
                 {
                     Rolling = true;
                 }

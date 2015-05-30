@@ -31,16 +31,19 @@ namespace NotSonic.Components
         // Otter image etc
         public Image spriteImage;
 
-        public Tile(float x = 0, float y = 0)
+        public Tile(float x, float y, float ang, int[] fha)
         {
             X = x;
             Y = y;
+            Angle = ang;
+            flatheightArray = fha;
+            
 
             spriteImage = new Image(Assets.EXAMPLE_TILE);
             XPos = (int)X;
             YPos = (int)Y;
 
-            Angle = 0.0f;
+            
 
             Graphic = spriteImage;
             

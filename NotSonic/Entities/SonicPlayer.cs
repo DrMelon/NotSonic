@@ -24,6 +24,7 @@ namespace NotSonic.Entities
             // Create sprites
             spriteSheet = new Spritemap<string>(Assets.SONIC_SHEET, 32, 40);
             spriteSheet.Add("idle", new int[] { 0 }, new float[] { 6f });
+            spriteSheet.Add("roll", new int[] { 1 }, new float[] { 6f });
             spriteSheet.Play("idle");
             Graphic = spriteSheet;
 
@@ -39,7 +40,23 @@ namespace NotSonic.Entities
 
         public override void Update()
         {
+            UpdateAnimations();
             base.Update();
+        }
+
+        public void UpdateAnimations()
+        {
+
+            spriteSheet.FlippedX = !myMovement.FacingRight;
+
+            if(myMovement.Rolling)
+            {
+                spriteSheet.Play("roll");
+            }
+            else
+            {
+                spriteSheet.Play("idle");
+            }
         }
 
     }

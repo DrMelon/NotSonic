@@ -62,6 +62,7 @@
     <Compile Include="Components\Tile.cs" />
     <Compile Include="Entities\SonicPlayer.cs" />
     <Compile Include="Global.cs" />
+    <Compile Include="HeightArrays.cs" />
     <Compile Include="LevelScene.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
