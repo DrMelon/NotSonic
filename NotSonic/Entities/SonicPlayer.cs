@@ -29,6 +29,7 @@ namespace NotSonic.Entities
 
             // Create movement
             myMovement = new Components.SonicMovement();
+            myMovement.TileList = tileList;
             AddComponent(myMovement);
 
             // Add to pausable objects group

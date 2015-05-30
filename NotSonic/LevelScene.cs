@@ -40,8 +40,13 @@ namespace NotSonic
             tileList.Add(new Components.Tile(64 + 32, 64));
             tileList.Add(new Components.Tile(64 + 32 + 16, 64));
             tileList.Add(new Components.Tile(64 + 64, 64));
+            tileList.Add(new Components.Tile(64 + 64 + 16, 64 + 16));
+            tileList.Add(new Components.Tile(64 + 64 + 32, 64 + 16));
+            tileList.Add(new Components.Tile(64 + 64 + 64, 64 + 32));
+            tileList.Add(new Components.Tile(64 + 64 + 64 + 16, 64 + 32));
 
-            thePlayer = new Entities.SonicPlayer(tileList, 65, 60);
+
+            thePlayer = new Entities.SonicPlayer(tileList, 70, 32);
             
             foreach(NotSonic.Components.Tile t in tileList)
             {

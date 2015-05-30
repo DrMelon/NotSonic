@@ -50,7 +50,7 @@ namespace NotSonic.Components
         public float AirAccel = 0.09375f;
         public float Friction = 0.046875f;
         public float TopSpeed = 6.0f;
-        public float JumpVelocity = -6.5f;
+        public float JumpVelocity = 6.5f;
         public float Gravity = 0.21875f;
         public float Angle = 0.0f;
         public float SlopeFactor = 0.0f;
@@ -70,10 +70,12 @@ namespace NotSonic.Components
 
         #region Public Methods
 
-        public SonicMovement()
+
+        public override void Added()
         {
-            XPos = Entity.X;
+            XPos = Entity.X + 16;
             YPos = Entity.Y;
+            base.Added();
         }
 
         /// <summary>
@@ -127,7 +129,7 @@ namespace NotSonic.Components
             YPos += YSpeed;
 
             // Apply to parent ent
-            Entity.X = XPos;
+            Entity.X = XPos - 16;
             Entity.Y = YPos;
         }
 
@@ -137,6 +139,10 @@ namespace NotSonic.Components
             XSpeed -= JumpVelocity * (float)Math.Sin(Angle);
             YSpeed -= JumpVelocity * (float)Math.Cos(Angle);
             Jumping = true;
+            CurrentMoveType = MoveType.AIR;
+            Otter.Debugger.Instance.Log("Tried to jump!");
+            Otter.Debugger.Instance.Log(XSpeed);
+            Otter.Debugger.Instance.Log(YSpeed);
         }
 
         // Sensor checks. [MESSY]
@@ -144,7 +150,7 @@ namespace NotSonic.Components
         public void CheckWallSensor()
         {
             // Check for tiles that are at the sides of sonic, relative to Y+4.
-            float LineY = YPos + 4;
+            float LineY = YPos + 20 + 4;
 
             // Left and Right edges are at +-10 on the X axis.
             float LineXLeft = XPos - 10;
@@ -173,7 +179,7 @@ namespace NotSonic.Components
                         if(tile.XPos < XPos)
                         {
                             // Pop sonic to the right by the requisite amount.
-                            XPos += (XPos - (tile.XPos + 16.0f)) + 1;
+                            XPos += (XPos - (tile.XPos + 16.0f)) + 1 - 10.0f;
                         }
                         else
                         {
@@ -195,12 +201,12 @@ namespace NotSonic.Components
             // Sensor A: Positioned at -9, 0 to -9, 20.
             float SensorAX = XPos - 9;
             float SensorATop = YPos + 0;
-            float SensorABottom = YPos + 20;
+            float SensorABottom = YPos + 40;
 
             // Sensor B: Positioned at 9, 0 to 9, 20.
             float SensorBX = XPos + 9;
             float SensorBTop = YPos + 0;
-            float SensorBBottom = YPos + 20;
+            float SensorBBottom = YPos + 40;
 
             // The tiles that will be located.
             Tile sensorATile = null;
@@ -274,7 +280,7 @@ namespace NotSonic.Components
                 // At least one was encountered, we must be on the ground.
 
                 // If we were in the air, reset the groundspeed.
-                if(CurrentMoveType == MoveType.AIR)
+                if(CurrentMoveType == MoveType.AIR && YSpeed >= 0)
                 {
                     CurrentMoveType = MoveType.GROUND;
                     GroundSpeed = XSpeed;
@@ -305,12 +311,12 @@ namespace NotSonic.Components
 
             if(heightOfA >= heightOfB && sensorATile != null)
             {
-                YPos = sensorATile.YPos - heightOfA - 20;
+                YPos = sensorATile.YPos - heightOfA - 40;
                 Angle = angleOfA;
             }
             else if(heightOfB > heightOfA && sensorBTile != null)
             {
-                YPos = sensorBTile.YPos - heightOfB - 20;
+                YPos = sensorBTile.YPos - heightOfB - 40;
                 Angle = angleOfB;
             }
 
