@@ -206,14 +206,14 @@ namespace NotSonic.Components
             {
                 // Our line goes from -10, 4 to 10, 4. If anything intersects this, it's a collision to sonic's sides.
                 // It's easiest to check if something is OUTSIDE a collision...
-                if(tile.XPos + 16.0f < LineXLeft || tile.XPos > LineXRight)
+                if(tile.X + 16.0f < LineXLeft || tile.X > LineXRight)
                 {
                     //nada
                 }
                 else
                 {
                     // Make sure the Y position is in range.
-                    if(tile.YPos + 16.0f < LineY || tile.YPos > LineY)
+                    if(tile.Y + 16.0f < LineY || tile.Y > LineY)
                     {
                         //nada
                     }
@@ -221,15 +221,15 @@ namespace NotSonic.Components
                     {
                         // Collision, cap'n!
                         // Now, if the collision is on the left of sonic...
-                        if(tile.XPos < XPos)
+                        if(tile.X < XPos)
                         {
                             // Pop sonic to the right by the requisite amount.
-                            XPos += (XPos - (tile.XPos + 16.0f)) + 1 - 10.0f;
+                            XPos += (XPos - (tile.X + 16.0f)) + 1 - 10.0f;
                         }
                         else
                         {
                             // Pop sonic to the left
-                            XPos -= (tile.XPos - XPos) - 1;
+                            XPos -= (tile.X - XPos) - 1;
                         }
 
                         // Set ground speed to 0
@@ -262,14 +262,14 @@ namespace NotSonic.Components
             foreach (Tile tile in TileList)
             {
                 // It's easiest to check if something is OUTSIDE a collision...
-                if (tile.YPos + 16.0f < SensorATop || tile.YPos > SensorABottom)
+                if (tile.Y + 16.0f < SensorATop || tile.Y > SensorABottom)
                 {
                     //nada
                 }
                 else
                 {
                     // Make sure the Y position is in range.
-                    if (tile.XPos + 16.0f < SensorAX || tile.XPos > SensorAX)
+                    if (tile.X + 16.0f < SensorAX || tile.X > SensorAX)
                     {
                         //nada
                     }
@@ -289,14 +289,14 @@ namespace NotSonic.Components
             foreach (Tile tile in TileList)
             {
                 // It's easiest to check if something is OUTSIDE a collision...
-                if (tile.YPos + 16.0f < SensorBTop || tile.YPos > SensorBBottom)
+                if (tile.Y + 16.0f < SensorBTop || tile.Y > SensorBBottom)
                 {
                     //nada
                 }
                 else
                 {
                     // Make sure the Y position is in range.
-                    if (tile.XPos + 16.0f < SensorBX || tile.XPos > SensorBX)
+                    if (tile.X + 16.0f < SensorBX || tile.X > SensorBX)
                     {
                         //nada
                     }
@@ -334,22 +334,33 @@ namespace NotSonic.Components
                 if (sensorATile != null)
                 {
                     // Capture sensor A's result.
-                    int heightMapArrayIndex = (int)SensorAX - sensorATile.XPos;
+                    int heightMapArrayIndex = (int)SensorAX - (int)sensorATile.X;
                     heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
-                    heightOfA = sensorATile.flatheightArray[heightMapArrayIndex];
-                    fullheightOfA = heightOfA + (1600- sensorATile.YPos);
-                    angleOfA = sensorATile.Angle;
+                    heightOfA = sensorATile.myTileInfo.flatheightArray[heightMapArrayIndex];
+                    fullheightOfA = heightOfA + (1600 - (int)sensorATile.Y);
+                    angleOfA = sensorATile.myTileInfo.Angle;
 
+                    // If the tile is empty of collision, don't collide with it. Duh!
+                    if(heightOfA == 0)
+                    {
+                        sensorATile = null;
+                    }
 
                 }
                 if (sensorBTile != null)
                 {
                     // Capture sensor B's result.
-                    int heightMapArrayIndex = (int)SensorBX - sensorBTile.XPos;
+                    int heightMapArrayIndex = (int)SensorBX - (int)sensorBTile.X;
                     heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
-                    heightOfB = sensorBTile.flatheightArray[heightMapArrayIndex];
-                    fullheightOfB = heightOfB + (1600 - sensorBTile.YPos);
-                    angleOfB = sensorBTile.Angle;
+                    heightOfB = sensorBTile.myTileInfo.flatheightArray[heightMapArrayIndex];
+                    fullheightOfB = heightOfB + (1600 - (int)sensorBTile.Y);
+                    angleOfB = sensorBTile.myTileInfo.Angle;
+
+                    // If the tile is empty of collision, don't collide with it. Duh!
+                    if (heightOfB == 0)
+                    {
+                        sensorBTile = null;
+                    }
                 }
 
 
@@ -357,13 +368,13 @@ namespace NotSonic.Components
                 {
                     if (fullheightOfA >= fullheightOfB && sensorATile != null)
                     {
-                        YPos = sensorATile.YPos + 16 - heightOfA - 20;
+                        YPos = sensorATile.Y + 16 - heightOfA - 20;
                         Angle = angleOfA;
 
                     }
                     else if(sensorBTile != null)
                     {
-                        YPos = sensorBTile.YPos + 16 - heightOfB - 20;
+                        YPos = sensorBTile.Y + 16 - heightOfB - 20;
                         Angle = angleOfB;
                     }
                 }

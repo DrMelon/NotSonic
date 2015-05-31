@@ -67,16 +67,16 @@ namespace NotSonic.Components
             foreach (Tile currentTile in tileList)
             {
                 // Are we colliding on the Y-Axis, by checking X's?
-                if(!(EndX < currentTile.XPos || StartX > currentTile.XPos + 16.0f))
+                if(!(EndX < currentTile.X || StartX > currentTile.X + 16.0f))
                 {
                     newCollision.tileHit = currentTile;
-                    newCollision.Distance = currentTile.XPos - StartX;
+                    newCollision.Distance = currentTile.X - StartX;
                     newCollision.thisIsNull = false;
                     // Are we colliding on the X-Axis, by checking Y's?
-                    if (!(EndY < currentTile.YPos || StartY > currentTile.YPos + 16.0f))
+                    if (!(EndY < currentTile.Y || StartY > currentTile.Y + 16.0f))
                     {
                         newCollision.tileHit = currentTile;
-                        newCollision.Distance = currentTile.YPos - StartY;
+                        newCollision.Distance = currentTile.Y - StartY;
                         newCollision.thisIsNull = false;
                         break;
                     }
