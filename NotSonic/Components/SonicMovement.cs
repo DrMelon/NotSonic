@@ -257,7 +257,7 @@ namespace NotSonic.Components
 
             // Left and Right edges are at +-10 on the X axis.
             wallSensor.BPos1 = XPos - 10;
-            wallSensor.BPos2 = XPos + 11;
+            wallSensor.BPos2 = XPos + 10;
 
             
 
@@ -277,7 +277,8 @@ namespace NotSonic.Components
                     XPos = colInfo.tileHit.X - 11.0f;
                 }
 
-                // Set ground speed to 0
+                // Set ground speed to 0 if pushing at it
+               
                 GroundSpeed = 0;
             }
 
