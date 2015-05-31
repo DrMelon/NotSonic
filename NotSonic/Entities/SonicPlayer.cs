@@ -52,7 +52,7 @@ namespace NotSonic.Entities
             spriteSheet.FlippedX = !myMovement.FacingRight;
             spriteSheet.FlippedY = !myMovement.FacingUp;
 
-         
+            //myMovement.CurrentFloorMode = NotSonic.Components.SonicMovement.FloorMode.LEFTWALL;
 
             // Rotations
             if (myMovement.CurrentFloorMode == NotSonic.Components.SonicMovement.FloorMode.FLOOR)

@@ -49,6 +49,8 @@ namespace NotSonic.Components
         // Need a way to locate nearby tiles in the tile list, rather than iterating. Iterating will do for now.
         public CollisionInfo Sense(List<Tile> tileList)
         {
+            
+
             // Initialize new collision.
             CollisionInfo newCollision = new CollisionInfo();
             newCollision.tileHit = null;
@@ -59,6 +61,9 @@ namespace NotSonic.Components
             // Vertical
             if(verticalSensor)
             {
+
+
+
                 foreach (Tile tile in tileList)
                 {
                     // It's easiest to check if something is OUTSIDE a collision...
@@ -89,6 +94,8 @@ namespace NotSonic.Components
             // Horizontal
             else
             {
+
+
                 foreach (Tile tile in tileList)
                 {
                     // It's easiest to check if something is OUTSIDE a collision...

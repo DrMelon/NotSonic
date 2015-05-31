@@ -123,7 +123,11 @@ namespace NotSonic.Components
 
             // Check sensors for solid ground:
             CheckGroundSensors();
-            CheckWallSensor();
+
+            if (CurrentFloorMode == FloorMode.FLOOR)
+            {
+                CheckWallSensor();
+            }
 
             // Update Slope Factor
             if (CurrentMoveType != MoveType.AIR)
@@ -148,7 +152,7 @@ namespace NotSonic.Components
                 }
 
                 // Check heights
-                if(Rolling)
+                if (Rolling)
                 {
                     CurrentHeight = 15;
                 }
@@ -159,11 +163,10 @@ namespace NotSonic.Components
 
 
                 // Slope factor is added to Ground Speed. This slows sonic when moving uphill, and speeds him up when moving downhill.
-                GroundSpeed += SlopeFactor * -(float)Math.Sin(Angle);
+                GroundSpeed += SlopeFactor * -(float)Math.Sin(Angle * Math.PI / 180.0f);
 
-                // Use ground speed to calculate the X and Y Speeds.
-                XSpeed = GroundSpeed * (float)Math.Cos(Angle);
-                YSpeed = GroundSpeed * -(float)Math.Sin(Angle);
+                XSpeed = GroundSpeed * (float)Math.Cos(Angle * Math.PI / 180.0f);
+                YSpeed = GroundSpeed * -(float)Math.Sin(Angle * Math.PI / 180.0f);
             }
 
             // Slow down spindash amt
@@ -173,9 +176,31 @@ namespace NotSonic.Components
                 CurrentSpindashStrength = 0.0f;
             }
 
+
             XPos += XSpeed;
             YPos += YSpeed;
 
+            // Check Mode- Going Right, Hit Ramp, Going up!
+            if(Angle >= 45.0f && GroundSpeed > 0 && Angle < 180.0f)
+            {
+                if(CurrentFloorMode == FloorMode.FLOOR)
+                {
+                    // On the right wall
+                    CurrentFloorMode = FloorMode.RIGHTWALL;
+                }
+            }
+
+            // Check speed
+            if(Math.Abs(GroundSpeed) < 2.5 && CurrentFloorMode != FloorMode.FLOOR)
+            {
+                CurrentFloorMode = FloorMode.FLOOR;
+            }
+
+            if(CurrentMoveType == MoveType.AIR)
+            {
+                CurrentFloorMode = FloorMode.FLOOR;
+            }
+            
             // Apply to parent ent
             Entity.X = XPos;
             Entity.Y = YPos;
@@ -193,10 +218,11 @@ namespace NotSonic.Components
         public void Jump()
         {
             // When sonic jumps, we need to make sure we jump perpendicular to the angle of travel.
-            XSpeed -= JumpVelocity * (float)Math.Sin(Angle);
-            YSpeed -= JumpVelocity * (float)Math.Cos(Angle);
+            XSpeed -= JumpVelocity * (float)Math.Sin(Angle * Math.PI / 180.0f);
+            YSpeed -= JumpVelocity * (float)Math.Cos(Angle * Math.PI / 180.0f);
             Jumping = true;
             CurrentMoveType = MoveType.AIR;
+            CurrentFloorMode = FloorMode.FLOOR; // switch to falling
 
         }
 
@@ -204,27 +230,33 @@ namespace NotSonic.Components
 
         public void CheckWallSensor()
         {
+            // debug only
+            return;
+            
+            
             // Check for tiles that are at the sides of sonic, relative to Y+4.
             wallSensor.APos = YPos - 4;
 
             // Left and Right edges are at +-10 on the X axis.
-            wallSensor.BPos1 = XPos - 10;
-            wallSensor.BPos2 = XPos + 10;
+            wallSensor.BPos1 = XPos - 6;
+            wallSensor.BPos2 = XPos + 6;
+
+            
 
             Sensor.CollisionInfo colInfo = wallSensor.Sense(TileList);
             if (!colInfo.thisIsNull)
             {
                 // Collision, cap'n!
                 // Now, if the collision is on the left of sonic...
-                if (colInfo.tileHit.X < XPos)
+                if (colInfo.tileHit.X <= XPos)
                 {
                     // Pop sonic to the right by the requisite amount.
-                    XPos += (XPos - (colInfo.tileHit.X + 16.0f)) + 1 - 10.0f;
+                    XPos = colInfo.tileHit.X + 16.0f + 6.0f;
                 }
                 else
                 {
                     // Pop sonic to the left
-                    XPos -= (colInfo.tileHit.X - XPos) - 1;
+                    XPos = colInfo.tileHit.X - 6.0f;
                 }
 
                 // Set ground speed to 0
@@ -235,6 +267,9 @@ namespace NotSonic.Components
 
         public void CheckGroundSensors()
         {
+
+
+
             // Check Mode.
             if(CurrentFloorMode == FloorMode.FLOOR)
             {
@@ -291,7 +326,7 @@ namespace NotSonic.Components
                 groundSensorB.verticalSensor = false;
             }
 
-
+            
 
 
             // The tiles that will be located.
@@ -306,13 +341,14 @@ namespace NotSonic.Components
             sensorATile = colInfoA.tileHit;
             sensorBTile = colInfoB.tileHit;
 
-
+            
 
             // Now that we've checked for the sensor tiles, let's have a look...
             if(sensorATile == null && sensorBTile == null)
             {
                 // We didn't collide with anything. WE'RE FALLING AAARGH
                 CurrentMoveType = MoveType.AIR;
+                CurrentFloorMode = FloorMode.FLOOR;
                 return;
             }
             else
@@ -401,21 +437,21 @@ namespace NotSonic.Components
                     {
                         // Capture sensor A's result.
                         int heightMapArrayIndex = (int)groundSensorA.APos - (int)sensorATile.Y;
-                        if (CurrentFloorMode == FloorMode.CEILING)
+                        if (CurrentFloorMode == FloorMode.LEFTWALL)
                         {
                             heightMapArrayIndex = 15 - heightMapArrayIndex;
                         }
                         heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
 
                         heightOfA = sensorATile.myTileInfo.wallheightArray[heightMapArrayIndex];
-                        if (CurrentFloorMode == FloorMode.CEILING)
+                        if (CurrentFloorMode == FloorMode.LEFTWALL)
                         {
                             heightOfA = 16 - heightOfA;
                         }
 
 
                         fullheightOfA = heightOfA + (1600 - (int)sensorATile.X);
-                        if (CurrentFloorMode == FloorMode.CEILING)
+                        if (CurrentFloorMode == FloorMode.LEFTWALL)
                         {
                             fullheightOfA = heightOfA + (int)sensorATile.X;
                         }
@@ -434,21 +470,21 @@ namespace NotSonic.Components
                     {
                         // Capture sensor B's result.
                         int heightMapArrayIndex = (int)groundSensorB.APos - (int)sensorBTile.Y;
-                        if (CurrentFloorMode == FloorMode.CEILING)
+                        if (CurrentFloorMode == FloorMode.LEFTWALL)
                         {
                             heightMapArrayIndex = 15 - heightMapArrayIndex;
                         }
                         heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
 
                         heightOfB = sensorBTile.myTileInfo.wallheightArray[heightMapArrayIndex];
-                        if (CurrentFloorMode == FloorMode.CEILING)
+                        if (CurrentFloorMode == FloorMode.LEFTWALL)
                         {
                             heightOfB = 16 - heightOfB;
                         }
 
 
                         fullheightOfB = heightOfB + (1600 - (int)sensorBTile.X);
-                        if (CurrentFloorMode == FloorMode.CEILING)
+                        if (CurrentFloorMode == FloorMode.LEFTWALL)
                         {
                             fullheightOfB = heightOfB + (int)sensorBTile.X;
                         }
@@ -462,20 +498,40 @@ namespace NotSonic.Components
                     }
                 }
 
-
+                if (sensorATile == null && sensorBTile == null)
+                {
+                    // We didn't collide with anything. WE'RE FALLING AAARGH
+                    CurrentMoveType = MoveType.AIR;
+                    CurrentFloorMode = FloorMode.FLOOR;
+                    return;
+                }
 
 
                 if (CurrentMoveType == MoveType.GROUND || YSpeed >= 0)
                 {
                     if (fullheightOfA >= fullheightOfB && sensorATile != null)
                     {
-                        YPos = sensorATile.Y + 16 - heightOfA - 20;
+                        if(CurrentFloorMode == FloorMode.FLOOR || CurrentFloorMode == FloorMode.CEILING)
+                        {
+                            YPos = sensorATile.Y + 16 - heightOfA - 20;
+                        }
+                        else
+                        {
+                            XPos = sensorATile.X + 16 - heightOfA - 20;
+                        }
                         Angle = angleOfA;
 
                     }
                     else if(sensorBTile != null)
                     {
-                        YPos = sensorBTile.Y + 16 - heightOfB - 20;
+                        if (CurrentFloorMode == FloorMode.FLOOR || CurrentFloorMode == FloorMode.CEILING)
+                        {
+                            YPos = sensorBTile.Y + 16 - heightOfB - 20;
+                        }
+                        else
+                        {
+                            XPos = sensorBTile.X + 16 - heightOfB - 20;
+                        }
                         Angle = angleOfB;
                     }
                 }
@@ -495,7 +551,7 @@ namespace NotSonic.Components
                     }
                     else
                     {
-                        GroundSpeed = YSpeed * (float)Math.Sin(-Angle);
+                        GroundSpeed = YSpeed * -(float)Math.Sin(Angle * Math.PI / 180.0f);
                     }
                     
                     
@@ -693,6 +749,24 @@ namespace NotSonic.Components
 
 
             }
+        }
+
+        public override void Render()
+        {
+            base.Render();
+            // DEBUG
+            if (CurrentFloorMode == FloorMode.FLOOR || CurrentFloorMode == FloorMode.CEILING)
+            {
+                Otter.Draw.Line(groundSensorA.APos, groundSensorA.BPos1, groundSensorA.APos, groundSensorA.BPos2, Color.Red);
+                Otter.Draw.Line(groundSensorB.APos, groundSensorB.BPos1, groundSensorB.APos, groundSensorB.BPos2, Color.Green);
+            }
+            else
+            {
+                Otter.Draw.Line(groundSensorA.BPos1, groundSensorA.APos, groundSensorA.BPos2, groundSensorA.APos, Color.Red);
+                Otter.Draw.Line(groundSensorB.BPos1, groundSensorB.APos, groundSensorB.BPos2, groundSensorB.APos, Color.Green);
+            }
+
+            Otter.Draw.Line(wallSensor.BPos1, wallSensor.APos, wallSensor.BPos2, wallSensor.APos, Color.Cyan);
         }
        
         #endregion

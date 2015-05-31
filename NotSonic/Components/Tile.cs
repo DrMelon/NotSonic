@@ -28,6 +28,13 @@ namespace NotSonic.Components
             TILE_EMPTY,
             TILE_BASIC,
             TILE_SLOPE_45_UP,
+            TILE_LOOP_UP_10,
+            TILE_LOOP_UP_20,
+            TILE_LOOP_UP_30,
+            TILE_LOOP_UP_45,
+            TILE_LOOP_UP_60,
+            TILE_LOOP_UP_70,
+            TILE_LOOP_UP_85,
             TILE_SLOPE_45_DOWN
         }
 
@@ -48,8 +55,6 @@ namespace NotSonic.Components
             if (myType == TileType.TILE_EMPTY)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_EMPTY;
-
-
                 Image spriteImage = new Image(16, 16); //blank
                 Graphic = spriteImage;
             }
@@ -66,13 +71,51 @@ namespace NotSonic.Components
                 tileImage.Frame = 26;
             }
 
+            // Loop Up
+            if (myType == TileType.TILE_LOOP_UP_10)
+            {
+                myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_10;
+                tileImage.Frame = 333;
+            }
+            if (myType == TileType.TILE_LOOP_UP_20)
+            {
+                myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_20;
+                tileImage.Frame = 334;
+            }
+            if (myType == TileType.TILE_LOOP_UP_30)
+            {
+                myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_30;
+                tileImage.Frame = 335;
+            }
+            if (myType == TileType.TILE_LOOP_UP_45)
+            {
+                myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_45;
+                tileImage.Frame = 315;
+            }
+            if (myType == TileType.TILE_LOOP_UP_60)
+            {
+                myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_60;
+                tileImage.Frame = 316;
+            }
+            if (myType == TileType.TILE_LOOP_UP_70)
+            {
+                myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_70;
+                tileImage.Frame = 296;
+            }
+            if (myType == TileType.TILE_LOOP_UP_85)
+            {
+                myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_85;
+                tileImage.Frame = 276;
+            }
+
             if (myType == TileType.TILE_SLOPE_45_DOWN)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_SLOPE_45_DOWN;
                 tileImage.Frame = 26;
                 tileImage.FlippedX = true;        
-                
             }
+
+
 
 
             
