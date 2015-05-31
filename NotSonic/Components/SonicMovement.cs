@@ -56,6 +56,10 @@ namespace NotSonic.Components
         public float SlopeFactor = 0.0f;
         public float CurrentHeight = 20.0f;
 
+        // Spindashing
+        public float CurrentSpindashStrength = 0.0f;
+        public float MaxSpindashStrength = 8.0f;
+
         // Position in world
         public float XPos = 0.0f;
         public float YPos = 0.0f;
@@ -140,6 +144,13 @@ namespace NotSonic.Components
                 YSpeed = GroundSpeed * -(float)Math.Sin(Angle);
             }
 
+            // Slow down spindash amt
+            CurrentSpindashStrength = CurrentSpindashStrength - (float)(Math.Floor(CurrentSpindashStrength / 0.125) / 256);
+            if(CurrentSpindashStrength < 0.0f)
+            {
+                CurrentSpindashStrength = 0.0f;
+            }
+
             XPos += XSpeed;
             YPos += YSpeed;
 
@@ -156,6 +167,14 @@ namespace NotSonic.Components
             {
                 FacingRight = false;
             }
+
+
+
+            // DEBUGGING
+            Otter.Debugger.Instance.Watch("Ground Speed: ", GroundSpeed);
+
+
+
         }
 
         public void Jump()
@@ -318,7 +337,7 @@ namespace NotSonic.Components
                     int heightMapArrayIndex = (int)SensorAX - sensorATile.XPos;
                     heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
                     heightOfA = sensorATile.flatheightArray[heightMapArrayIndex];
-                    fullheightOfA = heightOfA - sensorATile.YPos;
+                    fullheightOfA = heightOfA + (1600- sensorATile.YPos);
                     angleOfA = sensorATile.Angle;
 
 
@@ -329,7 +348,7 @@ namespace NotSonic.Components
                     int heightMapArrayIndex = (int)SensorBX - sensorBTile.XPos;
                     heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
                     heightOfB = sensorBTile.flatheightArray[heightMapArrayIndex];
-                    fullheightOfB = heightOfB - sensorBTile.YPos;
+                    fullheightOfB = heightOfB + (1600 - sensorBTile.YPos);
                     angleOfB = sensorBTile.Angle;
                 }
 
@@ -358,7 +377,8 @@ namespace NotSonic.Components
                     // The speeds are set like so:
                     Otter.Debugger.Instance.Log(HexAngleToDec(0x01));
                     // If the angle is between 0x00 and 0x0F or 0xF0 and 0xFF...
-                    if ((Angle >= HexAngleToDec(0x00) && Angle <= HexAngleToDec(0x0F)) || (Angle >= HexAngleToDec(0xF0) && Angle <= HexAngleToDec(0xFF)))
+                   // if ((Angle >= HexAngleToDec(0x00) && Angle <= HexAngleToDec(0x0F)) || (Angle >= HexAngleToDec(0xF0) && Angle <= HexAngleToDec(0xFF)))
+                    if ((Angle >= HexAngleToDec(0xF0) && Angle <= HexAngleToDec(0xFF)) || (Angle <= -HexAngleToDec(0xF0) && Angle >= -HexAngleToDec(0xFF)))
                     {
                         // Then the angle is shallow enough to say that it's just the normal ground.
                         GroundSpeed = XSpeed;
@@ -366,7 +386,8 @@ namespace NotSonic.Components
                     }
 
                     // If the angle is between 0xE0-0xEF and 0x10-0x1F then it's the same but only if abs(xSpeed) > ySpeed.
-                    if ((Angle >= HexAngleToDec(0xE0) && Angle <= HexAngleToDec(0xEF)) || (Angle >= HexAngleToDec(0x10) && Angle <= HexAngleToDec(0x1F)))
+                    //if ((Angle >= HexAngleToDec(0xE0) && Angle <= HexAngleToDec(0xEF)) || (Angle >= HexAngleToDec(0x10) && Angle <= HexAngleToDec(0x1F)))
+                    if ((Angle >= HexAngleToDec(0x10) && Angle <= HexAngleToDec(0x1F)) || (Angle <= -HexAngleToDec(0x10) && Angle >= -HexAngleToDec(0x1F)))
                     {
                         if (Math.Abs(XSpeed) > YSpeed)
                         {
@@ -374,12 +395,20 @@ namespace NotSonic.Components
                         }
                         else
                         {
-                            GroundSpeed = YSpeed * 0.5f * -(float)Math.Sign(Math.Cos(Angle));
+                            if ((Angle <= -HexAngleToDec(0x10) && Angle >= -HexAngleToDec(0x1F)))
+                            {
+                                GroundSpeed = YSpeed * 0.5f * (float)Math.Sign(Math.Cos(Angle));
+                            }
+                            else
+                            {
+                                GroundSpeed = YSpeed * 0.5f * -(float)Math.Sign(Math.Cos(Angle));
+                            }
                         }
                     }
 
                     // If the angle is between 0xC0-0xDF or 0x20 - 0x3F, same but steeper
-                    if ((Angle >= HexAngleToDec(0xC0) && Angle <= HexAngleToDec(0xDF)) || (Angle >= HexAngleToDec(0x20) && Angle <= HexAngleToDec(0x3F)))
+                    //if ((Angle >= HexAngleToDec(0xC0) && Angle <= HexAngleToDec(0xDF)) || (Angle >= HexAngleToDec(0x20) && Angle <= HexAngleToDec(0x3F)))
+                    if ((Angle >= HexAngleToDec(0x20) && Angle <= HexAngleToDec(0x3F)) || (Angle <= -HexAngleToDec(0x20) && Angle >= -HexAngleToDec(0x3F)))
                     {
                         if (Math.Abs(XSpeed) > YSpeed)
                         {
@@ -387,7 +416,14 @@ namespace NotSonic.Components
                         }
                         else
                         {
-                            GroundSpeed = YSpeed * -(float)Math.Sign(Math.Cos(Angle));
+                            if ((Angle <= -HexAngleToDec(0x20) && Angle >= -HexAngleToDec(0x3F)))
+                            {
+                                GroundSpeed = YSpeed * (float)Math.Sign(Math.Cos(Angle));
+                            }
+                            else
+                            {
+                                GroundSpeed = YSpeed * -(float)Math.Sign(Math.Cos(Angle));
+                            }
                         }
                     }
                     
@@ -497,15 +533,44 @@ namespace NotSonic.Components
                 // Check for jump.
                 if(theController.A.Pressed || theController.B.Pressed || theController.C.Pressed)
                 {
-                    Jump();
-                    // Voluntary jumps = rolling state...
-                    Rolling = true;
+                    if (theController.Down.Down && !Rolling && Math.Abs(GroundSpeed) < 1.03125)
+                    {
+                        // Add to spindash counter
+                        CurrentSpindashStrength += 2.0f;
+                        if(CurrentSpindashStrength > MaxSpindashStrength)
+                        {
+                            CurrentSpindashStrength = MaxSpindashStrength;
+                           
+                        }
+
+                    }
+                    else
+                    {
+                        Jump();
+                        // Voluntary jumps = rolling state...
+                        Rolling = true;
+                    }
                 }
 
                 // Roll up
                 if(theController.Down.Down && !Rolling && Math.Abs(GroundSpeed) > 1.03125)
                 {
                     Rolling = true;
+                }
+
+                // Spindash release
+                if (theController.Down.Released && CurrentSpindashStrength > 0.0f)
+                {
+                    if (FacingRight)
+                    {
+                        GroundSpeed += 8 + (float)(Math.Floor(CurrentSpindashStrength) / 2);
+                        Rolling = true;
+                    }
+                    else
+                    {
+                        GroundSpeed -= 8 + (float)(Math.Floor(CurrentSpindashStrength) / 2);
+                        Rolling = true;
+                    }
                 }
 
             }

@@ -26,10 +26,10 @@ namespace NotSonic
         {
             this.UseCameraBounds = true;
             this.ApplyCamera = true;
-            this.CameraBounds.X = 0;
-            this.CameraBounds.Y = 0;
-            this.CameraBounds.Width = 400;
-            this.CameraBounds.Height = 240;
+            this.CameraBounds.X = -400;
+            this.CameraBounds.Y = -400;
+            this.CameraBounds.Width = 1600;
+            this.CameraBounds.Height = 1600;
 
             // Load Level from Tiled map.
             tileList = new List<Components.Tile>();
@@ -55,6 +55,35 @@ namespace NotSonic
             }
 
             Add(thePlayer);
+
+            
+
+        }
+
+        public override void UpdateLast()
+        {
+            base.UpdateLast();
+
+            // Recentering Camera Based on Player Position & Direction
+
+            float targetCamX = 0;
+            float targetCamY = 0;
+
+
+         
+            targetCamX = (thePlayer.X + thePlayer.spriteSheet.Width / 2.0f);
+            targetCamY = thePlayer.Y + 20; // Above player a little.
+
+            if(Math.Abs(targetCamX - this.CameraCenterX) > 8)
+            {
+                targetCamX = Util.Approach(this.CameraCenterX, targetCamX, (float)Math.Min(Math.Abs(thePlayer.X - this.CameraCenterX), 16.0f));
+            }
+
+
+            
+            targetCamY = Util.Approach(this.CameraCenterY, targetCamY, (float)Math.Min(Math.Abs(thePlayer.Y - this.CameraCenterY), 16.0f));
+
+            this.CenterCamera(targetCamX, targetCamY);
 
         }
     }
