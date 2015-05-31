@@ -35,6 +35,7 @@ namespace NotSonic
             tileList = new List<Components.Tile>();
 
             // DEBUG: Create blank tile for tilelist
+            tileList.Add(new Components.Tile(64 - 16, 64 - 16, -45.0f, HeightArrays.HEIGHT_SLP_45_DOWN));
             tileList.Add(new Components.Tile(64, 64, 0.0f, HeightArrays.HEIGHT_ARRAY_FULL));
             tileList.Add(new Components.Tile(64 + 16, 64, 0.0f, HeightArrays.HEIGHT_ARRAY_FULL));
             tileList.Add(new Components.Tile(64 + 32, 64, 0.0f, HeightArrays.HEIGHT_ARRAY_FULL));
@@ -42,7 +43,7 @@ namespace NotSonic
             tileList.Add(new Components.Tile(64 + 64, 64, 0.0f, HeightArrays.HEIGHT_ARRAY_FULL));
             tileList.Add(new Components.Tile(64 + 64 + 16, 64, 0.0f, HeightArrays.HEIGHT_ARRAY_FULL));
             tileList.Add(new Components.Tile(64 + 64 + 32, 64, 0.0f, HeightArrays.HEIGHT_ARRAY_FULL));
-            tileList.Add(new Components.Tile(64 + 64 + 32 + 16, 64, 45.0f, HeightArrays.HEIGHT_SLP_45_UP));
+            tileList.Add(new Components.Tile(64 + 64 + 32 + 16, 64, 0.0f, HeightArrays.HEIGHT_ARRAY_FULL));
             tileList.Add(new Components.Tile(64 + 64 + 64, 64 - 16, 45.0f, HeightArrays.HEIGHT_SLP_45_UP));
 
 

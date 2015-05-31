@@ -227,12 +227,12 @@ namespace NotSonic.Components
             // Sensor A: Positioned at -9, 0 to -9, 20.
             float SensorAX = XPos - 9;
             float SensorATop = YPos + 0;
-            float SensorABottom = YPos + 0 + CurrentHeight;
+            float SensorABottom = YPos + 0 + 20;
 
             // Sensor B: Positioned at 9, 0 to 9, 20.
             float SensorBX = XPos + 9;
             float SensorBTop = YPos + 0;
-            float SensorBBottom = YPos + 0 + CurrentHeight;
+            float SensorBBottom = YPos + 0 + 20;
 
             // The tiles that will be located.
             Tile sensorATile = null;
@@ -307,6 +307,8 @@ namespace NotSonic.Components
                 // Store collision info
                 int heightOfA = 0;
                 int heightOfB = 0;
+                int fullheightOfA = 0;
+                int fullheightOfB = 0;
                 float angleOfA = 0.0f;
                 float angleOfB = 0.0f;
 
@@ -316,6 +318,7 @@ namespace NotSonic.Components
                     int heightMapArrayIndex = (int)SensorAX - sensorATile.XPos;
                     heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
                     heightOfA = sensorATile.flatheightArray[heightMapArrayIndex];
+                    fullheightOfA = heightOfA - sensorATile.YPos;
                     angleOfA = sensorATile.Angle;
 
 
@@ -326,19 +329,20 @@ namespace NotSonic.Components
                     int heightMapArrayIndex = (int)SensorBX - sensorBTile.XPos;
                     heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
                     heightOfB = sensorBTile.flatheightArray[heightMapArrayIndex];
+                    fullheightOfB = heightOfB - sensorBTile.YPos;
                     angleOfB = sensorBTile.Angle;
                 }
 
 
                 if (CurrentMoveType == MoveType.GROUND || YSpeed >= 0)
                 {
-                    if (heightOfA >= heightOfB && sensorATile != null)
+                    if (fullheightOfA >= fullheightOfB && sensorATile != null)
                     {
                         YPos = sensorATile.YPos + 16 - heightOfA - 20;
                         Angle = angleOfA;
 
                     }
-                    else if (heightOfB > heightOfA && sensorBTile != null)
+                    else if(sensorBTile != null)
                     {
                         YPos = sensorBTile.YPos + 16 - heightOfB - 20;
                         Angle = angleOfB;
@@ -409,6 +413,7 @@ namespace NotSonic.Components
                 {
                     if (theController.Left.Down)
                     {
+                        FacingRight = false;
                         if (GroundSpeed > 0) //Heading right, now going left
                         {
                             GroundSpeed -= Deceleration;
@@ -426,6 +431,7 @@ namespace NotSonic.Components
                     }
                     else if (theController.Right.Down)
                     {
+                        FacingRight = true;
                         if (GroundSpeed < 0)
                         {
                             GroundSpeed += Deceleration;
@@ -456,16 +462,18 @@ namespace NotSonic.Components
                 else //ROLLING
                 {
                     // Can only DECELERATE while rolling.
-                    if (Global.playerSession.GetController<NotSonic.System.SegaController>().Left.Down)
+                    if (theController.Left.Down)
                     {
+                        FacingRight = false;
                         if (GroundSpeed > 0) //Heading right, now going left
                         {
                             GroundSpeed -= 0.125f;
                         }
 
                     }
-                    else if (Global.playerSession.GetController<NotSonic.System.SegaController>().Right.Down)
+                    else if (theController.Right.Down)
                     {
+                        FacingRight = true;
                         if (GroundSpeed < 0)
                         {
                             GroundSpeed += 0.125f;
