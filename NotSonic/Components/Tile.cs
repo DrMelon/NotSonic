@@ -19,7 +19,7 @@ namespace NotSonic.Components
     class Tile : Entity
     {
         // Otter image etc
-        public Image spriteImage;
+        public ImageSet tileImage;
 
         public SonicTileInfo myTileInfo;
 
@@ -39,7 +39,8 @@ namespace NotSonic.Components
             X = x;
             Y = y;
 
-
+            tileImage = new ImageSet(Assets.TILE_SHEET, 16, 16);
+            Graphic = tileImage;
 
 
             // Tile Info Stuff
@@ -49,39 +50,28 @@ namespace NotSonic.Components
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_EMPTY;
 
 
-                spriteImage = new Image(16, 16); //blank
+                Image spriteImage = new Image(16, 16); //blank
                 Graphic = spriteImage;
             }
 
             if(myType == TileType.TILE_BASIC)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_BASIC;
-
-                spriteImage = new Image(Assets.EXAMPLE_TILE);
-                Graphic = spriteImage;
+                tileImage.Frame = 41;
             }
 
             if (myType == TileType.TILE_SLOPE_45_UP)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_SLOPE_45_UP;
-
-                ImageSet img = new ImageSet(Assets.TILE_SHEET, 16, 16);
-                img.Frame = 26;
-            
-                spriteImage = new Image(Assets.EXAMPLE_TILE);
-                Graphic = img;
+                tileImage.Frame = 26;
             }
 
             if (myType == TileType.TILE_SLOPE_45_DOWN)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_SLOPE_45_DOWN;
-
-                ImageSet img = new ImageSet(Assets.TILE_SHEET, 16, 16);
-                img.Frame = 26;
-                img.FlippedX = true;
-
-                spriteImage = new Image(Assets.EXAMPLE_TILE);
-                Graphic = img;
+                tileImage.Frame = 26;
+                tileImage.FlippedX = true;        
+                
             }
 
 

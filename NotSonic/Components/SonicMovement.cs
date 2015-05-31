@@ -387,56 +387,16 @@ namespace NotSonic.Components
                     Rolling = false;
                     // The speeds are set like so:
                     Otter.Debugger.Instance.Log(HexAngleToDec(0x01));
-                    // If the angle is between 0x00 and 0x0F or 0xF0 and 0xFF...
-                   // if ((Angle >= HexAngleToDec(0x00) && Angle <= HexAngleToDec(0x0F)) || (Angle >= HexAngleToDec(0xF0) && Angle <= HexAngleToDec(0xFF)))
-                    if ((Angle >= HexAngleToDec(0xF0) && Angle <= HexAngleToDec(0xFF)) || (Angle <= -HexAngleToDec(0xF0) && Angle >= -HexAngleToDec(0xFF)))
+
+                    if (Math.Abs(XSpeed) > YSpeed)
                     {
-                        // Then the angle is shallow enough to say that it's just the normal ground.
                         GroundSpeed = XSpeed;
-                        
                     }
-
-                    // If the angle is between 0xE0-0xEF and 0x10-0x1F then it's the same but only if abs(xSpeed) > ySpeed.
-                    //if ((Angle >= HexAngleToDec(0xE0) && Angle <= HexAngleToDec(0xEF)) || (Angle >= HexAngleToDec(0x10) && Angle <= HexAngleToDec(0x1F)))
-                    if ((Angle >= HexAngleToDec(0x10) && Angle <= HexAngleToDec(0x1F)) || (Angle <= -HexAngleToDec(0x10) && Angle >= -HexAngleToDec(0x1F)))
+                    else
                     {
-                        if (Math.Abs(XSpeed) > YSpeed)
-                        {
-                            GroundSpeed = XSpeed;
-                        }
-                        else
-                        {
-                            if ((Angle <= -HexAngleToDec(0x10) && Angle >= -HexAngleToDec(0x1F)))
-                            {
-                                GroundSpeed = YSpeed * 0.5f * (float)Math.Sign(Math.Cos(Angle));
-                            }
-                            else
-                            {
-                                GroundSpeed = YSpeed * 0.5f * -(float)Math.Sign(Math.Cos(Angle));
-                            }
-                        }
+                        GroundSpeed = YSpeed * (float)Math.Sin(-Angle);
                     }
-
-                    // If the angle is between 0xC0-0xDF or 0x20 - 0x3F, same but steeper
-                    //if ((Angle >= HexAngleToDec(0xC0) && Angle <= HexAngleToDec(0xDF)) || (Angle >= HexAngleToDec(0x20) && Angle <= HexAngleToDec(0x3F)))
-                    if ((Angle >= HexAngleToDec(0x20) && Angle <= HexAngleToDec(0x3F)) || (Angle <= -HexAngleToDec(0x20) && Angle >= -HexAngleToDec(0x3F)))
-                    {
-                        if (Math.Abs(XSpeed) > YSpeed)
-                        {
-                            GroundSpeed = XSpeed;
-                        }
-                        else
-                        {
-                            if ((Angle <= -HexAngleToDec(0x20) && Angle >= -HexAngleToDec(0x3F)))
-                            {
-                                GroundSpeed = YSpeed * (float)Math.Sign(Math.Cos(Angle));
-                            }
-                            else
-                            {
-                                GroundSpeed = YSpeed * -(float)Math.Sign(Math.Cos(Angle));
-                            }
-                        }
-                    }
+                    
                     
                 }
             }
