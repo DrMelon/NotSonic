@@ -54,6 +54,11 @@ namespace NotSonic
             tileList.Add(new Components.Tile(64 + 64 + 64, 64, NotSonic.Components.Tile.TileType.TILE_BASIC));
             tileList.Add(new Components.Tile(64 + 64 + 64 + 64, 64 - 64, NotSonic.Components.Tile.TileType.TILE_BASIC));
             tileList.Add(new Components.Tile(64 + 64 + 64 + 64, 64 - 64 - 16, NotSonic.Components.Tile.TileType.TILE_BASIC));
+            tileList.Add(new Components.Tile(64 + 64 + 64 + 64, 64 - 64 - 32, NotSonic.Components.Tile.TileType.TILE_BASIC));
+            tileList.Add(new Components.Tile(64 + 64 + 64 + 64, 64 - 64 - 32 - 16, NotSonic.Components.Tile.TileType.TILE_BASIC));
+            tileList.Add(new Components.Tile(64 + 64 + 64 + 64, 64 - 64 - 64, NotSonic.Components.Tile.TileType.TILE_BASIC));
+            tileList.Add(new Components.Tile(64 + 64 + 64 + 64, 64 - 64 - 64 - 16, NotSonic.Components.Tile.TileType.TILE_BASIC));
+            tileList.Add(new Components.Tile(64 + 64 + 64 + 64, 64 - 64 - 64 - 32, NotSonic.Components.Tile.TileType.TILE_BASIC));
 
             thePlayer = new Entities.SonicPlayer(tileList, 70, 32);
             

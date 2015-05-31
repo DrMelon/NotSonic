@@ -55,6 +55,7 @@ namespace NotSonic.Components
         public float Angle = 0.0f;
         public float SlopeFactor = 0.0f;
         public float CurrentHeight = 20.0f;
+        public float HLock = 0.0f;
 
         // Spindashing
         public float CurrentSpindashStrength = 0.0f;
@@ -124,10 +125,9 @@ namespace NotSonic.Components
             // Check sensors for solid ground:
             CheckGroundSensors();
 
-            if (CurrentFloorMode == FloorMode.FLOOR)
-            {
-                CheckWallSensor();
-            }
+            
+            CheckWallSensor();
+            
 
             // Update Slope Factor
             if (CurrentMoveType != MoveType.AIR)
@@ -165,8 +165,10 @@ namespace NotSonic.Components
                 // Slope factor is added to Ground Speed. This slows sonic when moving uphill, and speeds him up when moving downhill.
                 GroundSpeed += SlopeFactor * -(float)Math.Sin(Angle * Math.PI / 180.0f);
 
+                // Swap these for wallmode?
                 XSpeed = GroundSpeed * (float)Math.Cos(Angle * Math.PI / 180.0f);
                 YSpeed = GroundSpeed * -(float)Math.Sin(Angle * Math.PI / 180.0f);
+                
             }
 
             // Slow down spindash amt
@@ -181,7 +183,7 @@ namespace NotSonic.Components
             YPos += YSpeed;
 
             // Check Mode- Going Right, Hit Ramp, Going up!
-            if(Angle >= 45.0f && GroundSpeed > 0 && Angle < 180.0f)
+            if(Angle >= 45.0f && GroundSpeed > 0 && Angle < 135.0f)
             {
                 if(CurrentFloorMode == FloorMode.FLOOR)
                 {
@@ -190,15 +192,32 @@ namespace NotSonic.Components
                 }
             }
 
-            // Check speed
+            if(Angle >= 45.0f && Angle < 135.0f && GroundSpeed < 0)
+            {
+                if(CurrentFloorMode == FloorMode.RIGHTWALL)
+                {
+                    CurrentFloorMode = FloorMode.FLOOR;
+                }
+            }
+
+            // Check speed for wall mode.
             if(Math.Abs(GroundSpeed) < 2.5 && CurrentFloorMode != FloorMode.FLOOR)
+            {
+                // We slipped off!
+                CurrentFloorMode = FloorMode.FLOOR;
+                // Lock controls, prevent further movement for half a second.
+                HLock = 30.0f;
+            }
+
+            // Falling is always considered to be right side up.
+            if(CurrentMoveType == MoveType.AIR && YSpeed > 0)
             {
                 CurrentFloorMode = FloorMode.FLOOR;
             }
 
-            if(CurrentMoveType == MoveType.AIR)
+            if(HLock > 0.0f)
             {
-                CurrentFloorMode = FloorMode.FLOOR;
+                HLock -= 1.0f;
             }
             
             // Apply to parent ent
@@ -230,33 +249,32 @@ namespace NotSonic.Components
 
         public void CheckWallSensor()
         {
-            // debug only
-            return;
+            
             
             
             // Check for tiles that are at the sides of sonic, relative to Y+4.
-            wallSensor.APos = YPos - 4;
+            wallSensor.APos = YPos + 4;
 
             // Left and Right edges are at +-10 on the X axis.
-            wallSensor.BPos1 = XPos - 6;
-            wallSensor.BPos2 = XPos + 6;
+            wallSensor.BPos1 = XPos - 10;
+            wallSensor.BPos2 = XPos + 11;
 
             
 
             Sensor.CollisionInfo colInfo = wallSensor.Sense(TileList);
-            if (!colInfo.thisIsNull)
+            if (!colInfo.thisIsNull && colInfo.tileHit.myType == Tile.TileType.TILE_BASIC)
             {
                 // Collision, cap'n!
                 // Now, if the collision is on the left of sonic...
                 if (colInfo.tileHit.X <= XPos)
                 {
                     // Pop sonic to the right by the requisite amount.
-                    XPos = colInfo.tileHit.X + 16.0f + 6.0f;
+                    XPos = colInfo.tileHit.X + 16.0f + 11.0f;
                 }
                 else
                 {
                     // Pop sonic to the left
-                    XPos = colInfo.tileHit.X - 6.0f;
+                    XPos = colInfo.tileHit.X - 11.0f;
                 }
 
                 // Set ground speed to 0
@@ -577,7 +595,7 @@ namespace NotSonic.Components
                 {
                     if (!Rolling)
                     {
-                        if (theController.Left.Down)
+                        if (theController.Left.Down && HLock <= 0.0f)
                         {
                             FacingRight = false;
                             if (GroundSpeed > 0) //Heading right, now going left
@@ -595,7 +613,7 @@ namespace NotSonic.Components
                             }
 
                         }
-                        else if (theController.Right.Down)
+                        else if (theController.Right.Down && HLock <= 0.0f)
                         {
                             FacingRight = true;
                             if (GroundSpeed < 0)
@@ -628,7 +646,7 @@ namespace NotSonic.Components
                     else //ROLLING
                     {
                         // Can only DECELERATE while rolling.
-                        if (theController.Left.Down)
+                        if (theController.Left.Down && HLock <= 0.0f)
                         {
                             FacingRight = false;
                             if (GroundSpeed > 0) //Heading right, now going left
@@ -637,7 +655,7 @@ namespace NotSonic.Components
                             }
 
                         }
-                        else if (theController.Right.Down)
+                        else if (theController.Right.Down && HLock <= 0.0f)
                         {
                             FacingRight = true;
                             if (GroundSpeed < 0)
@@ -710,11 +728,11 @@ namespace NotSonic.Components
             else
             {
                 // AIR MODE
-                if(theController.Left.Down)
+                if (theController.Left.Down && HLock <= 0.0f)
                 {
                     XSpeed -= AirAccel;
                 }
-                else if(theController.Right.Down)
+                else if (theController.Right.Down && HLock <= 0.0f)
                 {
                     XSpeed += AirAccel;
                 }
