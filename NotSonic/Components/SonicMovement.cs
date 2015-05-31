@@ -96,6 +96,16 @@ namespace NotSonic.Components
         {
             base.Update();
 
+            // Check left/right flip
+            if (XSpeed > 0)
+            {
+                FacingRight = true;
+            }
+            if (XSpeed < 0)
+            {
+                FacingRight = false;
+            }
+
             // Handle input
             HandleInput();
 
@@ -158,15 +168,7 @@ namespace NotSonic.Components
             Entity.X = XPos - 16;
             Entity.Y = YPos - CurrentHeight;
 
-            // Check left/right flip
-            if(XSpeed > 0)
-            {
-                FacingRight = true;
-            }
-            if(XSpeed < 0)
-            {
-                FacingRight = false;
-            }
+
 
 
 
