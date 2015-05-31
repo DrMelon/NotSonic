@@ -170,8 +170,7 @@ namespace NotSonic.Components
 
 
 
-            // DEBUGGING
-            Otter.Debugger.Instance.Watch("Ground Speed: ", GroundSpeed);
+
 
 
 
@@ -184,10 +183,7 @@ namespace NotSonic.Components
             YSpeed -= JumpVelocity * (float)Math.Cos(Angle);
             Jumping = true;
             CurrentMoveType = MoveType.AIR;
-            Otter.Debugger.Instance.Log("Tried to jump!");
-            Otter.Debugger.Instance.Log(XSpeed);
-            Otter.Debugger.Instance.Log(YSpeed);
-            Otter.Debugger.Instance.Log(Angle);
+
         }
 
         // Sensor checks. [MESSY]
@@ -385,10 +381,10 @@ namespace NotSonic.Components
                 {
                     CurrentMoveType = MoveType.GROUND;
                     Rolling = false;
-                    // The speeds are set like so:
-                    Otter.Debugger.Instance.Log(HexAngleToDec(0x01));
 
-                    if (Math.Abs(XSpeed) > YSpeed)
+
+                    // Account for sloping...
+                    if (Math.Abs(XSpeed) > YSpeed || Math.Abs(Angle) < 10f)
                     {
                         GroundSpeed = XSpeed;
                     }
@@ -536,11 +532,13 @@ namespace NotSonic.Components
                     {
                         GroundSpeed += 8 + (float)(Math.Floor(CurrentSpindashStrength) / 2);
                         Rolling = true;
+                        CurrentSpindashStrength = 0.0f;
                     }
                     else
                     {
                         GroundSpeed -= 8 + (float)(Math.Floor(CurrentSpindashStrength) / 2);
                         Rolling = true;
+                        CurrentSpindashStrength = 0.0f;
                     }
                 }
 

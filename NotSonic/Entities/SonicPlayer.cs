@@ -25,6 +25,7 @@ namespace NotSonic.Entities
             spriteSheet = new Spritemap<string>(Assets.SONIC_SHEET, 32, 40);
             spriteSheet.Add("idle", new int[] { 0 }, new float[] { 6f });
             spriteSheet.Add("roll", new int[] { 1 }, new float[] { 6f });
+            spriteSheet.Add("spindash", new int[] { 2 }, new float[] { 6f });
             spriteSheet.Play("idle");
             Graphic = spriteSheet;
 
@@ -57,6 +58,11 @@ namespace NotSonic.Entities
             else
             {
                 spriteSheet.Play("idle");
+            }
+
+            if(myMovement.CurrentSpindashStrength > 0.0f)
+            {
+                spriteSheet.Play("spindash");
             }
         }
 
