@@ -326,39 +326,143 @@ namespace NotSonic.Components
                 float angleOfA = 0.0f;
                 float angleOfB = 0.0f;
 
-                /// THIS ONLY WORKS FOR FLOORMODE CURRENTLY!!
-
-                if (sensorATile != null)
+                // FLOOR AND CEILING MODES:
+                if(CurrentFloorMode == FloorMode.FLOOR || CurrentFloorMode == FloorMode.CEILING)
                 {
-                    // Capture sensor A's result.
-                    int heightMapArrayIndex = (int)groundSensorA.APos - (int)sensorATile.X;
-                    heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
-                    heightOfA = sensorATile.myTileInfo.flatheightArray[heightMapArrayIndex];
-                    fullheightOfA = heightOfA + (1600 - (int)sensorATile.Y);
-                    angleOfA = sensorATile.myTileInfo.Angle;
-
-                    // If the tile is empty of collision, don't collide with it. Duh!
-                    if(heightOfA == 0)
+                    if (sensorATile != null)
                     {
-                        sensorATile = null;
-                    }
+                        // Capture sensor A's result.
+                        int heightMapArrayIndex = (int)groundSensorA.APos - (int)sensorATile.X;
+                        if(CurrentFloorMode == FloorMode.CEILING)
+                        {
+                            heightMapArrayIndex = 15 - heightMapArrayIndex;
+                        }
+                        heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
 
+                        heightOfA = sensorATile.myTileInfo.flatheightArray[heightMapArrayIndex];
+                        if(CurrentFloorMode == FloorMode.CEILING)
+                        {
+                            heightOfA = 16 - heightOfA;
+                        }
+
+                        
+                        fullheightOfA = heightOfA + (1600 - (int)sensorATile.Y);
+                        if(CurrentFloorMode == FloorMode.CEILING)
+                        {
+                            fullheightOfA = heightOfA + (int)sensorATile.Y;
+                        }
+
+
+                        angleOfA = sensorATile.myTileInfo.Angle;
+
+                        // If the tile is empty of collision, don't collide with it. Duh!
+                        if (heightOfA == 0)
+                        {
+                            sensorATile = null;
+                        }
+
+                    }
+                    if (sensorBTile != null)
+                    {
+                        // Capture sensor B's result.
+                        int heightMapArrayIndex = (int)groundSensorB.APos - (int)sensorBTile.X;
+                        if (CurrentFloorMode == FloorMode.CEILING)
+                        {
+                            heightMapArrayIndex = 15 - heightMapArrayIndex;
+                        }
+                        heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
+
+                        heightOfB = sensorBTile.myTileInfo.flatheightArray[heightMapArrayIndex];
+                        if (CurrentFloorMode == FloorMode.CEILING)
+                        {
+                            heightOfB = 16 - heightOfB;
+                        }
+
+
+                        fullheightOfB = heightOfB + (1600 - (int)sensorBTile.Y);
+                        if (CurrentFloorMode == FloorMode.CEILING)
+                        {
+                            fullheightOfB = heightOfB + (int)sensorBTile.Y;
+                        }
+                        angleOfB = sensorBTile.myTileInfo.Angle;
+
+                        // If the tile is empty of collision, don't collide with it. Duh!
+                        if (heightOfB == 0)
+                        {
+                            sensorBTile = null;
+                        }
+                    }
                 }
-                if (sensorBTile != null)
+
+                // WALL MODES:
+                if (CurrentFloorMode == FloorMode.RIGHTWALL || CurrentFloorMode == FloorMode.LEFTWALL)
                 {
-                    // Capture sensor B's result.
-                    int heightMapArrayIndex = (int)groundSensorB.APos - (int)sensorBTile.X;
-                    heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
-                    heightOfB = sensorBTile.myTileInfo.flatheightArray[heightMapArrayIndex];
-                    fullheightOfB = heightOfB + (1600 - (int)sensorBTile.Y);
-                    angleOfB = sensorBTile.myTileInfo.Angle;
-
-                    // If the tile is empty of collision, don't collide with it. Duh!
-                    if (heightOfB == 0)
+                    if (sensorATile != null)
                     {
-                        sensorBTile = null;
+                        // Capture sensor A's result.
+                        int heightMapArrayIndex = (int)groundSensorA.APos - (int)sensorATile.Y;
+                        if (CurrentFloorMode == FloorMode.CEILING)
+                        {
+                            heightMapArrayIndex = 15 - heightMapArrayIndex;
+                        }
+                        heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
+
+                        heightOfA = sensorATile.myTileInfo.wallheightArray[heightMapArrayIndex];
+                        if (CurrentFloorMode == FloorMode.CEILING)
+                        {
+                            heightOfA = 16 - heightOfA;
+                        }
+
+
+                        fullheightOfA = heightOfA + (1600 - (int)sensorATile.X);
+                        if (CurrentFloorMode == FloorMode.CEILING)
+                        {
+                            fullheightOfA = heightOfA + (int)sensorATile.X;
+                        }
+
+
+                        angleOfA = sensorATile.myTileInfo.Angle;
+
+                        // If the tile is empty of collision, don't collide with it. Duh!
+                        if (heightOfA == 0)
+                        {
+                            sensorATile = null;
+                        }
+
+                    }
+                    if (sensorBTile != null)
+                    {
+                        // Capture sensor B's result.
+                        int heightMapArrayIndex = (int)groundSensorB.APos - (int)sensorBTile.Y;
+                        if (CurrentFloorMode == FloorMode.CEILING)
+                        {
+                            heightMapArrayIndex = 15 - heightMapArrayIndex;
+                        }
+                        heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
+
+                        heightOfB = sensorBTile.myTileInfo.wallheightArray[heightMapArrayIndex];
+                        if (CurrentFloorMode == FloorMode.CEILING)
+                        {
+                            heightOfB = 16 - heightOfB;
+                        }
+
+
+                        fullheightOfB = heightOfB + (1600 - (int)sensorBTile.X);
+                        if (CurrentFloorMode == FloorMode.CEILING)
+                        {
+                            fullheightOfB = heightOfB + (int)sensorBTile.X;
+                        }
+                        angleOfB = sensorBTile.myTileInfo.Angle;
+
+                        // If the tile is empty of collision, don't collide with it. Duh!
+                        if (heightOfB == 0)
+                        {
+                            sensorBTile = null;
+                        }
                     }
                 }
+
+
 
 
                 if (CurrentMoveType == MoveType.GROUND || YSpeed >= 0)
