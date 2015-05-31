@@ -26,15 +26,23 @@ namespace NotSonic.Components
             public bool thisIsNull;
             // The tile we hit, if any
             public NotSonic.Components.Tile tileHit;
-            // The distance it took to hit this.
-            public float Distance;
         }
 
-        // Start position and end position variables. Updated by whatever holds the instances.
-        float StartX;
-        float StartY;
-        float EndX;
-        float EndY;
+        // Start position variables. Updated by whatever holds the instances.
+        public float APos;
+        public float BPos1;
+        public float BPos2;
+        
+        // Sensor type; horizontal / vertical
+        public bool verticalSensor;
+
+        public Sensor(float Ap, float Bp1, float Bp2, bool vert)
+        {
+            APos = Ap;
+            BPos1 = Bp1;
+            BPos2 = Bp2;
+            verticalSensor = vert;
+        }
 
 
         // This function checks for any tiles in the collision.
@@ -45,44 +53,70 @@ namespace NotSonic.Components
             CollisionInfo newCollision = new CollisionInfo();
             newCollision.tileHit = null;
             newCollision.thisIsNull = true;
-            newCollision.Distance = -1.0f;
 
-            // Also make sure to sanitize the inputs
-            if (StartX > EndX)
+            // Check for a tile depending on type.
+
+            // Vertical
+            if(verticalSensor)
             {
-                float temp = EndX;
-                EndX = StartX;
-                StartX = temp;
-            }
-
-            if(StartY > EndY)
-            {
-                float temp = EndY;
-                EndY = StartY;
-                StartY = temp;
-            }
-
-
-            // Check for a tile using our position.
-            foreach (Tile currentTile in tileList)
-            {
-                // Are we colliding on the Y-Axis, by checking X's?
-                if(!(EndX < currentTile.X || StartX > currentTile.X + 16.0f))
+                foreach (Tile tile in tileList)
                 {
-                    newCollision.tileHit = currentTile;
-                    newCollision.Distance = currentTile.X - StartX;
-                    newCollision.thisIsNull = false;
-                    // Are we colliding on the X-Axis, by checking Y's?
-                    if (!(EndY < currentTile.Y || StartY > currentTile.Y + 16.0f))
+                    // It's easiest to check if something is OUTSIDE a collision...
+                    if (tile.Y + 16.0f < BPos1 || tile.Y > BPos2)
                     {
-                        newCollision.tileHit = currentTile;
-                        newCollision.Distance = currentTile.Y - StartY;
-                        newCollision.thisIsNull = false;
-                        break;
+                        //nada
+                    }
+                    else
+                    {
+                        // Make sure the Y position is in range.
+                        if (tile.X + 16.0f < APos || tile.X > APos)
+                        {
+                            //nada
+                        }
+                        else
+                        {
+                            // Collision, cap'n!
+
+                            // Select this tile. 
+                            newCollision.tileHit = tile;
+                            newCollision.thisIsNull = false;
+
+                            break;
+                        }
                     }
                 }
-
             }
+            // Horizontal
+            else
+            {
+                foreach (Tile tile in tileList)
+                {
+                    // It's easiest to check if something is OUTSIDE a collision...
+                    if (tile.X + 16.0f < BPos1 || tile.X > BPos2)
+                    {
+                        //nada
+                    }
+                    else
+                    {
+                        // Make sure the X position is in range.
+                        if (tile.Y + 16.0f < APos || tile.Y > APos)
+                        {
+                            //nada
+                        }
+                        else
+                        {
+                            // Collision, cap'n!
+
+                            // Select this tile. 
+                            newCollision.tileHit = tile;
+                            newCollision.thisIsNull = false;
+
+                            break;
+                        }
+                    }
+                }
+            }
+            
 
 
             return newCollision;

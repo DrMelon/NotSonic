@@ -66,6 +66,7 @@ namespace NotSonic.Components
 
         // Which way we're facing.
         public bool FacingRight = true;
+        public bool FacingUp = true;
 
         // Are we rolling?
         public bool Rolling = false;
@@ -73,13 +74,24 @@ namespace NotSonic.Components
         // Mid-jump?
         public bool Jumping = false;
 
+
+        // Sensors
+        public Sensor wallSensor;
+        public Sensor groundSensorA;
+        public Sensor groundSensorB;
+
         #region Public Methods
 
 
         public override void Added()
         {
-            XPos = Entity.X + 16;
-            YPos = Entity.Y + CurrentHeight;
+            XPos = Entity.X;
+            YPos = Entity.Y;
+
+            wallSensor = new Sensor(0,0,0,false);
+            groundSensorA = new Sensor(0,0,0,true);
+            groundSensorB = new Sensor(0,0,0,true);
+
             base.Added();
         }
 
@@ -165,8 +177,8 @@ namespace NotSonic.Components
             YPos += YSpeed;
 
             // Apply to parent ent
-            Entity.X = XPos - 16;
-            Entity.Y = YPos - CurrentHeight;
+            Entity.X = XPos;
+            Entity.Y = YPos;
 
 
 
@@ -193,122 +205,107 @@ namespace NotSonic.Components
         public void CheckWallSensor()
         {
             // Check for tiles that are at the sides of sonic, relative to Y+4.
-            float LineY = YPos - 4;
+            wallSensor.APos = YPos - 4;
 
             // Left and Right edges are at +-10 on the X axis.
-            float LineXLeft = XPos - 10;
-            float LineXRight = XPos + 10;
+            wallSensor.BPos1 = XPos - 10;
+            wallSensor.BPos2 = XPos + 10;
 
-            // Cycle through all tiles in level (need a way to filter only close ones... maybe only pass close ones in?)
-            foreach(Tile tile in TileList)
+            Sensor.CollisionInfo colInfo = wallSensor.Sense(TileList);
+            if (!colInfo.thisIsNull)
             {
-                // Our line goes from -10, 4 to 10, 4. If anything intersects this, it's a collision to sonic's sides.
-                // It's easiest to check if something is OUTSIDE a collision...
-                if(tile.X + 16.0f < LineXLeft || tile.X > LineXRight)
+                // Collision, cap'n!
+                // Now, if the collision is on the left of sonic...
+                if (colInfo.tileHit.X < XPos)
                 {
-                    //nada
+                    // Pop sonic to the right by the requisite amount.
+                    XPos += (XPos - (colInfo.tileHit.X + 16.0f)) + 1 - 10.0f;
                 }
                 else
                 {
-                    // Make sure the Y position is in range.
-                    if(tile.Y + 16.0f < LineY || tile.Y > LineY)
-                    {
-                        //nada
-                    }
-                    else
-                    {
-                        // Collision, cap'n!
-                        // Now, if the collision is on the left of sonic...
-                        if(tile.X < XPos)
-                        {
-                            // Pop sonic to the right by the requisite amount.
-                            XPos += (XPos - (tile.X + 16.0f)) + 1 - 10.0f;
-                        }
-                        else
-                        {
-                            // Pop sonic to the left
-                            XPos -= (tile.X - XPos) - 1;
-                        }
-
-                        // Set ground speed to 0
-                        GroundSpeed = 0;
-
-                        break;
-                    }
+                    // Pop sonic to the left
+                    XPos -= (colInfo.tileHit.X - XPos) - 1;
                 }
+
+                // Set ground speed to 0
+                GroundSpeed = 0;
             }
+
         }
 
         public void CheckGroundSensors()
         {
-            // Sensor A: Positioned at -9, 0 to -9, 20.
-            float SensorAX = XPos - 9;
-            float SensorATop = YPos + 0;
-            float SensorABottom = YPos + 0 + 20;
+            // Check Mode.
+            if(CurrentFloorMode == FloorMode.FLOOR)
+            {
+                // Sensor A: Positioned at -9, 0 to -9, 20.
+                groundSensorA.APos = XPos - 9;
+                groundSensorA.BPos1 = YPos + 0;
+                groundSensorA.BPos2 = YPos + 0 + 20;
+                groundSensorA.verticalSensor = true;
 
-            // Sensor B: Positioned at 9, 0 to 9, 20.
-            float SensorBX = XPos + 9;
-            float SensorBTop = YPos + 0;
-            float SensorBBottom = YPos + 0 + 20;
+                // Sensor B: Positioned at 9, 0 to 9, 20.
+                groundSensorB.APos = XPos + 9;
+                groundSensorB.BPos1 = YPos + 0;
+                groundSensorB.BPos2 = YPos + 0 + 20;
+                groundSensorB.verticalSensor = true;
+            }
+            if (CurrentFloorMode == FloorMode.CEILING)
+            {
+                groundSensorA.APos = XPos + 9;
+                groundSensorA.BPos1 = YPos + 0;
+                groundSensorA.BPos2 = YPos + 0 - 20;
+                groundSensorA.verticalSensor = true;
+
+                groundSensorB.APos = XPos - 9;
+                groundSensorB.BPos1 = YPos + 0;
+                groundSensorB.BPos2 = YPos + 0 - 20;
+                groundSensorB.verticalSensor = true;
+            }
+            if (CurrentFloorMode == FloorMode.RIGHTWALL)
+            {
+                // Sensor A: Positioned at -9, 0 to -9, 20.
+                groundSensorA.APos = YPos + 9;
+                groundSensorA.BPos1 = XPos + 0;
+                groundSensorA.BPos2 = XPos + 0 + 20;
+                groundSensorA.verticalSensor = false;
+
+                // Sensor B: Positioned at 9, 0 to 9, 20.
+                groundSensorB.APos = YPos - 9;
+                groundSensorB.BPos1 = XPos + 0;
+                groundSensorB.BPos2 = XPos + 0 + 20;
+                groundSensorB.verticalSensor = false;
+            }
+            if (CurrentFloorMode == FloorMode.LEFTWALL)
+            {
+                // Sensor A: Positioned at -9, 0 to -9, 20.
+                groundSensorA.APos = YPos - 9;
+                groundSensorA.BPos1 = XPos + 0;
+                groundSensorA.BPos2 = XPos + 0 - 20;
+                groundSensorA.verticalSensor = false;
+
+                // Sensor B: Positioned at 9, 0 to 9, 20.
+                groundSensorB.APos = YPos + 9;
+                groundSensorB.BPos1 = XPos + 0;
+                groundSensorB.BPos2 = XPos + 0 - 20;
+                groundSensorB.verticalSensor = false;
+            }
+
+
+
 
             // The tiles that will be located.
             Tile sensorATile = null;
             Tile sensorBTile = null;
 
 
-            // Check Sensor A.
-            foreach (Tile tile in TileList)
-            {
-                // It's easiest to check if something is OUTSIDE a collision...
-                if (tile.Y + 16.0f < SensorATop || tile.Y > SensorABottom)
-                {
-                    //nada
-                }
-                else
-                {
-                    // Make sure the Y position is in range.
-                    if (tile.X + 16.0f < SensorAX || tile.X > SensorAX)
-                    {
-                        //nada
-                    }
-                    else
-                    {
-                        // Collision, cap'n!
-                        
-                        // Select this tile. 
-                        sensorATile = tile;
+            // Sense those tiles!
+            Sensor.CollisionInfo colInfoA = groundSensorA.Sense(TileList);
+            Sensor.CollisionInfo colInfoB = groundSensorB.Sense(TileList);
 
-                        break;
-                    }
-                }
-            }
+            sensorATile = colInfoA.tileHit;
+            sensorBTile = colInfoB.tileHit;
 
-            // Check Sensor B.
-            foreach (Tile tile in TileList)
-            {
-                // It's easiest to check if something is OUTSIDE a collision...
-                if (tile.Y + 16.0f < SensorBTop || tile.Y > SensorBBottom)
-                {
-                    //nada
-                }
-                else
-                {
-                    // Make sure the Y position is in range.
-                    if (tile.X + 16.0f < SensorBX || tile.X > SensorBX)
-                    {
-                        //nada
-                    }
-                    else
-                    {
-                        // Collision, cap'n!
-
-                        // Select this tile. 
-                        sensorBTile = tile;
-
-                        break;
-                    }
-                }
-            }
 
 
             // Now that we've checked for the sensor tiles, let's have a look...
@@ -320,7 +317,7 @@ namespace NotSonic.Components
             }
             else
             {
-                // At least one was encountered, we must be on the ground.
+                // At least one was encountered, we must be touching something.
                 // Store collision info
                 int heightOfA = 0;
                 int heightOfB = 0;
@@ -329,10 +326,12 @@ namespace NotSonic.Components
                 float angleOfA = 0.0f;
                 float angleOfB = 0.0f;
 
+                /// THIS ONLY WORKS FOR FLOORMODE CURRENTLY!!
+
                 if (sensorATile != null)
                 {
                     // Capture sensor A's result.
-                    int heightMapArrayIndex = (int)SensorAX - (int)sensorATile.X;
+                    int heightMapArrayIndex = (int)groundSensorA.APos - (int)sensorATile.X;
                     heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
                     heightOfA = sensorATile.myTileInfo.flatheightArray[heightMapArrayIndex];
                     fullheightOfA = heightOfA + (1600 - (int)sensorATile.Y);
@@ -348,7 +347,7 @@ namespace NotSonic.Components
                 if (sensorBTile != null)
                 {
                     // Capture sensor B's result.
-                    int heightMapArrayIndex = (int)SensorBX - (int)sensorBTile.X;
+                    int heightMapArrayIndex = (int)groundSensorB.APos - (int)sensorBTile.X;
                     heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
                     heightOfB = sensorBTile.myTileInfo.flatheightArray[heightMapArrayIndex];
                     fullheightOfB = heightOfB + (1600 - (int)sensorBTile.Y);
@@ -413,88 +412,91 @@ namespace NotSonic.Components
             /// GROUND:
             if (CurrentMoveType == MoveType.GROUND)
             {
-                /// RUNNING:
-                if (!Rolling)
+                /// RUNNING & Not Spindashing
+                if (!(CurrentSpindashStrength > 0.0f))
                 {
-                    if (theController.Left.Down)
+                    if (!Rolling)
                     {
-                        FacingRight = false;
-                        if (GroundSpeed > 0) //Heading right, now going left
+                        if (theController.Left.Down)
                         {
-                            GroundSpeed -= Deceleration;
+                            FacingRight = false;
+                            if (GroundSpeed > 0) //Heading right, now going left
+                            {
+                                GroundSpeed -= Deceleration;
+                            }
+                            else if (GroundSpeed > -TopSpeed)
+                            {
+                                // Zoom!
+                                GroundSpeed -= Acceleration;
+                            }
+                            else
+                            {
+                                GroundSpeed = -TopSpeed;
+                            }
+
                         }
-                        else if (GroundSpeed > -TopSpeed)
+                        else if (theController.Right.Down)
                         {
-                            // Zoom!
-                            GroundSpeed -= Acceleration;
+                            FacingRight = true;
+                            if (GroundSpeed < 0)
+                            {
+                                GroundSpeed += Deceleration;
+                            }
+                            else if (GroundSpeed < TopSpeed)
+                            {
+                                GroundSpeed += Acceleration;
+                            }
+                            else
+                            {
+                                GroundSpeed = TopSpeed;
+                            }
                         }
                         else
                         {
-                            GroundSpeed = -TopSpeed;
+                            // FRICTION
+                            if (Math.Abs(GroundSpeed) < Friction)
+                            {
+                                GroundSpeed = 0;
+                            }
+                            else
+                            {
+                                GroundSpeed -= Friction * Math.Sign(GroundSpeed);
+                            }
+
+                        }
+                    }
+                    else //ROLLING
+                    {
+                        // Can only DECELERATE while rolling.
+                        if (theController.Left.Down)
+                        {
+                            FacingRight = false;
+                            if (GroundSpeed > 0) //Heading right, now going left
+                            {
+                                GroundSpeed -= 0.125f;
+                            }
+
+                        }
+                        else if (theController.Right.Down)
+                        {
+                            FacingRight = true;
+                            if (GroundSpeed < 0)
+                            {
+                                GroundSpeed += 0.125f;
+                            }
                         }
 
-                    }
-                    else if (theController.Right.Down)
-                    {
-                        FacingRight = true;
-                        if (GroundSpeed < 0)
-                        {
-                            GroundSpeed += Deceleration;
-                        }
-                        else if (GroundSpeed < TopSpeed)
-                        {
-                            GroundSpeed += Acceleration;
-                        }
-                        else
-                        {
-                            GroundSpeed = TopSpeed;
-                        }
-                    }
-                    else
-                    {
-                        // FRICTION
-                        if (Math.Abs(GroundSpeed) < Friction)
+
+                        // FRICTION is always active during rolling.
+                        if (Math.Abs(GroundSpeed) < Friction / 2)
                         {
                             GroundSpeed = 0;
+                            Rolling = false;
                         }
                         else
                         {
-                            GroundSpeed -= Friction * Math.Sign(GroundSpeed);
+                            GroundSpeed -= (Friction / 2) * Math.Sign(GroundSpeed);
                         }
-
-                    }
-                }
-                else //ROLLING
-                {
-                    // Can only DECELERATE while rolling.
-                    if (theController.Left.Down)
-                    {
-                        FacingRight = false;
-                        if (GroundSpeed > 0) //Heading right, now going left
-                        {
-                            GroundSpeed -= 0.125f;
-                        }
-
-                    }
-                    else if (theController.Right.Down)
-                    {
-                        FacingRight = true;
-                        if (GroundSpeed < 0)
-                        {
-                            GroundSpeed += 0.125f;
-                        }
-                    }
-
-
-                    // FRICTION is always active during rolling.
-                    if (Math.Abs(GroundSpeed) < Friction / 2)
-                    {
-                        GroundSpeed = 0;
-                        Rolling = false;
-                    }
-                    else
-                    {
-                        GroundSpeed -= (Friction / 2) * Math.Sign(GroundSpeed);
                     }
                 }
 

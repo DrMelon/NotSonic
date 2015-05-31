@@ -28,6 +28,7 @@ namespace NotSonic.Entities
             spriteSheet.Add("spindash", new int[] { 2 }, new float[] { 6f });
             spriteSheet.Play("idle");
             Graphic = spriteSheet;
+            Graphic.CenterOrigin();
 
             // Create movement
             myMovement = new Components.SonicMovement();
@@ -47,13 +48,36 @@ namespace NotSonic.Entities
 
         public void UpdateAnimations()
         {
-
+            Graphic.CenterOrigin();
             spriteSheet.FlippedX = !myMovement.FacingRight;
+            spriteSheet.FlippedY = !myMovement.FacingUp;
+
+         
+
+            // Rotations
+            if (myMovement.CurrentFloorMode == NotSonic.Components.SonicMovement.FloorMode.FLOOR)
+            {
+                Graphic.Angle = 0;
+            }
+            if(myMovement.CurrentFloorMode == NotSonic.Components.SonicMovement.FloorMode.RIGHTWALL)
+            {
+                Graphic.Angle = 90;
+            }
+            if (myMovement.CurrentFloorMode == NotSonic.Components.SonicMovement.FloorMode.CEILING)
+            {
+                Graphic.Angle = 180;
+            }
+            if (myMovement.CurrentFloorMode == NotSonic.Components.SonicMovement.FloorMode.LEFTWALL)
+            {
+                Graphic.Angle = 270;
+            }
             
 
             if(myMovement.Rolling)
             {
                 spriteSheet.Play("roll");
+                Graphic.Angle = 0;
+                Graphic.OriginY = 15;
             }
             else
             {
