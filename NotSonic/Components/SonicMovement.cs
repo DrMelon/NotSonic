@@ -237,6 +237,7 @@ namespace NotSonic.Components
         public void Jump()
         {
             // When sonic jumps, we need to make sure we jump perpendicular to the angle of travel.
+            
             XSpeed -= JumpVelocity * (float)Math.Sin(Angle * Math.PI / 180.0f);
             YSpeed -= JumpVelocity * (float)Math.Cos(Angle * Math.PI / 180.0f);
             Jumping = true;
@@ -600,38 +601,44 @@ namespace NotSonic.Components
                 {
                     if (!Rolling)
                     {
-                        if (theController.Left.Down && HLock <= 0.0f)
+                        if (theController.Left.Down)
                         {
                             FacingRight = false;
-                            if (GroundSpeed > 0) //Heading right, now going left
+                            if (HLock <= 0.0f)
                             {
-                                GroundSpeed -= Deceleration;
-                            }
-                            else if (GroundSpeed > -TopSpeed)
-                            {
-                                // Zoom!
-                                GroundSpeed -= Acceleration;
-                            }
-                            else
-                            {
-                                GroundSpeed = -TopSpeed;
+                                if (GroundSpeed > 0) //Heading right, now going left
+                                {
+                                    GroundSpeed -= Deceleration;
+                                }
+                                else if (GroundSpeed > -TopSpeed)
+                                {
+                                    // Zoom!
+                                    GroundSpeed -= Acceleration;
+                                }
+                                else
+                                {
+                                    GroundSpeed = -TopSpeed;
+                                }
                             }
 
                         }
-                        else if (theController.Right.Down && HLock <= 0.0f)
+                        else if (theController.Right.Down)
                         {
                             FacingRight = true;
-                            if (GroundSpeed < 0)
+                            if (HLock <= 0.0f)
                             {
-                                GroundSpeed += Deceleration;
-                            }
-                            else if (GroundSpeed < TopSpeed)
-                            {
-                                GroundSpeed += Acceleration;
-                            }
-                            else
-                            {
-                                GroundSpeed = TopSpeed;
+                                if (GroundSpeed < 0)
+                                {
+                                    GroundSpeed += Deceleration;
+                                }
+                                else if (GroundSpeed < TopSpeed)
+                                {
+                                    GroundSpeed += Acceleration;
+                                }
+                                else
+                                {
+                                    GroundSpeed = TopSpeed;
+                                }
                             }
                         }
                         else
@@ -651,21 +658,28 @@ namespace NotSonic.Components
                     else //ROLLING
                     {
                         // Can only DECELERATE while rolling.
-                        if (theController.Left.Down && HLock <= 0.0f)
+                        if (theController.Left.Down)
                         {
+
                             FacingRight = false;
-                            if (GroundSpeed > 0) //Heading right, now going left
+                            if (HLock <= 0.0f)
                             {
-                                GroundSpeed -= 0.125f;
+                                if (GroundSpeed > 0) //Heading right, now going left
+                                {
+                                    GroundSpeed -= 0.125f;
+                                }
                             }
 
                         }
-                        else if (theController.Right.Down && HLock <= 0.0f)
+                        else if (theController.Right.Down)
                         {
                             FacingRight = true;
-                            if (GroundSpeed < 0)
+                            if (HLock <= 0.0f)
                             {
-                                GroundSpeed += 0.125f;
+                                if (GroundSpeed < 0)
+                                {
+                                    GroundSpeed += 0.125f;
+                                }
                             }
                         }
 
@@ -733,13 +747,21 @@ namespace NotSonic.Components
             else
             {
                 // AIR MODE
-                if (theController.Left.Down && HLock <= 0.0f)
+                if (theController.Left.Down)
                 {
-                    XSpeed -= AirAccel;
+                    FacingRight = false;
+                    if (HLock <= 0.0f)
+                    {
+                        XSpeed -= AirAccel;
+                    }
                 }
-                else if (theController.Right.Down && HLock <= 0.0f)
+                else if (theController.Right.Down)
                 {
-                    XSpeed += AirAccel;
+                    FacingRight = true;
+                    if (HLock <= 0.0f)
+                    {
+                        XSpeed += AirAccel;
+                    }
                 }
 
                 // Air Drag

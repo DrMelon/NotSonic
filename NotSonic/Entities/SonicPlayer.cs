@@ -76,7 +76,7 @@ namespace NotSonic.Entities
             if(myMovement.Rolling)
             {
                 spriteSheet.Play("roll");
-                Graphic.Angle = 0;
+                //Graphic.Angle = 0;
                 Graphic.OriginY = 15;
             }
             else
