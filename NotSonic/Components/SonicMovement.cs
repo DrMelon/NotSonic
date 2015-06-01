@@ -93,6 +93,10 @@ namespace NotSonic.Components
             groundSensorA = new Sensor(0,0,0,true);
             groundSensorB = new Sensor(0,0,0,true);
 
+            // Register console command for flipping gravity
+            Otter.Debugger.CommandFunction myFunc = new Debugger.CommandFunction(FlipGravity);
+            Debugger.Instance.RegisterCommand(myFunc, (Otter.CommandType[])new Otter.CommandType[0]);
+
             base.Added();
         }
 
@@ -162,6 +166,21 @@ namespace NotSonic.Components
                 XSpeed = -GroundSpeed * (float)Math.Cos(Angle * Math.PI / 180.0f);
                 YSpeed = -GroundSpeed * -(float)Math.Sin(Angle * Math.PI / 180.0f);
             }
+        }
+
+        public void FlipGravity(params string[] target)
+        {
+            Gravity *= -1.0f;
+            if(CurrentFloorMode == FloorMode.FLOOR)
+            {
+                CurrentFloorMode = FloorMode.CEILING;
+            }
+            else
+            {
+                CurrentFloorMode = FloorMode.FLOOR;
+            }
+            Otter.Debugger.Instance.Log(CurrentFloorMode);
+
         }
 
         private void AtrophySpindashStrength()
@@ -304,9 +323,6 @@ namespace NotSonic.Components
             // Falling is always considered to be right side up.
             FloorModeWhenFalling();
 
-            // DEBUG: Force leftwall mode
-            CurrentFloorMode = FloorMode.LEFTWALL;
-
             // Apply speeds to pos
             ApplySpeedToPos();
 
@@ -442,24 +458,24 @@ namespace NotSonic.Components
                 // Sensor A: Positioned at -9, 0 to -9, 20.
                 groundSensorA.APos = XPos - 9;
                 groundSensorA.BPos1 = YPos + 0;
-                groundSensorA.BPos2 = YPos + 15 + 20;
+                groundSensorA.BPos2 = YPos + 16 + 20;
                 groundSensorA.verticalSensor = true;
 
                 // Sensor B: Positioned at 9, 0 to 9, 20.
                 groundSensorB.APos = XPos + 9;
                 groundSensorB.BPos1 = YPos + 0;
-                groundSensorB.BPos2 = YPos + 15 + 20;
+                groundSensorB.BPos2 = YPos + 16 + 20;
                 groundSensorB.verticalSensor = true;
             }
             if (CurrentFloorMode == FloorMode.CEILING)
             {
                 groundSensorA.APos = XPos + 9;
-                groundSensorA.BPos1 = YPos - 15 - 20;
+                groundSensorA.BPos1 = YPos - 16 - 20;
                 groundSensorA.BPos2 = YPos;
                 groundSensorA.verticalSensor = true;
 
                 groundSensorB.APos = XPos - 9;
-                groundSensorB.BPos1 = YPos - 15 - 20;
+                groundSensorB.BPos1 = YPos - 16 - 20;
                 groundSensorB.BPos2 = YPos;
                 groundSensorB.verticalSensor = true;
             }
@@ -468,26 +484,26 @@ namespace NotSonic.Components
                 // Sensor A: Positioned at -9, 0 to -9, 20.
                 groundSensorA.APos = YPos + 9;
                 groundSensorA.BPos1 = XPos + 0;
-                groundSensorA.BPos2 = XPos + 15 + 20;
+                groundSensorA.BPos2 = XPos + 16 + 20;
                 groundSensorA.verticalSensor = false;
 
                 // Sensor B: Positioned at 9, 0 to 9, 20.
                 groundSensorB.APos = YPos - 9;
                 groundSensorB.BPos1 = XPos + 0;
-                groundSensorB.BPos2 = XPos + 15 + 20;
+                groundSensorB.BPos2 = XPos + 16 + 20;
                 groundSensorB.verticalSensor = false;
             }
             if (CurrentFloorMode == FloorMode.LEFTWALL)
             {
                 // Sensor A: Positioned at -9, 0 to -9, 20.
                 groundSensorA.APos = YPos - 9;
-                groundSensorA.BPos1 = XPos - 15 - 20;
+                groundSensorA.BPos1 = XPos - 16 - 20;
                 groundSensorA.BPos2 = XPos + 0;
                 groundSensorA.verticalSensor = false;
 
                 // Sensor B: Positioned at 9, 0 to 9, 20.
                 groundSensorB.APos = YPos + 9;
-                groundSensorB.BPos1 = XPos - 15 - 20;
+                groundSensorB.BPos1 = XPos - 16 - 20;
                 groundSensorB.BPos2 = XPos + 0;
                 groundSensorB.verticalSensor = false;
             }
@@ -514,7 +530,6 @@ namespace NotSonic.Components
             {
                 // We didn't collide with anything. WE'RE FALLING AAARGH
                 CurrentMoveType = MoveType.AIR;
-                CurrentFloorMode = FloorMode.FLOOR;
                 return;
             }
             else
@@ -589,9 +604,6 @@ namespace NotSonic.Components
                         heightOfA = sensorATile.myTileInfo.wallheightArray[heightMapArrayIndex];
 
 
-                        Otter.Debugger.Instance.Log(heightOfA);
-
-
                         fullheightOfA = heightOfA + (1600 - (int)sensorATile.X);
 
 
@@ -635,7 +647,7 @@ namespace NotSonic.Components
                     return;
                 }
 
-                Otter.Debugger.Instance.Log(CurrentMoveType);
+
 
                 // Pop from tiles walked on.
                     if (fullheightOfA >= fullheightOfB && sensorATile != null)
