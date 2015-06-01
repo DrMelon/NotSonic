@@ -63,7 +63,6 @@ namespace NotSonic.Components
             {
 
 
-
                 foreach (Tile tile in tileList)
                 {
                     // It's easiest to check if something is OUTSIDE a collision...

@@ -55,6 +55,7 @@ namespace NotSonic
             foreach(NotSonic.Components.Tile t in tileList)
             {
                 Add(t);
+                
             }
 
             Add(thePlayer);
@@ -102,6 +103,7 @@ namespace NotSonic
                     
                     tileList.Add(newTile);
                 }
+
                 
 
 

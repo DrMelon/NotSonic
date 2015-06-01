@@ -242,6 +242,8 @@ namespace NotSonic.Components
         private void ApplyPosToParent()
         {
             // Apply to parent ent
+           // XPos = (float)(int)XPos;
+          //  YPos = (float)(int)YPos;
             Entity.X = XPos;
             Entity.Y = YPos;
         }
@@ -392,7 +394,6 @@ namespace NotSonic.Components
         {
             
             
-            
             // Check for tiles that are at the sides of sonic, relative to Y+4.
             wallSensor.APos = YPos + 4;
 
@@ -407,7 +408,7 @@ namespace NotSonic.Components
             {
                 // Collision, cap'n!
                 // Now, if the collision is on the left of sonic...
-                if (colInfo.tileHit.X <= XPos)
+                if (colInfo.tileHit.X < XPos)
                 {
                     // Pop sonic to the right by the requisite amount.
                     XPos = colInfo.tileHit.X + 16.0f + 11.0f;
