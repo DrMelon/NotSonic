@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Otter;
+using TiledSharp;
 
 //----------------
 // Author: J. Brown (DrMelon)
@@ -22,43 +23,32 @@ namespace NotSonic
         // List of Tiles
         List<NotSonic.Components.Tile> tileList;
 
-        public LevelScene()
+        // Map Name
+        public string mapName;
+        
+        // Tiled TMX Loader instance
+        public TmxMap tmxMapData;
+
+
+        public LevelScene(string mapFilename)
         {
+
+            // Get map name
+            mapName = mapFilename;
+
+            // Load the map
+            LoadMap();
+
             this.UseCameraBounds = true;
             this.ApplyCamera = true;
-            this.CameraBounds.X = -400;
-            this.CameraBounds.Y = -400;
-            this.CameraBounds.Width = 1600;
-            this.CameraBounds.Height = 1600;
 
-            // Load Level from Tiled map.
-            tileList = new List<Components.Tile>();
+            // Set the camera bounds based on the map size.
+            this.CameraBounds.X = 0;
+            this.CameraBounds.Y = 0;
+            this.CameraBounds.Width = 16 * tmxMapData.Width;
+            this.CameraBounds.Height = 16 * tmxMapData.Height;
 
-            // DEBUG: Create blank tile for tilelist
-            tileList.Add(new Components.Tile(64 - 16, 64 - 16, NotSonic.Components.Tile.TileType.TILE_SLOPE_45_DOWN));
-            tileList.Add(new Components.Tile(64, 64, NotSonic.Components.Tile.TileType.TILE_BASIC));
-            tileList.Add(new Components.Tile(64 + 16, 64, NotSonic.Components.Tile.TileType.TILE_BASIC));
-            tileList.Add(new Components.Tile(64 + 32, 64, NotSonic.Components.Tile.TileType.TILE_BASIC));
-            tileList.Add(new Components.Tile(64 + 32 + 16, 64, NotSonic.Components.Tile.TileType.TILE_BASIC));
-            tileList.Add(new Components.Tile(64 + 64, 64, NotSonic.Components.Tile.TileType.TILE_BASIC));
-            tileList.Add(new Components.Tile(64 + 64 + 16, 64, NotSonic.Components.Tile.TileType.TILE_BASIC));
-            tileList.Add(new Components.Tile(64 + 64 + 32, 64, NotSonic.Components.Tile.TileType.TILE_BASIC));
-            tileList.Add(new Components.Tile(64 + 64 + 32 + 16, 64, NotSonic.Components.Tile.TileType.TILE_BASIC));
-            tileList.Add(new Components.Tile(64 + 64 + 64, 64 - 16, NotSonic.Components.Tile.TileType.TILE_LOOP_UP_10));
-            tileList.Add(new Components.Tile(64 + 64 + 64 + 16, 64 - 16, NotSonic.Components.Tile.TileType.TILE_LOOP_UP_20));
-            tileList.Add(new Components.Tile(64 + 64 + 64 + 32, 64 - 16, NotSonic.Components.Tile.TileType.TILE_LOOP_UP_30));
-            tileList.Add(new Components.Tile(64 + 64 + 64 + 32, 64 - 32, NotSonic.Components.Tile.TileType.TILE_LOOP_UP_45));
-            tileList.Add(new Components.Tile(64 + 64 + 64 + 32 + 16, 64 - 32, NotSonic.Components.Tile.TileType.TILE_LOOP_UP_60));
-            tileList.Add(new Components.Tile(64 + 64 + 64 + 32 + 16, 64 - 32 - 16, NotSonic.Components.Tile.TileType.TILE_LOOP_UP_70));
-            tileList.Add(new Components.Tile(64 + 64 + 64 + 32 + 16, 64 - 64, NotSonic.Components.Tile.TileType.TILE_LOOP_UP_85));
-            tileList.Add(new Components.Tile(64 + 64 + 64, 64, NotSonic.Components.Tile.TileType.TILE_BASIC));
-            tileList.Add(new Components.Tile(64 + 64 + 64 + 64, 64 - 64, NotSonic.Components.Tile.TileType.TILE_BASIC));
-            tileList.Add(new Components.Tile(64 + 64 + 64 + 64, 64 - 64 - 16, NotSonic.Components.Tile.TileType.TILE_BASIC));
-            tileList.Add(new Components.Tile(64 + 64 + 64 + 64, 64 - 64 - 32, NotSonic.Components.Tile.TileType.TILE_BASIC));
-            tileList.Add(new Components.Tile(64 + 64 + 64 + 64, 64 - 64 - 32 - 16, NotSonic.Components.Tile.TileType.TILE_BASIC));
-            tileList.Add(new Components.Tile(64 + 64 + 64 + 64, 64 - 64 - 64, NotSonic.Components.Tile.TileType.TILE_BASIC));
-            tileList.Add(new Components.Tile(64 + 64 + 64 + 64, 64 - 64 - 64 - 16, NotSonic.Components.Tile.TileType.TILE_BASIC));
-            tileList.Add(new Components.Tile(64 + 64 + 64 + 64, 64 - 64 - 64 - 32, NotSonic.Components.Tile.TileType.TILE_BASIC));
+
 
             thePlayer = new Entities.SonicPlayer(tileList, 70, 32);
             
@@ -71,6 +61,51 @@ namespace NotSonic
 
             
 
+        }
+
+        public void LoadMap()
+        {
+            // Load map using the map loader.
+            tmxMapData = new TmxMap(mapName);
+
+            // Load Level from Tiled map.
+            tileList = new List<Components.Tile>();
+
+            // For each tile in the Solid layer, we want to create a Tile object, and use the relevant image.
+            for(int i = 0; i < tmxMapData.Layers["Solid"].Tiles.Count; i++)
+            {
+                
+                if(tmxMapData.Layers["Solid"].Tiles[i].Gid != 0)
+                {
+                    // Heightmap Data
+                    // In the Solid_Height layer, we find the appropriate tile type. Angles are included in this.
+                    int heightMapID = tmxMapData.Layers["Solid_Height"].Tiles[i].Gid;
+                    if(heightMapID >= 324)
+                    {
+                        heightMapID = tmxMapData.Layers["Solid_Height"].Tiles[i].Gid - 324;
+                    }
+
+                    NotSonic.Components.Tile newTile = new NotSonic.Components.Tile(tmxMapData.Layers["Solid"].Tiles[i].X * 16, tmxMapData.Layers["Solid"].Tiles[i].Y * 16, heightMapID);
+                    
+                    
+                    // Set the tile's graphic properly.
+                    newTile.tileImage.Frame = tmxMapData.Layers["Solid"].Tiles[i].Gid - 1;
+                    newTile.tileImage.FlippedX = tmxMapData.Layers["Solid"].Tiles[i].HorizontalFlip;
+                    newTile.tileImage.FlippedY = tmxMapData.Layers["Solid"].Tiles[i].VerticalFlip;
+                    
+                    
+                    tileList.Add(newTile);
+                }
+                
+
+
+                
+
+            }
+
+            
+           
+            
         }
 
         public override void UpdateLast()

@@ -126,11 +126,13 @@ namespace NotSonic.Components
             // Handle input
             HandleInput();
 
+            CheckWallSensor();
+
             // Check sensors for solid ground:
             CheckGroundSensors();
 
             
-            CheckWallSensor();
+            
             
 
             // Update Slope Factor
@@ -286,7 +288,7 @@ namespace NotSonic.Components
             
 
             Sensor.CollisionInfo colInfo = wallSensor.Sense(TileList);
-            if (!colInfo.thisIsNull && colInfo.tileHit.myType == Tile.TileType.TILE_BASIC)
+            if (!colInfo.thisIsNull && colInfo.tileHit.myType == (int)Tile.TileType.TILE_BASIC)
             {
                 // Collision, cap'n!
                 // Now, if the collision is on the left of sonic...
@@ -302,7 +304,7 @@ namespace NotSonic.Components
                 }
 
                 // Set ground speed to 0 if pushing at it
-               
+                XSpeed = 0;
                 GroundSpeed = 0;
             }
 

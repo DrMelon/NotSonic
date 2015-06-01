@@ -57,8 +57,7 @@ namespace NotSonic.Entities
             // Rotations
             if (myMovement.CurrentFloorMode == NotSonic.Components.SonicMovement.FloorMode.FLOOR)
             {
-                Graphic.Angle = 0;
-                
+                Graphic.Angle = 0;          
             }
             if(myMovement.CurrentFloorMode == NotSonic.Components.SonicMovement.FloorMode.RIGHTWALL)
             {
