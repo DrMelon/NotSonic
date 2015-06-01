@@ -168,6 +168,21 @@ namespace NotSonic.Components
                 // Swap these for wallmode?
                 XSpeed = GroundSpeed * (float)Math.Cos(Angle * Math.PI / 180.0f);
                 YSpeed = GroundSpeed * -(float)Math.Sin(Angle * Math.PI / 180.0f);
+
+                // Wallrunning stuff?
+                if(CurrentFloorMode == FloorMode.RIGHTWALL)
+                {
+                    if(Angle == 0.0f)
+                    {
+                        Angle += 90.0f;
+                    }
+                    YSpeed = GroundSpeed * -(float)Math.Sin((Angle) * Math.PI / 180.0f);
+                    XSpeed = GroundSpeed * (float)Math.Cos(Angle * Math.PI / 180.0f);
+                    if(Angle == 90.0f)
+                    {
+                        Angle -= 90.0f;
+                    }
+                }
                 
             }
 
