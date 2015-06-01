@@ -168,8 +168,8 @@ namespace NotSonic.Components
             else
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_EMPTY;
-                Image spriteImage = new Image(16, 16); //blank
-                Graphic = spriteImage;
+               // Image spriteImage = new Image(16, 16); //blank
+               // Graphic = spriteImage;
             }
 
 
