@@ -80,18 +80,24 @@ namespace NotSonic
                     // Heightmap Data
                     // In the Solid_Height layer, we find the appropriate tile type. Angles are included in this.
                     int heightMapID = tmxMapData.Layers["Solid_Height"].Tiles[i].Gid;
+                    bool heightFlipX = tmxMapData.Layers["Solid_Height"].Tiles[i].HorizontalFlip;
+                    bool heightFlipY = tmxMapData.Layers["Solid_Height"].Tiles[i].VerticalFlip;
                     if(heightMapID >= 324)
                     {
                         heightMapID = tmxMapData.Layers["Solid_Height"].Tiles[i].Gid - 324;
                     }
 
-                    NotSonic.Components.Tile newTile = new NotSonic.Components.Tile(tmxMapData.Layers["Solid"].Tiles[i].X * 16, tmxMapData.Layers["Solid"].Tiles[i].Y * 16, heightMapID);
+                    // Create tile.
+                    NotSonic.Components.Tile newTile = new NotSonic.Components.Tile(tmxMapData.Layers["Solid"].Tiles[i].X * 16, tmxMapData.Layers["Solid"].Tiles[i].Y * 16, heightMapID, heightFlipX, heightFlipY);
                     
                     
                     // Set the tile's graphic properly.
                     newTile.tileImage.Frame = tmxMapData.Layers["Solid"].Tiles[i].Gid - 1;
                     newTile.tileImage.FlippedX = tmxMapData.Layers["Solid"].Tiles[i].HorizontalFlip;
                     newTile.tileImage.FlippedY = tmxMapData.Layers["Solid"].Tiles[i].VerticalFlip;
+
+                    
+                    
                     
                     
                     tileList.Add(newTile);

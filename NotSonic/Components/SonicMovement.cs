@@ -205,11 +205,21 @@ namespace NotSonic.Components
                 }
             }
 
+            // Going Left, Hit Ramp, Moving Normal Now
             if(Angle >= 45.0f && Angle < 135.0f && GroundSpeed < 0)
             {
                 if(CurrentFloorMode == FloorMode.RIGHTWALL)
                 {
                     CurrentFloorMode = FloorMode.FLOOR;
+                }
+            }
+
+            // Going Left, Hit Ramp, Moving Up Leftways
+            if(Angle == 315.0f && GroundSpeed < 0)
+            {
+                if(CurrentFloorMode == FloorMode.FLOOR)
+                {
+                    CurrentFloorMode = FloorMode.LEFTWALL;
                 }
             }
 
@@ -355,13 +365,13 @@ namespace NotSonic.Components
             if (CurrentFloorMode == FloorMode.CEILING)
             {
                 groundSensorA.APos = XPos + 9;
-                groundSensorA.BPos1 = YPos + 0;
-                groundSensorA.BPos2 = YPos + 15 - 20;
+                groundSensorA.BPos1 = YPos - 15 - 20;
+                groundSensorA.BPos2 = YPos;
                 groundSensorA.verticalSensor = true;
 
                 groundSensorB.APos = XPos - 9;
-                groundSensorB.BPos1 = YPos + 0;
-                groundSensorB.BPos2 = YPos + 15 - 20;
+                groundSensorB.BPos1 = YPos - 15 - 20;
+                groundSensorB.BPos2 = YPos;
                 groundSensorB.verticalSensor = true;
             }
             if (CurrentFloorMode == FloorMode.RIGHTWALL)
@@ -382,14 +392,14 @@ namespace NotSonic.Components
             {
                 // Sensor A: Positioned at -9, 0 to -9, 20.
                 groundSensorA.APos = YPos - 9;
-                groundSensorA.BPos1 = XPos + 0;
-                groundSensorA.BPos2 = XPos + 15 - 20;
+                groundSensorA.BPos1 = XPos - 15 - 20;
+                groundSensorA.BPos2 = XPos + 0;
                 groundSensorA.verticalSensor = false;
 
                 // Sensor B: Positioned at 9, 0 to 9, 20.
                 groundSensorB.APos = YPos + 9;
-                groundSensorB.BPos1 = XPos + 0;
-                groundSensorB.BPos2 = XPos + 15 - 20;
+                groundSensorB.BPos1 = XPos - 15 - 20;
+                groundSensorB.BPos2 = XPos + 0;
                 groundSensorB.verticalSensor = false;
             }
 
@@ -436,24 +446,13 @@ namespace NotSonic.Components
                     {
                         // Capture sensor A's result.
                         int heightMapArrayIndex = (int)groundSensorA.APos - (int)sensorATile.X;
-                        if(CurrentFloorMode == FloorMode.CEILING)
-                        {
-                            heightMapArrayIndex = 15 - heightMapArrayIndex;
-                        }
+
                         heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
 
                         heightOfA = sensorATile.myTileInfo.flatheightArray[heightMapArrayIndex];
-                        if(CurrentFloorMode == FloorMode.CEILING)
-                        {
-                            heightOfA = 16 - heightOfA;
-                        }
 
-                        
                         fullheightOfA = heightOfA + (1600 - (int)sensorATile.Y);
-                        if(CurrentFloorMode == FloorMode.CEILING)
-                        {
-                            fullheightOfA = heightOfA + (int)sensorATile.Y;
-                        }
+
 
 
                         angleOfA = sensorATile.myTileInfo.Angle;
@@ -469,24 +468,15 @@ namespace NotSonic.Components
                     {
                         // Capture sensor B's result.
                         int heightMapArrayIndex = (int)groundSensorB.APos - (int)sensorBTile.X;
-                        if (CurrentFloorMode == FloorMode.CEILING)
-                        {
-                            heightMapArrayIndex = 15 - heightMapArrayIndex;
-                        }
+
                         heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
 
                         heightOfB = sensorBTile.myTileInfo.flatheightArray[heightMapArrayIndex];
-                        if (CurrentFloorMode == FloorMode.CEILING)
-                        {
-                            heightOfB = 16 - heightOfB;
-                        }
+
 
 
                         fullheightOfB = heightOfB + (1600 - (int)sensorBTile.Y);
-                        if (CurrentFloorMode == FloorMode.CEILING)
-                        {
-                            fullheightOfB = heightOfB + (int)sensorBTile.Y;
-                        }
+
                         angleOfB = sensorBTile.myTileInfo.Angle;
 
                         // If the tile is empty of collision, don't collide with it. Duh!
@@ -505,27 +495,15 @@ namespace NotSonic.Components
                         // Capture sensor A's result.
                         int heightMapArrayIndex = (int)groundSensorA.APos - (int)sensorATile.Y;
                         
-                        if (CurrentFloorMode == FloorMode.LEFTWALL)
-                        {
-                            
-                            heightMapArrayIndex = 15 - heightMapArrayIndex;
-                        }
                         heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
 
                         heightOfA = sensorATile.myTileInfo.wallheightArray[heightMapArrayIndex];
-                        if (CurrentFloorMode == FloorMode.LEFTWALL)
-                        {
-                            heightOfA = 16 - heightOfA;
-                        }
+
 
                         Otter.Debugger.Instance.Log(heightOfA);
 
 
                         fullheightOfA = heightOfA + (1600 - (int)sensorATile.X);
-                        if (CurrentFloorMode == FloorMode.LEFTWALL)
-                        {
-                            fullheightOfA = heightOfA + (int)sensorATile.X;
-                        }
 
 
                         angleOfA = sensorATile.myTileInfo.Angle;
@@ -541,24 +519,15 @@ namespace NotSonic.Components
                     {
                         // Capture sensor B's result.
                         int heightMapArrayIndex = (int)groundSensorB.APos - (int)sensorBTile.Y;
-                        if (CurrentFloorMode == FloorMode.LEFTWALL)
-                        {
-                            heightMapArrayIndex = 15 - heightMapArrayIndex;
-                        }
+
                         heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
 
                         heightOfB = sensorBTile.myTileInfo.wallheightArray[heightMapArrayIndex];
-                        if (CurrentFloorMode == FloorMode.LEFTWALL)
-                        {
-                            heightOfB = 16 - heightOfB;
-                        }
+
 
 
                         fullheightOfB = heightOfB + (1600 - (int)sensorBTile.X);
-                        if (CurrentFloorMode == FloorMode.LEFTWALL)
-                        {
-                            fullheightOfB = heightOfB + (int)sensorBTile.X;
-                        }
+
                         angleOfB = sensorBTile.myTileInfo.Angle;
 
                         // If the tile is empty of collision, don't collide with it. Duh!
@@ -587,6 +556,10 @@ namespace NotSonic.Components
                             if(sensorATile.Y - (YPos + 20) < 1)
                             {
                                 YPos = sensorATile.Y + 16 - heightOfA - 20;
+                                if(CurrentFloorMode == FloorMode.CEILING)
+                                {
+                                    YPos = sensorATile.Y - 16 + heightOfA + 20;
+                                }
                                 // If we were in the air, reset the groundspeed.
                                 RegainGround();
                             }
@@ -597,6 +570,10 @@ namespace NotSonic.Components
                         else
                         {
                             XPos = sensorATile.X + 16 - heightOfA - 20;
+                            if(CurrentFloorMode == FloorMode.LEFTWALL)
+                            {
+                                XPos = sensorATile.X - 16 + heightOfA + 20;
+                            }
                             // If we were in the air, reset the groundspeed.
                             RegainGround();
                         }

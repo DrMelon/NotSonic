@@ -40,10 +40,10 @@ namespace NotSonic.Entities
 
         }
 
-        public override void Update()
+        public override void UpdateLast()
         {
             UpdateAnimations();
-            base.Update();
+            base.UpdateLast();
         }
 
         public void UpdateAnimations()
