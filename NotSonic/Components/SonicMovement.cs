@@ -456,8 +456,10 @@ namespace NotSonic.Components
                     {
                         // Capture sensor A's result.
                         int heightMapArrayIndex = (int)groundSensorA.APos - (int)sensorATile.Y;
+                        
                         if (CurrentFloorMode == FloorMode.LEFTWALL)
                         {
+                            
                             heightMapArrayIndex = 15 - heightMapArrayIndex;
                         }
                         heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
@@ -467,6 +469,8 @@ namespace NotSonic.Components
                         {
                             heightOfA = 16 - heightOfA;
                         }
+
+                        Otter.Debugger.Instance.Log(heightOfA);
 
 
                         fullheightOfA = heightOfA + (1600 - (int)sensorATile.X);
@@ -525,9 +529,9 @@ namespace NotSonic.Components
                     return;
                 }
 
+                Otter.Debugger.Instance.Log(CurrentMoveType);
 
-                if (CurrentMoveType == MoveType.GROUND || YSpeed >= 0)
-                {
+                // Pop from tiles walked on.
                     if (fullheightOfA >= fullheightOfB && sensorATile != null)
                     {
                         if(CurrentFloorMode == FloorMode.FLOOR || CurrentFloorMode == FloorMode.CEILING)
@@ -553,7 +557,7 @@ namespace NotSonic.Components
                         }
                         Angle = angleOfB;
                     }
-                }
+               
 
 
                 // If we were in the air, reset the groundspeed.
