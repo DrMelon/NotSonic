@@ -102,6 +102,156 @@ namespace NotSonic.Components
         }
 
 
+        private void UpdateSlopeFactor()
+        {
+            // If sonic is running, the slope factor is 0.125.
+            SlopeFactor = 0.125f;
+
+            if (Rolling)
+            {
+                // If sonic is rolling, the slope factor is altered further depending on if he's going uphill or downhill.
+                // This is easy to check; if he's rolling uphill, the sign of GroundSpeed is not equal to the sign of Sin(Angle).
+                if (GroundSpeed < 0 && Math.Sin(Angle) >= 0)
+                {
+                    // Uphill, it's 0.078125
+                    SlopeFactor = 0.078125f;
+                }
+                else
+                {
+                    // Downhill, it's 0.3125.
+                    SlopeFactor = 0.3125f;
+                }
+            }
+        }
+
+        private void UpdateObjectHeight()
+        {
+            if (Rolling)
+            {
+                CurrentHeight = 15;
+            }
+            else
+            {
+                CurrentHeight = 20;
+            }
+        }
+
+        private void CalculateSpeedFromGroundSpeed()
+        {
+            // Swap these for wallmode?
+            XSpeed = GroundSpeed * (float)Math.Cos(Angle * Math.PI / 180.0f);
+            YSpeed = GroundSpeed * -(float)Math.Sin(Angle * Math.PI / 180.0f);
+
+            // Wallrunning stuff?
+            if (CurrentFloorMode == FloorMode.RIGHTWALL)
+            {
+
+                YSpeed = GroundSpeed * -(float)Math.Sin((Angle + 90 - Angle) * Math.PI / 180.0f);
+                XSpeed = GroundSpeed * (float)Math.Cos((Angle + 90 - Angle) * Math.PI / 180.0f);
+
+            }
+
+            if(CurrentFloorMode == FloorMode.LEFTWALL)
+            {
+                YSpeed = -GroundSpeed * -(float)Math.Sin((Angle + 90 - Angle) * Math.PI / 180.0f);
+                XSpeed = -GroundSpeed * (float)Math.Cos((Angle + 90 - Angle) * Math.PI / 180.0f);
+            }
+
+            if(CurrentFloorMode == FloorMode.CEILING)
+            {
+                XSpeed = -GroundSpeed * (float)Math.Cos(Angle * Math.PI / 180.0f);
+                YSpeed = -GroundSpeed * -(float)Math.Sin(Angle * Math.PI / 180.0f);
+            }
+        }
+
+        private void AtrophySpindashStrength()
+        {
+            // Slow down spindash amt
+            CurrentSpindashStrength = CurrentSpindashStrength - (float)(Math.Floor(CurrentSpindashStrength / 0.125) / 256);
+            if (CurrentSpindashStrength < 0.0f)
+            {
+                CurrentSpindashStrength = 0.0f;
+            }
+        }
+
+        private void ApplySpeedToPos()
+        {
+
+            XPos += XSpeed;
+            YPos += YSpeed;
+        }
+
+        private void ChangeFloorMode()
+        {
+            // Check Mode- Going Right, Hit Ramp, Going up!
+            if (Angle >= 45.0f && GroundSpeed > 0 && Angle < 135.0f)
+            {
+                if (CurrentFloorMode == FloorMode.FLOOR)
+                {
+                    // On the right wall
+                    CurrentFloorMode = FloorMode.RIGHTWALL;
+                }
+            }
+
+            // Going Left, Hit Ramp, Moving Normal Now
+            if (Angle >= 45.0f && Angle < 135.0f && GroundSpeed < 0)
+            {
+                if (CurrentFloorMode == FloorMode.RIGHTWALL)
+                {
+                    CurrentFloorMode = FloorMode.FLOOR;
+                }
+            }
+
+            // Going Left, Hit Ramp, Moving Up Leftways
+            if (Angle == 315.0f && GroundSpeed < 0)
+            {
+                if (CurrentFloorMode == FloorMode.FLOOR)
+                {
+                    CurrentFloorMode = FloorMode.LEFTWALL;
+                }
+            }
+        }
+
+        private void AtrohpyHLock()
+        {
+            if (HLock > 0.0f)
+            {
+                HLock -= 1.0f;
+            }
+        }
+
+        private void ApplyPosToParent()
+        {
+            // Apply to parent ent
+            Entity.X = XPos;
+            Entity.Y = YPos;
+        }
+
+        private void CheckWallModeSpeed()
+        {
+            // Check speed for wall mode.
+            if (Math.Abs(GroundSpeed) < 2.5 && CurrentFloorMode != FloorMode.FLOOR)
+            {
+                // We slipped off!
+                CurrentFloorMode = FloorMode.FLOOR;
+                // Lock controls, prevent further movement for half a second.
+                HLock = 30.0f;
+            }
+        }
+
+        private void FloorModeWhenFalling()
+        {
+            if (CurrentMoveType == MoveType.AIR /*&& YSpeed > 0*/)
+            {
+                CurrentFloorMode = FloorMode.FLOOR;
+            }
+        }
+
+        private void CalculateGroundSpeed()
+        {
+            GroundSpeed += SlopeFactor * -(float)Math.Sin(Angle * Math.PI / 180.0f);
+        }
+
         /// <summary>
         /// Updates the Movement.
         /// </summary>
@@ -110,18 +260,12 @@ namespace NotSonic.Components
             base.Update();
 
             // Check left/right flip
-            if (XSpeed > 0)
-            {
-                FacingRight = true;
-            }
-            if (XSpeed < 0)
-            {
-                FacingRight = false;
-            }
+            FlipLeftRight();
 
 
             // Slope factor is added to Ground Speed. This slows sonic when moving uphill, and speeds him up when moving downhill.
-            GroundSpeed += SlopeFactor * -(float)Math.Sin(Angle * Math.PI / 180.0f);
+            CalculateGroundSpeed();
+            
 
             // Handle input
             HandleInput();
@@ -131,121 +275,44 @@ namespace NotSonic.Components
             // Check sensors for solid ground:
             CheckGroundSensors();
 
-            
-            
-            
-
-            // Update Slope Factor
+            // Ground Stuff
             if (CurrentMoveType != MoveType.AIR)
             {
-                // If sonic is running, the slope factor is 0.125.
-                SlopeFactor = 0.125f;
-
-                if (Rolling)
-                {
-                    // If sonic is rolling, the slope factor is altered further depending on if he's going uphill or downhill.
-                    // This is easy to check; if he's rolling uphill, the sign of GroundSpeed is not equal to the sign of Sin(Angle).
-                    if (GroundSpeed < 0 && Math.Sin(Angle) >= 0)
-                    {
-                        // Uphill, it's 0.078125
-                        SlopeFactor = 0.078125f;
-                    }
-                    else
-                    {
-                        // Downhill, it's 0.3125.
-                        SlopeFactor = 0.3125f;
-                    }
-                }
+                // Update Slope Factor
+                UpdateSlopeFactor();
 
                 // Check heights
-                if (Rolling)
-                {
-                    CurrentHeight = 15;
-                }
-                else
-                {
-                    CurrentHeight = 20;
-                }
+                UpdateObjectHeight();
 
+                // Do Speed check
+                CalculateSpeedFromGroundSpeed();
 
-
-                // Swap these for wallmode?
-                XSpeed = GroundSpeed * (float)Math.Cos(Angle * Math.PI / 180.0f);
-                YSpeed = GroundSpeed * -(float)Math.Sin(Angle * Math.PI / 180.0f);
-
-                // Wallrunning stuff?
-                if(CurrentFloorMode == FloorMode.RIGHTWALL)
-                {
-
-                    YSpeed = GroundSpeed * -(float)Math.Sin((Angle + 90 - Angle) * Math.PI / 180.0f);
-                    XSpeed = GroundSpeed * (float)Math.Cos((Angle + 90 - Angle) * Math.PI / 180.0f);
-
-                }
-                
             }
 
-            // Slow down spindash amt
-            CurrentSpindashStrength = CurrentSpindashStrength - (float)(Math.Floor(CurrentSpindashStrength / 0.125) / 256);
-            if(CurrentSpindashStrength < 0.0f)
-            {
-                CurrentSpindashStrength = 0.0f;
-            }
+            // Spindash tick
+            AtrophySpindashStrength();
+            // HLock tick
+            AtrohpyHLock();
 
 
-            XPos += XSpeed;
-            YPos += YSpeed;
+            // Check and change floor mode
+            ChangeFloorMode();
 
-            // Check Mode- Going Right, Hit Ramp, Going up!
-            if(Angle >= 45.0f && GroundSpeed > 0 && Angle < 135.0f)
-            {
-                if(CurrentFloorMode == FloorMode.FLOOR)
-                {
-                    // On the right wall
-                    CurrentFloorMode = FloorMode.RIGHTWALL;
-                }
-            }
-
-            // Going Left, Hit Ramp, Moving Normal Now
-            if(Angle >= 45.0f && Angle < 135.0f && GroundSpeed < 0)
-            {
-                if(CurrentFloorMode == FloorMode.RIGHTWALL)
-                {
-                    CurrentFloorMode = FloorMode.FLOOR;
-                }
-            }
-
-            // Going Left, Hit Ramp, Moving Up Leftways
-            if(Angle == 315.0f && GroundSpeed < 0)
-            {
-                if(CurrentFloorMode == FloorMode.FLOOR)
-                {
-                    CurrentFloorMode = FloorMode.LEFTWALL;
-                }
-            }
-
-            // Check speed for wall mode.
-            if(Math.Abs(GroundSpeed) < 2.5 && CurrentFloorMode != FloorMode.FLOOR)
-            {
-                // We slipped off!
-                CurrentFloorMode = FloorMode.FLOOR;
-                // Lock controls, prevent further movement for half a second.
-                HLock = 30.0f;
-            }
+            // Make sure to fall off if wall mode speed is too slow
+            CheckWallModeSpeed();
 
             // Falling is always considered to be right side up.
-            if(CurrentMoveType == MoveType.AIR /*&& YSpeed > 0*/)
-            {
-                CurrentFloorMode = FloorMode.FLOOR;
-            }
+            FloorModeWhenFalling();
 
-            if(HLock > 0.0f)
-            {
-                HLock -= 1.0f;
-            }
-            
-            // Apply to parent ent
-            Entity.X = XPos;
-            Entity.Y = YPos;
+            // DEBUG: Force leftwall mode
+            CurrentFloorMode = FloorMode.LEFTWALL;
+
+            // Apply speeds to pos
+            ApplySpeedToPos();
+
+            // Apply pos to parent
+            ApplyPosToParent();
+
 
 
 
@@ -257,6 +324,18 @@ namespace NotSonic.Components
 
         }
 
+        private void FlipLeftRight()
+        {
+            if (XSpeed > 0)
+            {
+                FacingRight = true;
+            }
+            if (XSpeed < 0)
+            {
+                FacingRight = false;
+            }
+        }
+
         public void Jump()
         {
             // When sonic jumps, we need to make sure we jump perpendicular to the angle of travel.
@@ -266,10 +345,20 @@ namespace NotSonic.Components
                 XSpeed -= JumpVelocity * (float)Math.Sin((Angle + 90 - Angle) * Math.PI / 180.0f);
                 YSpeed -= JumpVelocity * (float)Math.Cos((Angle + 90 - Angle) * Math.PI / 180.0f);
             }
+            if (CurrentFloorMode == FloorMode.LEFTWALL)
+            {
+                XSpeed -= JumpVelocity * (float)Math.Sin((Angle + 270 - Angle) * Math.PI / 180.0f);
+                YSpeed -= JumpVelocity * (float)Math.Cos((Angle + 270 - Angle) * Math.PI / 180.0f);
+            }
             if (CurrentFloorMode == FloorMode.FLOOR)
             {
                 XSpeed -= JumpVelocity * (float)Math.Sin(Angle * Math.PI / 180.0f);
                 YSpeed -= JumpVelocity * (float)Math.Cos(Angle * Math.PI / 180.0f);
+            }
+            if(CurrentFloorMode == FloorMode.CEILING)
+            {
+                XSpeed -= JumpVelocity * (float)Math.Sin(Angle * Math.PI / 180.0f);
+                YSpeed -= -JumpVelocity * (float)Math.Cos(Angle * Math.PI / 180.0f);
             }
             
 
@@ -558,7 +647,7 @@ namespace NotSonic.Components
                                 YPos = sensorATile.Y + 16 - heightOfA - 20;
                                 if(CurrentFloorMode == FloorMode.CEILING)
                                 {
-                                    YPos = sensorATile.Y - 16 + heightOfA + 20;
+                                    YPos = sensorATile.Y + heightOfA + 20;
                                 }
                                 // If we were in the air, reset the groundspeed.
                                 RegainGround();
@@ -572,7 +661,7 @@ namespace NotSonic.Components
                             XPos = sensorATile.X + 16 - heightOfA - 20;
                             if(CurrentFloorMode == FloorMode.LEFTWALL)
                             {
-                                XPos = sensorATile.X - 16 + heightOfA + 20;
+                                XPos = sensorATile.X + heightOfA + 20;
                             }
                             // If we were in the air, reset the groundspeed.
                             RegainGround();
@@ -587,6 +676,10 @@ namespace NotSonic.Components
                             if(sensorBTile.Y - (YPos + 20) < 1)
                             {
                                 YPos = sensorBTile.Y + 16 - heightOfB - 20;
+                                if (CurrentFloorMode == FloorMode.CEILING)
+                                {
+                                    YPos = sensorBTile.Y + heightOfB + 20;
+                                }
                                 // If we were in the air, reset the groundspeed.
                                 RegainGround();
                             }
@@ -595,6 +688,10 @@ namespace NotSonic.Components
                         else
                         {
                             XPos = sensorBTile.X + 16 - heightOfB - 20;
+                            if (CurrentFloorMode == FloorMode.LEFTWALL)
+                            {
+                                XPos = sensorBTile.X + heightOfB + 20;
+                            }
                             // If we were in the air, reset the groundspeed.
                             RegainGround();
                         }
