@@ -296,6 +296,9 @@ namespace NotSonic.Components
 
             CheckWallSensor();
 
+            // Check heights
+            UpdateObjectHeight();
+
             // Check sensors for solid ground:
             CheckGroundSensors();
 
@@ -305,8 +308,7 @@ namespace NotSonic.Components
                 // Update Slope Factor
                 UpdateSlopeFactor();
 
-                // Check heights
-                UpdateObjectHeight();
+
 
                 // Do Speed check
                 CalculateSpeedFromGroundSpeed();
@@ -472,24 +474,24 @@ namespace NotSonic.Components
                 // Sensor A: Positioned at -9, 0 to -9, 20.
                 groundSensorA.APos = XPos - 9;
                 groundSensorA.BPos1 = YPos + 0;
-                groundSensorA.BPos2 = YPos + 16 + 20;
+                groundSensorA.BPos2 = YPos + 16 + CurrentHeight;
                 groundSensorA.verticalSensor = true;
 
                 // Sensor B: Positioned at 9, 0 to 9, 20.
                 groundSensorB.APos = XPos + 9;
                 groundSensorB.BPos1 = YPos + 0;
-                groundSensorB.BPos2 = YPos + 16 + 20;
+                groundSensorB.BPos2 = YPos + 16 + CurrentHeight;
                 groundSensorB.verticalSensor = true;
             }
             if (CurrentFloorMode == FloorMode.CEILING)
             {
                 groundSensorA.APos = XPos + 9;
-                groundSensorA.BPos1 = YPos - 16 - 20;
+                groundSensorA.BPos1 = YPos - 16 - CurrentHeight;
                 groundSensorA.BPos2 = YPos;
                 groundSensorA.verticalSensor = true;
 
                 groundSensorB.APos = XPos - 9;
-                groundSensorB.BPos1 = YPos - 16 - 20;
+                groundSensorB.BPos1 = YPos - 16 - CurrentHeight;
                 groundSensorB.BPos2 = YPos;
                 groundSensorB.verticalSensor = true;
             }
@@ -498,26 +500,26 @@ namespace NotSonic.Components
                 // Sensor A: Positioned at -9, 0 to -9, 20.
                 groundSensorA.APos = YPos + 9;
                 groundSensorA.BPos1 = XPos + 0;
-                groundSensorA.BPos2 = XPos + 16 + 20;
+                groundSensorA.BPos2 = XPos + 16 + CurrentHeight;
                 groundSensorA.verticalSensor = false;
 
                 // Sensor B: Positioned at 9, 0 to 9, 20.
                 groundSensorB.APos = YPos - 9;
                 groundSensorB.BPos1 = XPos + 0;
-                groundSensorB.BPos2 = XPos + 16 + 20;
+                groundSensorB.BPos2 = XPos + 16 + CurrentHeight;
                 groundSensorB.verticalSensor = false;
             }
             if (CurrentFloorMode == FloorMode.LEFTWALL)
             {
                 // Sensor A: Positioned at -9, 0 to -9, 20.
                 groundSensorA.APos = YPos - 9;
-                groundSensorA.BPos1 = XPos - 16 - 20;
+                groundSensorA.BPos1 = XPos - 16 - CurrentHeight;
                 groundSensorA.BPos2 = XPos + 0;
                 groundSensorA.verticalSensor = false;
 
                 // Sensor B: Positioned at 9, 0 to 9, 20.
                 groundSensorB.APos = YPos + 9;
-                groundSensorB.BPos1 = XPos - 16 - 20;
+                groundSensorB.BPos1 = XPos - 16 - CurrentHeight;
                 groundSensorB.BPos2 = XPos + 0;
                 groundSensorB.verticalSensor = false;
             }
@@ -668,12 +670,12 @@ namespace NotSonic.Components
                     {
                         if(CurrentFloorMode == FloorMode.FLOOR || CurrentFloorMode == FloorMode.CEILING)
                         {
-                            if(sensorATile.Y - (YPos + 20) < 1)
+                            if ((CurrentMoveType == MoveType.AIR && YSpeed > 0) || CurrentMoveType == MoveType.GROUND)
                             {
-                                YPos = sensorATile.Y + 16 - heightOfA - 20;
+                                YPos = sensorATile.Y + 16 - heightOfA - CurrentHeight;
                                 if(CurrentFloorMode == FloorMode.CEILING)
                                 {
-                                    YPos = sensorATile.Y + heightOfA + 20;
+                                    YPos = sensorATile.Y + heightOfA + CurrentHeight;
                                 }
                                 // If we were in the air, reset the groundspeed.
                                 RegainGround();
@@ -684,10 +686,10 @@ namespace NotSonic.Components
                         }
                         else
                         {
-                            XPos = sensorATile.X + 16 - heightOfA - 20;
+                            XPos = sensorATile.X + 16 - heightOfA - CurrentHeight;
                             if(CurrentFloorMode == FloorMode.LEFTWALL)
                             {
-                                XPos = sensorATile.X + heightOfA + 20;
+                                XPos = sensorATile.X + heightOfA + CurrentHeight;
                             }
                             // If we were in the air, reset the groundspeed.
                             RegainGround();
@@ -699,12 +701,12 @@ namespace NotSonic.Components
                     {
                         if (CurrentFloorMode == FloorMode.FLOOR || CurrentFloorMode == FloorMode.CEILING)
                         {
-                            if(sensorBTile.Y - (YPos + 20) < 1)
+                         if ((CurrentMoveType == MoveType.AIR && YSpeed > 0) || CurrentMoveType == MoveType.GROUND)
                             {
-                                YPos = sensorBTile.Y + 16 - heightOfB - 20;
+                                YPos = sensorBTile.Y + 16 - heightOfB - CurrentHeight;
                                 if (CurrentFloorMode == FloorMode.CEILING)
                                 {
-                                    YPos = sensorBTile.Y + heightOfB + 20;
+                                    YPos = sensorBTile.Y + heightOfB + CurrentHeight;
                                 }
                                 // If we were in the air, reset the groundspeed.
                                 RegainGround();
@@ -713,10 +715,10 @@ namespace NotSonic.Components
                         }
                         else
                         {
-                            XPos = sensorBTile.X + 16 - heightOfB - 20;
+                            XPos = sensorBTile.X + 16 - heightOfB - CurrentHeight;
                             if (CurrentFloorMode == FloorMode.LEFTWALL)
                             {
-                                XPos = sensorBTile.X + heightOfB + 20;
+                                XPos = sensorBTile.X + heightOfB + CurrentHeight;
                             }
                             // If we were in the air, reset the groundspeed.
                             RegainGround();

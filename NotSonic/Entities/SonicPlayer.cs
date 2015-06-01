@@ -50,6 +50,7 @@ namespace NotSonic.Entities
         public void UpdateAnimations()
         {
             Graphic.CenterOrigin();
+            
             spriteSheet.FlippedX = !myMovement.FacingRight;
             spriteSheet.FlippedY = !myMovement.FacingUp;
 
@@ -77,13 +78,14 @@ namespace NotSonic.Entities
             if(myMovement.Rolling)
             {
                 spriteSheet.Play("roll");
-                //Graphic.Angle = 0;
-                Graphic.OriginY = 15;
+                Graphic.Angle = 0;
+                //Graphic.OriginY = 15;
 
             }
             else
             {
                 spriteSheet.Play("idle");
+                
             }
 
             if(myMovement.CurrentSpindashStrength > 0.0f)
