@@ -119,6 +119,10 @@ namespace NotSonic.Components
                 FacingRight = false;
             }
 
+
+            // Slope factor is added to Ground Speed. This slows sonic when moving uphill, and speeds him up when moving downhill.
+            GroundSpeed += SlopeFactor * -(float)Math.Sin(Angle * Math.PI / 180.0f);
+
             // Handle input
             HandleInput();
 
@@ -162,8 +166,6 @@ namespace NotSonic.Components
                 }
 
 
-                // Slope factor is added to Ground Speed. This slows sonic when moving uphill, and speeds him up when moving downhill.
-                GroundSpeed += SlopeFactor * -(float)Math.Sin(Angle * Math.PI / 180.0f);
 
                 // Swap these for wallmode?
                 XSpeed = GroundSpeed * (float)Math.Cos(Angle * Math.PI / 180.0f);
@@ -641,7 +643,7 @@ namespace NotSonic.Components
             if (CurrentMoveType == MoveType.GROUND)
             {
                 /// RUNNING & Not Spindashing
-                if (!(CurrentSpindashStrength > 0.0f))
+                if (!(CurrentSpindashStrength > 0.0f && (theController.Left.Down || theController.Right.Down)))
                 {
                     if (!Rolling)
                     {
