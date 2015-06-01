@@ -58,6 +58,7 @@ namespace NotSonic.Entities
             if (myMovement.CurrentFloorMode == NotSonic.Components.SonicMovement.FloorMode.FLOOR)
             {
                 Graphic.Angle = 0;
+                
             }
             if(myMovement.CurrentFloorMode == NotSonic.Components.SonicMovement.FloorMode.RIGHTWALL)
             {
@@ -76,8 +77,16 @@ namespace NotSonic.Entities
             if(myMovement.Rolling)
             {
                 spriteSheet.Play("roll");
-                //Graphic.Angle = 0;
+                Graphic.Angle = 0;
                 Graphic.OriginY = 15;
+                if(myMovement.CurrentFloorMode == NotSonic.Components.SonicMovement.FloorMode.RIGHTWALL)
+                {
+                    Graphic.OriginX = 16 - 5;
+                }
+                if (myMovement.CurrentFloorMode == NotSonic.Components.SonicMovement.FloorMode.LEFTWALL)
+                {
+                    Graphic.OriginX = 16 + 5;
+                }
             }
             else
             {
