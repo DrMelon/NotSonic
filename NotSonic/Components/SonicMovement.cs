@@ -253,8 +253,12 @@ namespace NotSonic.Components
         {
             // When sonic jumps, we need to make sure we jump perpendicular to the angle of travel.
             
+
             XSpeed -= JumpVelocity * (float)Math.Sin(Angle * Math.PI / 180.0f);
             YSpeed -= JumpVelocity * (float)Math.Cos(Angle * Math.PI / 180.0f);
+
+
+           
             Jumping = true;
             CurrentMoveType = MoveType.AIR;
             CurrentFloorMode = FloorMode.FLOOR; // switch to falling
@@ -814,6 +818,7 @@ namespace NotSonic.Components
         public override void Render()
         {
             base.Render();
+            return;
             // DEBUG
             if (CurrentFloorMode == FloorMode.FLOOR || CurrentFloorMode == FloorMode.CEILING)
             {
