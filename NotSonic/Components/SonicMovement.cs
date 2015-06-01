@@ -206,32 +206,38 @@ namespace NotSonic.Components
         private void ChangeFloorMode()
         {
             // Check Mode- Going Right, Hit Ramp, Going up!
-            if (Angle >= 45.0f && GroundSpeed > 0 && Angle < 135.0f)
+            if (CurrentFloorMode == FloorMode.FLOOR)
             {
-                if (CurrentFloorMode == FloorMode.FLOOR)
+                if (Angle >= 45.0f && Angle < 135.0f)
                 {
                     // On the right wall
                     CurrentFloorMode = FloorMode.RIGHTWALL;
                 }
+
+                if (Angle <= 315.0f && Angle > 270.0f)
+                {
+                    CurrentFloorMode = FloorMode.LEFTWALL;
+                }
             }
 
             // Going Left, Hit Ramp, Moving Normal Now
-            if (Angle >= 45.0f && Angle < 135.0f && GroundSpeed < 0)
+            else if (CurrentFloorMode == FloorMode.RIGHTWALL)
             {
-                if (CurrentFloorMode == FloorMode.RIGHTWALL)
+                if (Angle <= 45.0f && Angle > 0.0f)
                 {
                     CurrentFloorMode = FloorMode.FLOOR;
                 }
             }
 
-            // Going Left, Hit Ramp, Moving Up Leftways
-            if (Angle == 315.0f && GroundSpeed < 0)
+            else if (CurrentFloorMode == FloorMode.LEFTWALL)
             {
-                if (CurrentFloorMode == FloorMode.FLOOR)
+                if (Angle > 315.0f && Angle < 0.0f)
                 {
-                    CurrentFloorMode = FloorMode.LEFTWALL;
+                    CurrentFloorMode = FloorMode.FLOOR;
                 }
             }
+
+
         }
 
         private void AtrohpyHLock()
@@ -459,6 +465,16 @@ namespace NotSonic.Components
                     GroundSpeed = YSpeed * -(float)Math.Sin(Angle * Math.PI / 180.0f);
                 }
 
+                Otter.Debugger.Instance.Log("Ground Regained!");
+                Otter.Debugger.Instance.Log("================");
+                Otter.Debugger.Instance.Log("GSP");
+                Otter.Debugger.Instance.Log(GroundSpeed);
+                Otter.Debugger.Instance.Log("================");
+                Otter.Debugger.Instance.Log("Angle");
+                Otter.Debugger.Instance.Log(Angle);
+                Otter.Debugger.Instance.Log("================");
+
+
 
             }
         }
@@ -672,13 +688,27 @@ namespace NotSonic.Components
                         {
                             if ((CurrentMoveType == MoveType.AIR && YSpeed > 0) || CurrentMoveType == MoveType.GROUND)
                             {
-                                YPos = sensorATile.Y + 16 - heightOfA - CurrentHeight;
+                                if (CurrentMoveType == MoveType.AIR)
+                                {
+                                    // In air mode, we only stick to the ground if we are below the new pos
+                                    if(YPos >= sensorATile.Y + 16 - heightOfA - 20)
+                                    {
+                                        YPos = sensorATile.Y + 16 - heightOfA - CurrentHeight;
+                                        
+                                    }
+
+
+                                  
+                                }
+                                else
+                                {
+                                    YPos = sensorATile.Y + 16 - heightOfA - CurrentHeight;
+                                }
                                 if(CurrentFloorMode == FloorMode.CEILING)
                                 {
                                     YPos = sensorATile.Y + heightOfA + CurrentHeight;
                                 }
-                                // If we were in the air, reset the groundspeed.
-                                RegainGround();
+                                
                             }
           
                                 
@@ -691,8 +721,7 @@ namespace NotSonic.Components
                             {
                                 XPos = sensorATile.X + heightOfA + CurrentHeight;
                             }
-                            // If we were in the air, reset the groundspeed.
-                            RegainGround();
+                        
                         }
                         Angle = angleOfA;
 
@@ -708,8 +737,7 @@ namespace NotSonic.Components
                                 {
                                     YPos = sensorBTile.Y + heightOfB + CurrentHeight;
                                 }
-                                // If we were in the air, reset the groundspeed.
-                                RegainGround();
+                            
                             }
                             
                         }
@@ -720,14 +748,13 @@ namespace NotSonic.Components
                             {
                                 XPos = sensorBTile.X + heightOfB + CurrentHeight;
                             }
-                            // If we were in the air, reset the groundspeed.
-                            RegainGround();
+                           
                         }
                         Angle = angleOfB;
                     }
-               
 
 
+                    RegainGround();
                 
 
             }
@@ -950,6 +977,7 @@ namespace NotSonic.Components
         {
             base.Render();
             
+            
             // DEBUG
             if (CurrentFloorMode == FloorMode.FLOOR || CurrentFloorMode == FloorMode.CEILING)
             {
@@ -963,6 +991,11 @@ namespace NotSonic.Components
             }
 
             Otter.Draw.Line(wallSensor.BPos1, wallSensor.APos, wallSensor.BPos2, wallSensor.APos, Color.Cyan);
+
+            Otter.Draw.Rectangle(groundSensorA.LasthitX, groundSensorA.LasthitY, 16, 16, null, Color.Red, 1);
+            Otter.Draw.Rectangle(groundSensorB.LasthitX, groundSensorB.LasthitY, 16, 16, null, Color.Green, 1);
+
+            
         }
        
         #endregion

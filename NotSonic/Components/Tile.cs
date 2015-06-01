@@ -112,9 +112,10 @@ namespace NotSonic.Components
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_10;
                 if(flipX)
                 {
+                    float newAngle = 360 - myTileInfo.Angle;
                     myTileInfo = new SonicTileInfo(null, null, 0.0f);
                     myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_85;
-                    myTileInfo.Angle = 360 - myTileInfo.Angle;
+                    myTileInfo.Angle = newAngle;
                 }
             }
             else if (myType == 63)
@@ -122,9 +123,10 @@ namespace NotSonic.Components
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_20;
                 if (flipX)
                 {
+                    float newAngle = 360 - myTileInfo.Angle;
                     myTileInfo = new SonicTileInfo(null, null, 0.0f);
                     myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_70;
-                    myTileInfo.Angle = 360 - myTileInfo.Angle;
+                    myTileInfo.Angle = newAngle;
                 }
             }
             else if (myType == 64)
@@ -132,9 +134,10 @@ namespace NotSonic.Components
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_30;
                 if (flipX)
                 {
+                    float newAngle = 360 - myTileInfo.Angle;
                     myTileInfo = new SonicTileInfo(null, null, 0.0f);
                     myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_60;
-                    myTileInfo.Angle = 360 - myTileInfo.Angle;
+                    myTileInfo.Angle = newAngle;
                 }
             }
             else if (myType == 44)
@@ -142,9 +145,10 @@ namespace NotSonic.Components
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_45;
                 if (flipX)
                 {
+                    float newAngle = 360 - myTileInfo.Angle;
                     myTileInfo = new SonicTileInfo(null, null, 0.0f);
                     myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_45;
-                    myTileInfo.Angle = 360 - myTileInfo.Angle;
+                    myTileInfo.Angle = newAngle;
                 }
             }
             else if (myType == 45)
@@ -152,9 +156,10 @@ namespace NotSonic.Components
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_60;
                 if (flipX)
                 {
+                    float newAngle = 360 - myTileInfo.Angle;
                     myTileInfo = new SonicTileInfo(null, null, 0.0f);
                     myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_30;
-                    myTileInfo.Angle = 360 - myTileInfo.Angle;
+                    myTileInfo.Angle = newAngle;
                 }
             }
             else if (myType == 25)
@@ -162,9 +167,10 @@ namespace NotSonic.Components
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_70;
                 if (flipX)
                 {
+                    float newAngle = 360 - myTileInfo.Angle;
                     myTileInfo = new SonicTileInfo(null, null, 0.0f);
                     myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_20;
-                    myTileInfo.Angle = 360 - myTileInfo.Angle;
+                    myTileInfo.Angle = newAngle;
                 }
             }
             else if (myType == 5)
@@ -172,9 +178,10 @@ namespace NotSonic.Components
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_85;
                 if (flipX)
                 {
+                    float newAngle = 360 - myTileInfo.Angle;
                     myTileInfo = new SonicTileInfo(null, null, 0.0f);
                     myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_10;
-                    myTileInfo.Angle = 360 - myTileInfo.Angle;
+                    myTileInfo.Angle = newAngle;
                 }
             }
 

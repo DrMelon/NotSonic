@@ -32,6 +32,9 @@ namespace NotSonic.Components
         public float APos;
         public float BPos1;
         public float BPos2;
+
+        public float LasthitX;
+        public float LasthitY;
         
         // Sensor type; horizontal / vertical
         public bool verticalSensor;
@@ -84,6 +87,10 @@ namespace NotSonic.Components
                             // Select this tile. 
                             newCollision.tileHit = tile;
                             newCollision.thisIsNull = false;
+                            LasthitX = tile.X;
+                            LasthitY = tile.Y;
+
+
 
                             break;
                         }
@@ -116,6 +123,8 @@ namespace NotSonic.Components
                             // Select this tile. 
                             newCollision.tileHit = tile;
                             newCollision.thisIsNull = false;
+                            LasthitX = tile.X;
+                            LasthitY = tile.Y;
 
                             break;
                         }

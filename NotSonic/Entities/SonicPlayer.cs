@@ -28,7 +28,7 @@ namespace NotSonic.Entities
             spriteSheet.Add("spindash", new int[] { 2 }, new float[] { 6f });
             spriteSheet.Play("idle");
             Graphic = spriteSheet;
-            this.Layer = 20;
+            this.Layer = 18;
             Graphic.CenterOrigin();
 
             // Create movement
