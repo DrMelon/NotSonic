@@ -30,7 +30,7 @@ namespace NotSonic
             Global.playerSession = Global.theGame.AddSession("PlayerControls");
             
             // Emulate a 3-button 'ABC' sega controller
-            Global.playerSession.Controller = new SegaController();
+            Global.playerSession.Controller = new SegaController(0);
             Global.theController = Global.playerSession.GetController<SegaController>();
             
             // Keyboard Controls

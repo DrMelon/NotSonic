@@ -97,6 +97,7 @@ namespace NotSonic.Components
             Otter.Debugger.CommandFunction myFunc = new Debugger.CommandFunction(FlipGravity);
             Debugger.Instance.RegisterCommand(myFunc, (Otter.CommandType[])new Otter.CommandType[0]);
 
+
             base.Added();
         }
 
@@ -182,6 +183,8 @@ namespace NotSonic.Components
             Otter.Debugger.Instance.Log(CurrentFloorMode);
 
         }
+
+
 
         private void AtrophySpindashStrength()
         {
@@ -445,7 +448,7 @@ namespace NotSonic.Components
 
 
                 // Account for sloping...
-                if (Math.Abs(XSpeed) > YSpeed || Math.Abs(Angle) < 10f)
+                if (Math.Abs(XSpeed) > YSpeed || Math.Abs(Angle) < 10f || Math.Abs(Angle) > 350f)
                 {
                     GroundSpeed = XSpeed;
                 }
