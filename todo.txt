@@ -1,0 +1,6 @@
+Wall Modes need Tidying re: Angles.
+Maybe rotate the angles so that 0 = 90 etc?
+Just adding 90 wont work tho, cause 85 + 90 = 175... which would be upside down & not vert.
+Maybe add 90 - the angle? So that 0 + 90 = 90.
+0 + 90 - 85 = 5... hm!!! :DD O:!!
+0 + 90 - 45 - 5! !! OwO

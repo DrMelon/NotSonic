@@ -172,16 +172,10 @@ namespace NotSonic.Components
                 // Wallrunning stuff?
                 if(CurrentFloorMode == FloorMode.RIGHTWALL)
                 {
-                    if(Angle == 0.0f)
-                    {
-                        Angle += 90.0f;
-                    }
-                    YSpeed = GroundSpeed * -(float)Math.Sin((Angle) * Math.PI / 180.0f);
-                    XSpeed = GroundSpeed * (float)Math.Cos(Angle * Math.PI / 180.0f);
-                    if(Angle == 90.0f)
-                    {
-                        Angle -= 90.0f;
-                    }
+
+                    YSpeed = GroundSpeed * -(float)Math.Sin((Angle + 90 - Angle) * Math.PI / 180.0f);
+                    XSpeed = GroundSpeed * (float)Math.Cos((Angle + 90 - Angle) * Math.PI / 180.0f);
+
                 }
                 
             }
@@ -225,7 +219,7 @@ namespace NotSonic.Components
             }
 
             // Falling is always considered to be right side up.
-            if(CurrentMoveType == MoveType.AIR && YSpeed > 0)
+            if(CurrentMoveType == MoveType.AIR /*&& YSpeed > 0*/)
             {
                 CurrentFloorMode = FloorMode.FLOOR;
             }
@@ -253,9 +247,17 @@ namespace NotSonic.Components
         {
             // When sonic jumps, we need to make sure we jump perpendicular to the angle of travel.
             
-
-            XSpeed -= JumpVelocity * (float)Math.Sin(Angle * Math.PI / 180.0f);
-            YSpeed -= JumpVelocity * (float)Math.Cos(Angle * Math.PI / 180.0f);
+            if(CurrentFloorMode == FloorMode.RIGHTWALL)
+            {
+                XSpeed -= JumpVelocity * (float)Math.Sin((Angle + 90 - Angle) * Math.PI / 180.0f);
+                YSpeed -= JumpVelocity * (float)Math.Cos((Angle + 90 - Angle) * Math.PI / 180.0f);
+            }
+            if (CurrentFloorMode == FloorMode.FLOOR)
+            {
+                XSpeed -= JumpVelocity * (float)Math.Sin(Angle * Math.PI / 180.0f);
+                YSpeed -= JumpVelocity * (float)Math.Cos(Angle * Math.PI / 180.0f);
+            }
+            
 
 
            
@@ -304,9 +306,31 @@ namespace NotSonic.Components
 
         }
 
+        private void RegainGround()
+        {
+            if (CurrentMoveType == MoveType.AIR && YSpeed >= 0)
+            {
+                CurrentMoveType = MoveType.GROUND;
+                Rolling = false;
+
+
+                // Account for sloping...
+                if (Math.Abs(XSpeed) > YSpeed || Math.Abs(Angle) < 10f)
+                {
+                    GroundSpeed = XSpeed;
+                }
+                else
+                {
+                    GroundSpeed = YSpeed * -(float)Math.Sin(Angle * Math.PI / 180.0f);
+                }
+
+
+            }
+        }
+
         public void CheckGroundSensors()
         {
-
+            
 
 
             // Check Mode.
@@ -315,25 +339,25 @@ namespace NotSonic.Components
                 // Sensor A: Positioned at -9, 0 to -9, 20.
                 groundSensorA.APos = XPos - 9;
                 groundSensorA.BPos1 = YPos + 0;
-                groundSensorA.BPos2 = YPos + 0 + 20;
+                groundSensorA.BPos2 = YPos + 15 + 20;
                 groundSensorA.verticalSensor = true;
 
                 // Sensor B: Positioned at 9, 0 to 9, 20.
                 groundSensorB.APos = XPos + 9;
                 groundSensorB.BPos1 = YPos + 0;
-                groundSensorB.BPos2 = YPos + 0 + 20;
+                groundSensorB.BPos2 = YPos + 15 + 20;
                 groundSensorB.verticalSensor = true;
             }
             if (CurrentFloorMode == FloorMode.CEILING)
             {
                 groundSensorA.APos = XPos + 9;
                 groundSensorA.BPos1 = YPos + 0;
-                groundSensorA.BPos2 = YPos + 0 - 20;
+                groundSensorA.BPos2 = YPos + 15 - 20;
                 groundSensorA.verticalSensor = true;
 
                 groundSensorB.APos = XPos - 9;
                 groundSensorB.BPos1 = YPos + 0;
-                groundSensorB.BPos2 = YPos + 0 - 20;
+                groundSensorB.BPos2 = YPos + 15 - 20;
                 groundSensorB.verticalSensor = true;
             }
             if (CurrentFloorMode == FloorMode.RIGHTWALL)
@@ -341,13 +365,13 @@ namespace NotSonic.Components
                 // Sensor A: Positioned at -9, 0 to -9, 20.
                 groundSensorA.APos = YPos + 9;
                 groundSensorA.BPos1 = XPos + 0;
-                groundSensorA.BPos2 = XPos + 0 + 20;
+                groundSensorA.BPos2 = XPos + 15 + 20;
                 groundSensorA.verticalSensor = false;
 
                 // Sensor B: Positioned at 9, 0 to 9, 20.
                 groundSensorB.APos = YPos - 9;
                 groundSensorB.BPos1 = XPos + 0;
-                groundSensorB.BPos2 = XPos + 0 + 20;
+                groundSensorB.BPos2 = XPos + 15 + 20;
                 groundSensorB.verticalSensor = false;
             }
             if (CurrentFloorMode == FloorMode.LEFTWALL)
@@ -355,13 +379,13 @@ namespace NotSonic.Components
                 // Sensor A: Positioned at -9, 0 to -9, 20.
                 groundSensorA.APos = YPos - 9;
                 groundSensorA.BPos1 = XPos + 0;
-                groundSensorA.BPos2 = XPos + 0 - 20;
+                groundSensorA.BPos2 = XPos + 15 - 20;
                 groundSensorA.verticalSensor = false;
 
                 // Sensor B: Positioned at 9, 0 to 9, 20.
                 groundSensorB.APos = YPos + 9;
                 groundSensorB.BPos1 = XPos + 0;
-                groundSensorB.BPos2 = XPos + 0 - 20;
+                groundSensorB.BPos2 = XPos + 15 - 20;
                 groundSensorB.verticalSensor = false;
             }
 
@@ -556,11 +580,21 @@ namespace NotSonic.Components
                     {
                         if(CurrentFloorMode == FloorMode.FLOOR || CurrentFloorMode == FloorMode.CEILING)
                         {
-                            YPos = sensorATile.Y + 16 - heightOfA - 20;
+                            if(sensorATile.Y - (YPos + 20) < 1)
+                            {
+                                YPos = sensorATile.Y + 16 - heightOfA - 20;
+                                // If we were in the air, reset the groundspeed.
+                                RegainGround();
+                            }
+          
+                                
+                            
                         }
                         else
                         {
                             XPos = sensorATile.X + 16 - heightOfA - 20;
+                            // If we were in the air, reset the groundspeed.
+                            RegainGround();
                         }
                         Angle = angleOfA;
 
@@ -569,36 +603,27 @@ namespace NotSonic.Components
                     {
                         if (CurrentFloorMode == FloorMode.FLOOR || CurrentFloorMode == FloorMode.CEILING)
                         {
-                            YPos = sensorBTile.Y + 16 - heightOfB - 20;
+                            if(sensorBTile.Y - (YPos + 20) < 1)
+                            {
+                                YPos = sensorBTile.Y + 16 - heightOfB - 20;
+                                // If we were in the air, reset the groundspeed.
+                                RegainGround();
+                            }
+                            
                         }
                         else
                         {
                             XPos = sensorBTile.X + 16 - heightOfB - 20;
+                            // If we were in the air, reset the groundspeed.
+                            RegainGround();
                         }
                         Angle = angleOfB;
                     }
                
 
 
-                // If we were in the air, reset the groundspeed.
-                if(CurrentMoveType == MoveType.AIR && YSpeed >= 0)
-                {
-                    CurrentMoveType = MoveType.GROUND;
-                    Rolling = false;
+                
 
-
-                    // Account for sloping...
-                    if (Math.Abs(XSpeed) > YSpeed || Math.Abs(Angle) < 10f)
-                    {
-                        GroundSpeed = XSpeed;
-                    }
-                    else
-                    {
-                        GroundSpeed = YSpeed * -(float)Math.Sin(Angle * Math.PI / 180.0f);
-                    }
-                    
-                    
-                }
             }
 
 
@@ -818,7 +843,7 @@ namespace NotSonic.Components
         public override void Render()
         {
             base.Render();
-            return;
+            
             // DEBUG
             if (CurrentFloorMode == FloorMode.FLOOR || CurrentFloorMode == FloorMode.CEILING)
             {
