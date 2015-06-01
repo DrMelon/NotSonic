@@ -106,65 +106,78 @@ namespace NotSonic.Components
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_SLOPE_45_DOWN;
             }
 
-    // LOOP UP
+    // LOOP SEGMENTS. Check for flipping here, re-set angles?
             else if (myType == 62)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_10;
+                if(flipX)
+                {
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_85;
+                    myTileInfo.Angle = 360 - myTileInfo.Angle;
+                }
             }
             else if (myType == 63)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_20;
+                if (flipX)
+                {
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_70;
+                    myTileInfo.Angle = 360 - myTileInfo.Angle;
+                }
             }
             else if (myType == 64)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_30;
+                if (flipX)
+                {
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_60;
+                    myTileInfo.Angle = 360 - myTileInfo.Angle;
+                }
             }
             else if (myType == 44)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_45;
+                if (flipX)
+                {
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_45;
+                    myTileInfo.Angle = 360 - myTileInfo.Angle;
+                }
             }
             else if (myType == 45)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_60;
+                if (flipX)
+                {
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_30;
+                    myTileInfo.Angle = 360 - myTileInfo.Angle;
+                }
             }
             else if (myType == 25)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_70;
+                if (flipX)
+                {
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_20;
+                    myTileInfo.Angle = 360 - myTileInfo.Angle;
+                }
             }
             else if (myType == 5)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_85;
+                if (flipX)
+                {
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_10;
+                    myTileInfo.Angle = 360 - myTileInfo.Angle;
+                }
             }
 
-    // LOOP DOWN
-            else if (myType == 82)
-            {
-                myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_DOWN_10;
-            }
-            else if (myType == 102)
-            {
-                myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_DOWN_20;
-            }
-            else if (myType == 122)
-            {
-                myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_DOWN_30;
-            }
-            else if (myType == 123)
-            {
-                myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_DOWN_45;
-            }
-            else if (myType == 143)
-            {
-                myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_DOWN_60;
-            }
-            else if (myType == 144)
-            {
-                myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_DOWN_70;
-            }
-            else if (myType == 145)
-            {
-                myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_DOWN_85;
-            }
             else
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_EMPTY;
