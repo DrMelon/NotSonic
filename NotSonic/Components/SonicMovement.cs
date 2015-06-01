@@ -411,12 +411,22 @@ namespace NotSonic.Components
                 if (colInfo.tileHit.X < XPos)
                 {
                     // Pop sonic to the right by the requisite amount.
-                    XPos = colInfo.tileHit.X + 16.0f + 11.0f;
+                    XPos = colInfo.tileHit.X + 16.0f + 10.0f;
+                    if(Global.theController.Right.Down)
+                    {
+                        // Running away!
+                        return;
+                    }
                 }
                 else
                 {
                     // Pop sonic to the left
-                    XPos = colInfo.tileHit.X - 11.0f;
+                    XPos = colInfo.tileHit.X - 10.0f;
+                    if (Global.theController.Left.Down)
+                    {
+                        // Running away!
+                        return;
+                    }
                 }
 
                 // Set ground speed to 0 if pushing at it

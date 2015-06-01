@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Otter;
 
+
 //----------------
 // Author: J. Brown (DrMelon)
 // Part of the [NotSonic] Project.
@@ -20,6 +21,7 @@ namespace NotSonic
         public static Session playerSession = null;
         public static bool paused = false;
         public static int GROUP_ACTIVEOBJECTS = 1;
+        public static NotSonic.System.SegaController theController;
 
 
     }

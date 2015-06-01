@@ -97,9 +97,9 @@ namespace NotSonic
                     newTile.tileImage.FlippedX = tmxMapData.Layers["Solid"].Tiles[i].HorizontalFlip;
                     newTile.tileImage.FlippedY = tmxMapData.Layers["Solid"].Tiles[i].VerticalFlip;
 
-                    
-                    
-                    
+
+
+                    newTile.Layer = 19;
                     
                     tileList.Add(newTile);
                 }

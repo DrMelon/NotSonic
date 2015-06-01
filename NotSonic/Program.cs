@@ -31,18 +31,19 @@ namespace NotSonic
             
             // Emulate a 3-button 'ABC' sega controller
             Global.playerSession.Controller = new SegaController();
+            Global.theController = Global.playerSession.GetController<SegaController>();
             
             // Keyboard Controls
-            Global.playerSession.GetController<SegaController>().A.AddKey(Key.Z);
-            Global.playerSession.GetController<SegaController>().B.AddKey(Key.X);
-            Global.playerSession.GetController<SegaController>().C.AddKey(Key.C);
+            Global.theController.A.AddKey(Key.Z);
+            Global.theController.B.AddKey(Key.X);
+            Global.theController.C.AddKey(Key.C);
 
-            Global.playerSession.GetController<SegaController>().Start.AddKey(Key.Return);
+            Global.theController.Start.AddKey(Key.Return);
 
-            Global.playerSession.GetController<SegaController>().Left.AddKey(Key.Left);
-            Global.playerSession.GetController<SegaController>().Right.AddKey(Key.Right);
-            Global.playerSession.GetController<SegaController>().Up.AddKey(Key.Up);
-            Global.playerSession.GetController<SegaController>().Down.AddKey(Key.Down);
+            Global.theController.Left.AddKey(Key.Left);
+            Global.theController.Right.AddKey(Key.Right);
+            Global.theController.Up.AddKey(Key.Up);
+            Global.theController.Down.AddKey(Key.Down);
 
 
             Global.theGame.FirstScene = new LevelScene(Assets.MAP_TEST);
