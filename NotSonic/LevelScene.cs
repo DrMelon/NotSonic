@@ -83,9 +83,9 @@ namespace NotSonic
                     int heightMapID = tmxMapData.Layers["Solid_Height"].Tiles[i].Gid;
                     bool heightFlipX = tmxMapData.Layers["Solid_Height"].Tiles[i].HorizontalFlip;
                     bool heightFlipY = tmxMapData.Layers["Solid_Height"].Tiles[i].VerticalFlip;
-                    if(heightMapID >= 324)
+                    if(heightMapID >= 151)
                     {
-                        heightMapID = tmxMapData.Layers["Solid_Height"].Tiles[i].Gid - 324;
+                        heightMapID = tmxMapData.Layers["Solid_Height"].Tiles[i].Gid - 151;
                     }
 
                     // Create tile.

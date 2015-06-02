@@ -214,7 +214,7 @@ namespace NotSonic.Components
                     CurrentFloorMode = FloorMode.RIGHTWALL;
                 }
 
-                if (Angle <= 315.0f && Angle > 270.0f)
+                if (Angle < 315.0f && Angle >= 270.0f)
                 {
                     CurrentFloorMode = FloorMode.LEFTWALL;
                 }
@@ -223,7 +223,7 @@ namespace NotSonic.Components
             // Going Left, Hit Ramp, Moving Normal Now
             else if (CurrentFloorMode == FloorMode.RIGHTWALL)
             {
-                if (Angle <= 45.0f && Angle > 0.0f)
+                if (Angle < 45.0f && Angle > 0.0f)
                 {
                     CurrentFloorMode = FloorMode.FLOOR;
                 }
@@ -231,7 +231,7 @@ namespace NotSonic.Components
 
             else if (CurrentFloorMode == FloorMode.LEFTWALL)
             {
-                if (Angle > 315.0f && Angle < 0.0f)
+                if (Angle >= 315.0f && Angle < 0.0f)
                 {
                     CurrentFloorMode = FloorMode.FLOOR;
                 }
