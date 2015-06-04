@@ -144,28 +144,33 @@ namespace NotSonic.Components
         private void CalculateSpeedFromGroundSpeed()
         {
             // Swap these for wallmode?
-            XSpeed = GroundSpeed * (float)Math.Cos(Angle * Math.PI / 180.0f);
             YSpeed = GroundSpeed * -(float)Math.Sin(Angle * Math.PI / 180.0f);
+            XSpeed = GroundSpeed * (float)Math.Cos(Angle * Math.PI / 180.0f);
+            
 
             // Wallrunning stuff?
-            if (CurrentFloorMode == FloorMode.RIGHTWALL)
+            if (Angle == 0)
             {
+                if (CurrentFloorMode == FloorMode.RIGHTWALL)
+                {
 
-                YSpeed = GroundSpeed * -(float)Math.Sin((Angle + 90 - Angle) * Math.PI / 180.0f);
-                XSpeed = GroundSpeed * (float)Math.Cos((Angle + 90 - Angle) * Math.PI / 180.0f);
+                    YSpeed = GroundSpeed * -(float)Math.Sin((90) * Math.PI / 180.0f);
+                    XSpeed = GroundSpeed * (float)Math.Cos((90) * Math.PI / 180.0f);
 
-            }
+                }
 
-            if(CurrentFloorMode == FloorMode.LEFTWALL)
-            {
-                YSpeed = -GroundSpeed * -(float)Math.Sin((Angle + 90 - Angle) * Math.PI / 180.0f);
-                XSpeed = -GroundSpeed * (float)Math.Cos((Angle + 90 - Angle) * Math.PI / 180.0f);
-            }
+                if (CurrentFloorMode == FloorMode.LEFTWALL)
+                {
+                    YSpeed = GroundSpeed * -(float)Math.Sin((270) * Math.PI / 180.0f);
+                    XSpeed = GroundSpeed * (float)Math.Cos((270) * Math.PI / 180.0f);
+                }
 
-            if(CurrentFloorMode == FloorMode.CEILING)
-            {
-                XSpeed = -GroundSpeed * (float)Math.Cos(Angle * Math.PI / 180.0f);
-                YSpeed = -GroundSpeed * -(float)Math.Sin(Angle * Math.PI / 180.0f);
+                if (CurrentFloorMode == FloorMode.CEILING)
+                {
+                    YSpeed = GroundSpeed * -(float)Math.Sin((180) * Math.PI / 180.0f);
+                    XSpeed = GroundSpeed * (float)Math.Cos((180) * Math.PI / 180.0f);
+                    
+                }
             }
         }
 
@@ -211,11 +216,14 @@ namespace NotSonic.Components
                 if (Angle >= 45.0f && Angle < 135.0f)
                 {
                     // On the right wall
+                    Otter.Debugger.Instance.Log("FLOOR -> RIGHT WALL NOW");
                     CurrentFloorMode = FloorMode.RIGHTWALL;
                 }
 
-                if (Angle < 315.0f && Angle >= 270.0f)
+                if (Angle <= 315.0f && Angle >= 225.0f)
                 {
+                    // On the left wall
+                    Otter.Debugger.Instance.Log("FLOOR -> LEFT WALL NOW");
                     CurrentFloorMode = FloorMode.LEFTWALL;
                 }
             }
@@ -225,14 +233,16 @@ namespace NotSonic.Components
             {
                 if (Angle < 45.0f && Angle > 0.0f)
                 {
+                    Otter.Debugger.Instance.Log("RIGHT WALL -> FLOOR NOW");
                     CurrentFloorMode = FloorMode.FLOOR;
                 }
             }
 
             else if (CurrentFloorMode == FloorMode.LEFTWALL)
             {
-                if (Angle >= 315.0f && Angle < 0.0f)
+                if (Angle > 315.0f && Angle < 360.0f)
                 {
+                    Otter.Debugger.Instance.Log("LEFT WALL -> FLOOR NOW");
                     CurrentFloorMode = FloorMode.FLOOR;
                 }
             }
@@ -368,28 +378,31 @@ namespace NotSonic.Components
         public void Jump()
         {
             // When sonic jumps, we need to make sure we jump perpendicular to the angle of travel.
-            
-            if(CurrentFloorMode == FloorMode.RIGHTWALL)
+            if(Angle == 0 && CurrentFloorMode != FloorMode.FLOOR)
             {
-                XSpeed -= JumpVelocity * (float)Math.Sin((Angle + 90 - Angle) * Math.PI / 180.0f);
-                YSpeed -= JumpVelocity * (float)Math.Cos((Angle + 90 - Angle) * Math.PI / 180.0f);
+                if (CurrentFloorMode == FloorMode.RIGHTWALL)
+                {
+                    XSpeed -= JumpVelocity * (float)Math.Sin((90) * Math.PI / 180.0f);
+                    YSpeed -= JumpVelocity * (float)Math.Cos((90) * Math.PI / 180.0f);
+                }
+                if (CurrentFloorMode == FloorMode.LEFTWALL)
+                {
+                    XSpeed -= JumpVelocity * (float)Math.Sin((270) * Math.PI / 180.0f);
+                    YSpeed -= JumpVelocity * (float)Math.Cos((270) * Math.PI / 180.0f);
+                }
+                if(CurrentFloorMode == FloorMode.CEILING)
+                {
+                    XSpeed -= JumpVelocity * (float)Math.Sin((180) * Math.PI / 180.0f);
+                    YSpeed -= JumpVelocity * (float)Math.Cos((180) * Math.PI / 180.0f);
+                }
             }
-            if (CurrentFloorMode == FloorMode.LEFTWALL)
-            {
-                XSpeed -= JumpVelocity * (float)Math.Sin((Angle + 270 - Angle) * Math.PI / 180.0f);
-                YSpeed -= JumpVelocity * (float)Math.Cos((Angle + 270 - Angle) * Math.PI / 180.0f);
-            }
-            if (CurrentFloorMode == FloorMode.FLOOR)
+            else
             {
                 XSpeed -= JumpVelocity * (float)Math.Sin(Angle * Math.PI / 180.0f);
                 YSpeed -= JumpVelocity * (float)Math.Cos(Angle * Math.PI / 180.0f);
             }
-            if(CurrentFloorMode == FloorMode.CEILING)
-            {
-                XSpeed -= JumpVelocity * (float)Math.Sin(Angle * Math.PI / 180.0f);
-                YSpeed -= -JumpVelocity * (float)Math.Cos(Angle * Math.PI / 180.0f);
-            }
-            
+
+
 
 
            
@@ -403,7 +416,8 @@ namespace NotSonic.Components
 
         public void CheckWallSensor()
         {
-            
+            // debug
+            return;
             
             // Check for tiles that are at the sides of sonic, relative to Y+4.
             wallSensor.APos = YPos + 4;
@@ -464,15 +478,6 @@ namespace NotSonic.Components
                 {
                     GroundSpeed = YSpeed * -(float)Math.Sin(Angle * Math.PI / 180.0f);
                 }
-
-                Otter.Debugger.Instance.Log("Ground Regained!");
-                Otter.Debugger.Instance.Log("================");
-                Otter.Debugger.Instance.Log("GSP");
-                Otter.Debugger.Instance.Log(GroundSpeed);
-                Otter.Debugger.Instance.Log("================");
-                Otter.Debugger.Instance.Log("Angle");
-                Otter.Debugger.Instance.Log(Angle);
-                Otter.Debugger.Instance.Log("================");
 
 
 
@@ -594,7 +599,7 @@ namespace NotSonic.Components
                         angleOfA = sensorATile.myTileInfo.Angle;
 
                         // If the tile is empty of collision, don't collide with it. Duh!
-                        if (heightOfA == 0)
+                        if (sensorATile.myTileInfo.flatheightArray == HeightArrays.HEIGHT_ARRAY_EMPTY)
                         {
                             sensorATile = null;
                         }
@@ -616,7 +621,7 @@ namespace NotSonic.Components
                         angleOfB = sensorBTile.myTileInfo.Angle;
 
                         // If the tile is empty of collision, don't collide with it. Duh!
-                        if (heightOfB == 0)
+                        if (sensorBTile.myTileInfo.flatheightArray == HeightArrays.HEIGHT_ARRAY_EMPTY)
                         {
                             sensorBTile = null;
                         }
@@ -642,7 +647,7 @@ namespace NotSonic.Components
                         angleOfA = sensorATile.myTileInfo.Angle;
 
                         // If the tile is empty of collision, don't collide with it. Duh!
-                        if (heightOfA == 0)
+                        if (sensorATile.myTileInfo.wallheightArray == HeightArrays.HEIGHT_ARRAY_EMPTY)
                         {
                             sensorATile = null;
                         }
@@ -664,7 +669,7 @@ namespace NotSonic.Components
                         angleOfB = sensorBTile.myTileInfo.Angle;
 
                         // If the tile is empty of collision, don't collide with it. Duh!
-                        if (heightOfB == 0)
+                        if (sensorBTile.myTileInfo.wallheightArray == HeightArrays.HEIGHT_ARRAY_EMPTY)
                         {
                             sensorBTile = null;
                         }
@@ -706,7 +711,7 @@ namespace NotSonic.Components
                                 }
                                 if(CurrentFloorMode == FloorMode.CEILING)
                                 {
-                                    YPos = sensorATile.Y + heightOfA + CurrentHeight;
+                                    YPos = sensorATile.Y + heightOfA + CurrentHeight + 1;
                                 }
                                 
                             }
@@ -719,7 +724,9 @@ namespace NotSonic.Components
                             XPos = sensorATile.X + 16 - heightOfA - CurrentHeight;
                             if(CurrentFloorMode == FloorMode.LEFTWALL)
                             {
-                                XPos = sensorATile.X + heightOfA + CurrentHeight;
+
+                                XPos = sensorATile.X + heightOfA + CurrentHeight+1;
+
                             }
                         
                         }
@@ -732,10 +739,25 @@ namespace NotSonic.Components
                         {
                          if ((CurrentMoveType == MoveType.AIR && YSpeed > 0) || CurrentMoveType == MoveType.GROUND)
                             {
-                                YPos = sensorBTile.Y + 16 - heightOfB - CurrentHeight;
-                                if (CurrentFloorMode == FloorMode.CEILING)
+                                if (CurrentMoveType == MoveType.AIR)
                                 {
-                                    YPos = sensorBTile.Y + heightOfB + CurrentHeight;
+                                    // In air mode, we only stick to the ground if we are below the new pos
+                                    if(YPos >= sensorBTile.Y + 16 - heightOfB - 20)
+                                    {
+                                        YPos = sensorBTile.Y + 16 - heightOfB - CurrentHeight;
+                                        
+                                    }
+
+
+                                  
+                                }
+                                else
+                                {
+                                    YPos = sensorBTile.Y + 16 - heightOfB - CurrentHeight;
+                                }
+                                if(CurrentFloorMode == FloorMode.CEILING)
+                                {
+                                    YPos = sensorBTile.Y + heightOfB + CurrentHeight + 1;
                                 }
                             
                             }
@@ -746,7 +768,7 @@ namespace NotSonic.Components
                             XPos = sensorBTile.X + 16 - heightOfB - CurrentHeight;
                             if (CurrentFloorMode == FloorMode.LEFTWALL)
                             {
-                                XPos = sensorBTile.X + heightOfB + CurrentHeight;
+                                XPos = sensorBTile.X + heightOfB + CurrentHeight + 1;
                             }
                            
                         }
