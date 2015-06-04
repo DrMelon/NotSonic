@@ -52,7 +52,13 @@ namespace NotSonic.Components
         // Need a way to locate nearby tiles in the tile list, rather than iterating. Iterating will do for now.
         public CollisionInfo Sense(List<Tile> tileList)
         {
-            
+            // Sanitise inputs
+           //// if(BPos2 < BPos1)
+           // {
+         //       float tmp = BPos2;
+          //      BPos2 = BPos1;
+          //      BPos1 = tmp;
+         //   }
 
             // Initialize new collision.
             CollisionInfo newCollision = new CollisionInfo();
@@ -84,14 +90,19 @@ namespace NotSonic.Components
                         {
                             // Collision, cap'n!
 
-                            // Select this tile. 
+                            // Select this tile, if it's closer to us than the last.
+
                             newCollision.tileHit = tile;
                             newCollision.thisIsNull = false;
+                            
+                            
+
+
                             LasthitX = tile.X;
                             LasthitY = tile.Y;
 
 
-
+                            
                             break;
                         }
                     }
@@ -120,9 +131,14 @@ namespace NotSonic.Components
                         {
                             // Collision, cap'n!
 
-                            // Select this tile. 
+                            // Select this tile, if it's closer to us than the last.
+
                             newCollision.tileHit = tile;
                             newCollision.thisIsNull = false;
+                            
+
+
+
                             LasthitX = tile.X;
                             LasthitY = tile.Y;
 

@@ -213,14 +213,14 @@ namespace NotSonic.Components
             // Check Mode- Going Right, Hit Ramp, Going up!
             if (CurrentFloorMode == FloorMode.FLOOR)
             {
-                if (Angle >= 45.0f && Angle < 135.0f)
+                if (Angle > 30)
                 {
                     // On the right wall
                     Otter.Debugger.Instance.Log("FLOOR -> RIGHT WALL NOW");
                     CurrentFloorMode = FloorMode.RIGHTWALL;
                 }
 
-                if (Angle <= 315.0f && Angle >= 225.0f)
+                if (Angle < 330 && Angle > 270)
                 {
                     // On the left wall
                     Otter.Debugger.Instance.Log("FLOOR -> LEFT WALL NOW");
@@ -231,7 +231,7 @@ namespace NotSonic.Components
             // Going Left, Hit Ramp, Moving Normal Now
             else if (CurrentFloorMode == FloorMode.RIGHTWALL)
             {
-                if (Angle < 45.0f && Angle > 0.0f)
+                if (Angle < 30 && Angle > 0)
                 {
                     Otter.Debugger.Instance.Log("RIGHT WALL -> FLOOR NOW");
                     CurrentFloorMode = FloorMode.FLOOR;
@@ -240,7 +240,7 @@ namespace NotSonic.Components
 
             else if (CurrentFloorMode == FloorMode.LEFTWALL)
             {
-                if (Angle > 315.0f && Angle < 360.0f)
+                if (Angle > 330)
                 {
                     Otter.Debugger.Instance.Log("LEFT WALL -> FLOOR NOW");
                     CurrentFloorMode = FloorMode.FLOOR;
@@ -417,7 +417,7 @@ namespace NotSonic.Components
         public void CheckWallSensor()
         {
             // debug
-            return;
+           // return;
             
             // Check for tiles that are at the sides of sonic, relative to Y+4.
             wallSensor.APos = YPos + 4;
@@ -687,6 +687,14 @@ namespace NotSonic.Components
 
 
                 // Pop from tiles walked on.
+                    //Flip fullheights for left and ceiling modes
+                    if(CurrentFloorMode == FloorMode.LEFTWALL || CurrentFloorMode == FloorMode.CEILING)
+                    {
+                        int tmp = fullheightOfA;
+                        fullheightOfA = fullheightOfB;
+                        fullheightOfB = tmp;
+
+                    }
                     if (fullheightOfA >= fullheightOfB && sensorATile != null)
                     {
                         if(CurrentFloorMode == FloorMode.FLOOR || CurrentFloorMode == FloorMode.CEILING)
