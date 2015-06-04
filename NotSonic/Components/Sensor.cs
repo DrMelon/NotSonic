@@ -92,12 +92,17 @@ namespace NotSonic.Components
                         {
                             // Collision, cap'n!
 
+                            if (tile.myTileInfo.flatheightArray == HeightArrays.HEIGHT_ARRAY_EMPTY)
+                            {
+                                continue;
+                            }
+
                             // Select this tile, if it's closer to us than the last.
 
                             newCollision.tileHit = tile;
                             newCollision.thisIsNull = false;
-                            
-                            
+
+
 
 
                             LasthitX = tile.X;
@@ -107,6 +112,8 @@ namespace NotSonic.Components
                             {
                                 continue; //keep going until blank?
                             }
+
+
                             
                             
                             break;
@@ -137,6 +144,11 @@ namespace NotSonic.Components
                         {
                             // Collision, cap'n!
 
+                            if (tile.myTileInfo.flatheightArray == HeightArrays.HEIGHT_ARRAY_EMPTY)
+                            {
+                                continue;
+                            }
+
                             // Select this tile, if it's closer to us than the last.
 
                             newCollision.tileHit = tile;
@@ -152,6 +164,8 @@ namespace NotSonic.Components
                             {
                                 continue; //keep going until blank?
                             }
+
+
 
                             break;
                         }

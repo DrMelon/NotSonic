@@ -87,8 +87,6 @@ namespace NotSonic.Components
             if (myType <= (int)TileType.TILE_EMPTY)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_EMPTY;
-            //    Image spriteImage = new Image(16, 16); //blank
-            //    Graphic = spriteImage;
             }
 
             else if(myType == (int)TileType.TILE_BASIC)

@@ -76,10 +76,21 @@ namespace NotSonic.Components
         public bool Jumping = false;
 
 
+        // Debug view on?
+        public bool DebugView = false;
+
+
         // Sensors
         public Sensor wallSensor;
         public Sensor groundSensorA;
         public Sensor groundSensorB;
+        public Sensor ceilingSensorC;
+        public Sensor ceilingSensorD;
+
+
+        // Sounds
+        public Sound jumpSound = new Sound(Assets.SND_JUMP);
+        public Sound rollingSound = new Sound(Assets.SND_ROLL);
 
         #region Public Methods
 
@@ -92,12 +103,14 @@ namespace NotSonic.Components
             wallSensor = new Sensor(0,0,0,false);
             groundSensorA = new Sensor(0,0,0,true);
             groundSensorB = new Sensor(0,0,0,true);
+            ceilingSensorC = new Sensor(0, 0, 0, true);
+            ceilingSensorD = new Sensor(0, 0, 0, true);
 
-            // Register console command for flipping gravity
-            Otter.Debugger.CommandFunction myFunc = new Debugger.CommandFunction(FlipGravity);
+            // Register console command for flipping debugview
+            Otter.Debugger.CommandFunction myFunc = new Debugger.CommandFunction(ToggleDebugView);
             Debugger.Instance.RegisterCommand(myFunc, (Otter.CommandType[])new Otter.CommandType[0]);
 
-
+            
             base.Added();
         }
 
@@ -174,19 +187,9 @@ namespace NotSonic.Components
             }
         }
 
-        public void FlipGravity(params string[] target)
+        public void ToggleDebugView(params string[] target)
         {
-            Gravity *= -1.0f;
-            if(CurrentFloorMode == FloorMode.FLOOR)
-            {
-                CurrentFloorMode = FloorMode.CEILING;
-            }
-            else
-            {
-                CurrentFloorMode = FloorMode.FLOOR;
-            }
-            Otter.Debugger.Instance.Log(CurrentFloorMode);
-
+            DebugView = !DebugView;
         }
 
 
@@ -337,6 +340,11 @@ namespace NotSonic.Components
        
 
             }
+            else
+            {
+                // Check ceiling sensors
+                CheckCeilingSensors();
+            }
 
             // Spindash tick
             AtrophySpindashStrength();
@@ -422,7 +430,7 @@ namespace NotSonic.Components
 
 
 
-           
+            jumpSound.Play();
             Jumping = true;
             CurrentMoveType = MoveType.AIR;
             CurrentFloorMode = FloorMode.FLOOR; // switch to falling
@@ -617,7 +625,7 @@ namespace NotSonic.Components
 
                         heightOfA = sensorATile.myTileInfo.flatheightArray[heightMapArrayIndex];
 
-                        fullheightOfA = heightOfA + (1600 - (int)sensorATile.Y);
+                        fullheightOfA = heightOfA + (Global.maxlvlheight - (int)sensorATile.Y);
 
 
 
@@ -641,7 +649,7 @@ namespace NotSonic.Components
 
 
 
-                        fullheightOfB = heightOfB + (1600 - (int)sensorBTile.Y);
+                        fullheightOfB = heightOfB + (Global.maxlvlheight - (int)sensorBTile.Y);
 
                         angleOfB = sensorBTile.myTileInfo.Angle;
 
@@ -666,7 +674,7 @@ namespace NotSonic.Components
                         heightOfA = sensorATile.myTileInfo.wallheightArray[heightMapArrayIndex];
 
 
-                        fullheightOfA = heightOfA + (1600 - (int)sensorATile.X);
+                        fullheightOfA = heightOfA + (Global.maxlvlheight - (int)sensorATile.X);
 
 
                         angleOfA = sensorATile.myTileInfo.Angle;
@@ -689,7 +697,7 @@ namespace NotSonic.Components
 
 
 
-                        fullheightOfB = heightOfB + (1600 - (int)sensorBTile.X);
+                        fullheightOfB = heightOfB + (Global.maxlvlheight - (int)sensorBTile.X);
 
                         angleOfB = sensorBTile.myTileInfo.Angle;
 
@@ -709,6 +717,7 @@ namespace NotSonic.Components
                     return;
                 }
 
+              
 
 
                 // Pop from tiles walked on.
@@ -729,10 +738,10 @@ namespace NotSonic.Components
                                 if (CurrentMoveType == MoveType.AIR)
                                 {
                                     // In air mode, we only stick to the ground if we are below the new pos
-                                    if(YPos >= sensorATile.Y + 16 - heightOfA - 20)
+                                    if(YPos >= sensorATile.Y + 16 - heightOfA - CurrentHeight)
                                     {
-                                        YPos = sensorATile.Y + 16 - heightOfA - CurrentHeight;
-                                        
+                                        YPos = sensorATile.Y + (16 - heightOfA) - 20;
+                                        RegainGround();
                                     }
 
 
@@ -741,10 +750,12 @@ namespace NotSonic.Components
                                 else
                                 {
                                     YPos = sensorATile.Y + 16 - heightOfA - CurrentHeight;
+                                    RegainGround();
                                 }
                                 if(CurrentFloorMode == FloorMode.CEILING)
                                 {
                                     YPos = sensorATile.Y + heightOfA + CurrentHeight + 1;
+                                    RegainGround();
                                 }
                                 
                             }
@@ -778,10 +789,10 @@ namespace NotSonic.Components
                                 if (CurrentMoveType == MoveType.AIR)
                                 {
                                     // In air mode, we only stick to the ground if we are below the new pos
-                                    if(YPos >= sensorBTile.Y + 16 - heightOfB - 20)
+                                    if (YPos >= sensorBTile.Y + 16 - heightOfB - CurrentHeight)
                                     {
-                                        YPos = sensorBTile.Y + 16 - heightOfB - CurrentHeight;
-                                        
+                                        YPos = sensorBTile.Y + 16 - heightOfB - 20;
+                                        RegainGround();
                                     }
 
 
@@ -790,6 +801,7 @@ namespace NotSonic.Components
                                 else
                                 {
                                     YPos = sensorBTile.Y + 16 - heightOfB - CurrentHeight;
+                                    RegainGround();
                                 }
                                 if(CurrentFloorMode == FloorMode.CEILING)
                                 {
@@ -815,7 +827,7 @@ namespace NotSonic.Components
                     }
 
 
-                    RegainGround();
+                    
                 
 
             }
@@ -962,6 +974,7 @@ namespace NotSonic.Components
                 if(theController.Down.Down && !Rolling && Math.Abs(GroundSpeed) > 1.03125)
                 {
                     Rolling = true;
+                    rollingSound.Play();
                 }
 
                 // Spindash release
@@ -1037,7 +1050,10 @@ namespace NotSonic.Components
         public override void Render()
         {
             base.Render();
-            
+            if(!DebugView)
+            {
+                return;
+            }
             
             // DEBUG
             if (CurrentFloorMode == FloorMode.FLOOR || CurrentFloorMode == FloorMode.CEILING)
@@ -1053,11 +1069,131 @@ namespace NotSonic.Components
 
             Otter.Draw.Line(wallSensor.BPos1, wallSensor.APos, wallSensor.BPos2, wallSensor.APos, Color.Cyan);
 
+            Otter.Draw.Line(ceilingSensorC.APos, ceilingSensorC.BPos1, ceilingSensorC.APos, ceilingSensorC.BPos2, Color.Yellow);
+            Otter.Draw.Line(ceilingSensorD.APos, ceilingSensorD.BPos1, ceilingSensorD.APos, ceilingSensorD.BPos2, Color.Magenta);
+
             Otter.Draw.Rectangle(groundSensorA.LasthitX, groundSensorA.LasthitY, 16, 16, null, Color.Red, 1);
             Otter.Draw.Rectangle(groundSensorB.LasthitX, groundSensorB.LasthitY, 16, 16, null, Color.Green, 1);
+            Otter.Draw.Rectangle(ceilingSensorC.LasthitX, ceilingSensorC.LasthitY, 16, 16, null, Color.Yellow, 1);
+            Otter.Draw.Rectangle(ceilingSensorD.LasthitX, ceilingSensorD.LasthitY, 16, 16, null, Color.Magenta, 1);
 
             
         }
+
+        private void CheckCeilingSensors()
+        {
+            ceilingSensorC.APos = XPos + 9;
+            ceilingSensorC.BPos1 = YPos - 16 - CurrentHeight;
+            ceilingSensorC.BPos2 = YPos;
+            ceilingSensorC.verticalSensor = true;
+            ceilingSensorC.keepCheck = true;
+
+            ceilingSensorD.APos = XPos - 9;
+            ceilingSensorD.BPos1 = YPos - 16 - CurrentHeight;
+            ceilingSensorD.BPos2 = YPos;
+            ceilingSensorD.verticalSensor = true;
+            ceilingSensorD.keepCheck = true;
+            
+            if(YSpeed < 0)
+            {
+                // The tiles that will be located.
+                Tile sensorATile = null;
+                Tile sensorBTile = null;
+
+
+                // Sense those tiles!
+                Sensor.CollisionInfo colInfoA = ceilingSensorC.Sense(TileList);
+                Sensor.CollisionInfo colInfoB = ceilingSensorD.Sense(TileList);
+
+                sensorATile = colInfoA.tileHit;
+                sensorBTile = colInfoB.tileHit;
+
+                float heightOfA = 0.0f, fullheightOfA = 0.0f, heightOfB = 0.0f, fullheightOfB = 0.0f;
+
+                if (sensorATile != null)
+                {
+                    // Capture sensor A's result.
+                    int heightMapArrayIndex = (int)groundSensorA.APos - (int)sensorATile.X;
+
+                    heightMapArrayIndex = Math.Min(Math.Abs(heightMapArrayIndex), 15);
+
+                    heightOfA = sensorATile.myTileInfo.flatheightArray[heightMapArrayIndex];
+
+                    fullheightOfA = heightOfA + (Global.maxlvlheight - (int)sensorATile.Y);
+
+
+
+
+                    // If the tile is empty of collision, don't collide with it. Duh!
+                    if (sensorATile.myTileInfo.flatheightArray == HeightArrays.HEIGHT_ARRAY_EMPTY)
+                    {
+                        sensorATile = null;
+                    }
+
+                }
+                if (sensorBTile != null)
+                {
+                    // Capture sensor B's result.
+                    int heightMapArrayIndex = (int)groundSensorB.APos - (int)sensorBTile.X;
+
+                    heightMapArrayIndex = Math.Min(Math.Abs(heightMapArrayIndex), 15);
+
+                    heightOfB = sensorBTile.myTileInfo.flatheightArray[heightMapArrayIndex];
+
+
+
+                    fullheightOfB = heightOfB + (Global.maxlvlheight - (int)sensorBTile.Y);
+
+                    
+
+                    // If the tile is empty of collision, don't collide with it. Duh!
+                    if (sensorBTile.myTileInfo.flatheightArray == HeightArrays.HEIGHT_ARRAY_EMPTY)
+                    {
+                        sensorBTile = null;
+                    }
+                }
+
+                if(fullheightOfA > fullheightOfB && (sensorATile != null || sensorBTile != null))
+                {
+                    if(YPos < sensorATile.Y + heightOfA + 16)
+                    {
+                        YPos = sensorATile.Y + heightOfA + 17;
+                        if (sensorATile.myTileInfo.Angle > 135 && sensorATile.myTileInfo.Angle < 225)
+                        {
+                            Angle = sensorATile.myTileInfo.Angle;
+                            CurrentFloorMode = FloorMode.CEILING;
+                            Jumping = false;
+                            CurrentMoveType = MoveType.GROUND;
+                        }
+                        else
+                        {
+                            YSpeed = 0;
+                        }
+                    }
+                }
+                else if (sensorATile != null || sensorBTile != null)
+                {
+                    if(YPos < sensorBTile.Y + heightOfB + 16)
+                    {
+                        YPos = sensorBTile.Y + heightOfB + 17;
+                        if (sensorBTile.myTileInfo.Angle > 135 && sensorBTile.myTileInfo.Angle < 225)
+                        {
+                            Angle = sensorBTile.myTileInfo.Angle;
+                            CurrentFloorMode = FloorMode.CEILING;
+                            Jumping = false;
+                            CurrentMoveType = MoveType.GROUND;
+                        }
+                        else
+                        {
+                            YSpeed = 0;
+                        }
+                    }
+                }
+
+            }
+
+        }
+
        
         #endregion
 

@@ -21,6 +21,17 @@ namespace NotSonic
         public const string EXAMPLE_TILE = "../../Assets/GFX/TILE0.png"; //16x16 sprites
         public const string TILE_SHEET = "../../Assets/GFX/Mushroom_Hill_bank.png"; //16x16 sprites
 
+        public const string PARA_TREES_1 = "../../Assets/GFX/Parallax/Mush_Trees_1.png";
+        public const string PARA_TREES_2 = "../../Assets/GFX/Parallax/Mush_Trees_2.png";
+
+        public const string LUTSHADER = "../../Assets/GLSL/lutshader.frag";
+        public const string LUTIMAGE = "../../Assets/GLSL/lut.png";
+
+        public const string SND_JUMP = "../../Assets/SND/jump.wav";
+        public const string SND_ROLL = "../../Assets/SND/roll.wav";
+
+        public const string MUS_MUSH = "../../Assets/MUS/mush.ogg";
+
         public const string MAP_TEST = "../../Assets/MAP/Test_Mush.tmx"; // Tiled TMX File.
     }
 }

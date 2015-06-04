@@ -23,6 +23,8 @@ namespace NotSonic
         public static int GROUP_ACTIVEOBJECTS = 1;
         public static NotSonic.System.SegaController theController;
 
+        public static int maxlvlwidth = 16000;
+        public static int maxlvlheight = 16000;
 
     }
 }
