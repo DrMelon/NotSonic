@@ -110,9 +110,25 @@ namespace NotSonic.Components
             else if (myType == 62)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_10;
-                if(flipX)
+                if(flipX && !flipY) // Up To Leftwall
                 {
                     float newAngle = 360 - myTileInfo.Angle;
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_85;
+                    myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_85;
+                    myTileInfo.Angle = newAngle;
+                }
+                if(flipY && !flipX) // Rightwall to Ceiling
+                {
+                    float newAngle = 90 + myTileInfo.Angle;
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_UP_85;
+                    myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_10;
+                    myTileInfo.Angle = newAngle;
+                }
+                if(flipX && flipY) // Leftwall to Ceiling
+                {
+                    float newAngle = 180 + myTileInfo.Angle;
                     myTileInfo = new SonicTileInfo(null, null, 0.0f);
                     myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_85;
                     myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_85;
@@ -122,9 +138,25 @@ namespace NotSonic.Components
             else if (myType == 63)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_20;
-                if (flipX)
+                if (flipX && !flipY) // Up To Leftwall
                 {
                     float newAngle = 360 - myTileInfo.Angle;
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_70;
+                    myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_70;
+                    myTileInfo.Angle = newAngle;
+                }
+                if (flipY && !flipX)  // Rightwall to Ceiling
+                {
+                    float newAngle = 90 + myTileInfo.Angle;
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_UP_70;
+                    myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_20;
+                    myTileInfo.Angle = newAngle;
+                }
+                if (flipX && flipY) // Leftwall to Ceiling
+                {
+                    float newAngle = 180 + myTileInfo.Angle;
                     myTileInfo = new SonicTileInfo(null, null, 0.0f);
                     myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_70;
                     myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_70;
@@ -134,9 +166,25 @@ namespace NotSonic.Components
             else if (myType == 64)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_30;
-                if (flipX)
+                if (flipX && !flipY) // Up To Leftwall
                 {
                     float newAngle = 360 - myTileInfo.Angle;
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_60;
+                    myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_60;
+                    myTileInfo.Angle = newAngle;
+                }
+                if (flipY && !flipX)  // Rightwall to Ceiling
+                {
+                    float newAngle = 90 + myTileInfo.Angle;
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_UP_60;
+                    myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_30;
+                    myTileInfo.Angle = newAngle;
+                }
+                if (flipX && flipY) // Leftwall to Ceiling
+                {
+                    float newAngle = 180 + myTileInfo.Angle;
                     myTileInfo = new SonicTileInfo(null, null, 0.0f);
                     myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_60;
                     myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_60;
@@ -146,9 +194,25 @@ namespace NotSonic.Components
             else if (myType == 44)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_45;
-                if (flipX)
+                if (flipX && !flipY) // Up To Leftwall
                 {
                     float newAngle = 360 - myTileInfo.Angle;
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_45;
+                    myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_45;
+                    myTileInfo.Angle = newAngle;
+                }
+                if (flipY && !flipX)  // Rightwall to Ceiling
+                {
+                    float newAngle = 90 + myTileInfo.Angle;
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_UP_45;
+                    myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_45;
+                    myTileInfo.Angle = newAngle;
+                }
+                if (flipX && flipY) // Leftwall to Ceiling
+                {
+                    float newAngle = 180 + myTileInfo.Angle;
                     myTileInfo = new SonicTileInfo(null, null, 0.0f);
                     myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_45;
                     myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_45;
@@ -158,9 +222,25 @@ namespace NotSonic.Components
             else if (myType == 45)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_60;
-                if (flipX)
+                if (flipX && !flipY) // Up To Leftwall
                 {
                     float newAngle = 360 - myTileInfo.Angle;
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_30;
+                    myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_30;
+                    myTileInfo.Angle = newAngle;
+                }
+                if (flipY && !flipX)  // Rightwall to Ceiling
+                {
+                    float newAngle = 90 + myTileInfo.Angle;
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_UP_30;
+                    myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_60;
+                    myTileInfo.Angle = newAngle;
+                }
+                if (flipX && flipY) // Leftwall to Ceiling
+                {
+                    float newAngle = 180 + myTileInfo.Angle;
                     myTileInfo = new SonicTileInfo(null, null, 0.0f);
                     myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_30;
                     myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_30;
@@ -170,9 +250,25 @@ namespace NotSonic.Components
             else if (myType == 25)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_70;
-                if (flipX)
+                if (flipX && !flipY) // Up To Leftwall
                 {
                     float newAngle = 360 - myTileInfo.Angle;
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_20;
+                    myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_20;
+                    myTileInfo.Angle = newAngle;
+                }
+                if (flipY && !flipX)  // Rightwall to Ceiling
+                {
+                    float newAngle = 90 + myTileInfo.Angle;
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_UP_20;
+                    myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_70;
+                    myTileInfo.Angle = newAngle;
+                }
+                if (flipX && flipY) // Leftwall to Ceiling
+                {
+                    float newAngle = 180 + myTileInfo.Angle;
                     myTileInfo = new SonicTileInfo(null, null, 0.0f);
                     myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_20;
                     myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_20;
@@ -182,9 +278,25 @@ namespace NotSonic.Components
             else if (myType == 5)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_LOOP_UP_85;
-                if (flipX)
+                if (flipX && !flipY) // Up To Leftwall
                 {
                     float newAngle = 360 - myTileInfo.Angle;
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_10;
+                    myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_10;
+                    myTileInfo.Angle = newAngle;
+                }
+                if (flipY && !flipX)  // Rightwall to Ceiling
+                {
+                    float newAngle = 90 + myTileInfo.Angle;
+                    myTileInfo = new SonicTileInfo(null, null, 0.0f);
+                    myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_UP_10;
+                    myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_85;
+                    myTileInfo.Angle = newAngle;
+                }
+                if (flipX && flipY) // Leftwall to Ceiling
+                {
+                    float newAngle = 180 + myTileInfo.Angle;
                     myTileInfo = new SonicTileInfo(null, null, 0.0f);
                     myTileInfo.flatheightArray = HeightArrays.HEIGHT_LOOP_DOWN_10;
                     myTileInfo.wallheightArray = HeightArrays.HEIGHT_LOOP_UP_10;

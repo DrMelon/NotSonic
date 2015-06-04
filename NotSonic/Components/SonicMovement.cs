@@ -210,42 +210,33 @@ namespace NotSonic.Components
 
         private void ChangeFloorMode()
         {
-            // Check Mode- Going Right, Hit Ramp, Going up!
-            if (CurrentFloorMode == FloorMode.FLOOR)
+            // Change which mode we're on
+            if((Angle > 315 || Angle < 45) && CurrentFloorMode != FloorMode.FLOOR && Angle != 0)
             {
-                if (Angle > 40 && Angle < 90)
-                {
-                    // On the right wall
-                    Otter.Debugger.Instance.Log("FLOOR -> RIGHT WALL NOW");
-                    CurrentFloorMode = FloorMode.RIGHTWALL;
-                }
-
-                if (Angle < 320 && Angle > 270)
-                {
-                    // On the left wall
-                    Otter.Debugger.Instance.Log("FLOOR -> LEFT WALL NOW");
-                    CurrentFloorMode = FloorMode.LEFTWALL;
-                }
+                // Now in Floor Mode
+                CurrentFloorMode = FloorMode.FLOOR;
+                Otter.Debugger.Instance.Log(Angle);
+                Otter.Debugger.Instance.Log("FLOOR");
             }
-
-            // Going Left, Hit Ramp, Moving Normal Now
-            else if (CurrentFloorMode == FloorMode.RIGHTWALL)
+            else if ((Angle > 45 && Angle < 135) && CurrentFloorMode != FloorMode.RIGHTWALL)
             {
-                if (Angle < 40 && Angle > 0)
-                {
-                    Otter.Debugger.Instance.Log("RIGHT WALL -> FLOOR NOW");
-                    CurrentFloorMode = FloorMode.FLOOR;
-                }
+                // Now in Floor Mode
+                CurrentFloorMode = FloorMode.RIGHTWALL;
+                Otter.Debugger.Instance.Log("RIGHT");
             }
-
-            else if (CurrentFloorMode == FloorMode.LEFTWALL)
+            else if ((Angle > 135 && Angle < 225) && CurrentFloorMode != FloorMode.CEILING)
             {
-                if (Angle >= 320 && Angle < 359)
-                {
-                    Otter.Debugger.Instance.Log("LEFT WALL -> FLOOR NOW");
-                    CurrentFloorMode = FloorMode.FLOOR;
-                }
+                // Now in Floor Mode
+                CurrentFloorMode = FloorMode.CEILING;
+                Otter.Debugger.Instance.Log("CEILING");
             }
+            else if ((Angle > 225 && Angle < 315) && CurrentFloorMode != FloorMode.LEFTWALL)
+            {
+                // Now in Floor Mode
+                CurrentFloorMode = FloorMode.LEFTWALL;
+                Otter.Debugger.Instance.Log("LEFT");
+            }
+            
 
 
         }
@@ -273,7 +264,13 @@ namespace NotSonic.Components
             if (Math.Abs(GroundSpeed) < 2.5 && CurrentFloorMode != FloorMode.FLOOR)
             {
                 // We slipped off!
+                if (CurrentFloorMode == FloorMode.CEILING)
+                {
+                    GroundSpeed = XSpeed;
+                }
                 CurrentFloorMode = FloorMode.FLOOR;
+
+                
                 // Lock controls, prevent further movement for half a second.
                 HLock = 30.0f;
             }

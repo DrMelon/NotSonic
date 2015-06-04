@@ -50,6 +50,8 @@ namespace NotSonic
             Global.theGame.Color = new Color("736763");
 
             // Begin otter!
+            
+            
             Global.theGame.Start();
 
 

@@ -12,6 +12,8 @@ namespace NotSonic.Entities
         public Spritemap<string> spriteSheet;
         public NotSonic.Components.SonicMovement myMovement;
         public List<NotSonic.Components.Tile> tileList;
+
+        public float SmoothAngle;
         
         public SonicPlayer(List<NotSonic.Components.Tile> tl, float x = 0, float y = 0)
         {
@@ -66,6 +68,7 @@ namespace NotSonic.Entities
             if(myMovement.CurrentFloorMode == NotSonic.Components.SonicMovement.FloorMode.RIGHTWALL)
             {
                 Graphic.Angle = 90;
+
             }
             if (myMovement.CurrentFloorMode == NotSonic.Components.SonicMovement.FloorMode.CEILING)
             {
@@ -75,9 +78,6 @@ namespace NotSonic.Entities
             {
                 Graphic.Angle = 270;
             }
-
-
-            
 
             if(myMovement.Rolling)
             {

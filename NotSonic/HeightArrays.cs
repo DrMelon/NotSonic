@@ -35,5 +35,7 @@ namespace NotSonic
         public static int[] HEIGHT_LOOP_DOWN_60 = { 16, 16, 16, 16, 16, 16, 16, 15, 14, 14, 13, 12, 12, 11, 10, 10 };
         public static int[] HEIGHT_LOOP_DOWN_70 = { 9, 9, 8, 8, 7, 7, 6, 6, 5, 5, 5, 4, 4, 4, 3, 3 };
         public static int[] HEIGHT_LOOP_DOWN_85 = { 3, 3, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1 };
+
+
     }
 }

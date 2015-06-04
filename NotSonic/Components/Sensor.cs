@@ -103,6 +103,10 @@ namespace NotSonic.Components
                             LasthitX = tile.X;
                             LasthitY = tile.Y;
 
+                            if (tile.myTileInfo.wallheightArray == HeightArrays.HEIGHT_ARRAY_FULL && keepCheck)
+                            {
+                                continue; //keep going until blank?
+                            }
                             
                             
                             break;

@@ -60,8 +60,8 @@ namespace NotSonic
 
             Add(thePlayer);
 
-            
 
+            Otter.Debugger.Instance.ShowPerformance(5);
         }
 
         public void LoadMap()
