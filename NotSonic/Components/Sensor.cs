@@ -35,6 +35,8 @@ namespace NotSonic.Components
 
         public float LasthitX;
         public float LasthitY;
+
+        public bool keepCheck;
         
         // Sensor type; horizontal / vertical
         public bool verticalSensor;
@@ -101,7 +103,7 @@ namespace NotSonic.Components
                             LasthitX = tile.X;
                             LasthitY = tile.Y;
 
-
+                            
                             
                             break;
                         }
@@ -137,10 +139,15 @@ namespace NotSonic.Components
                             newCollision.thisIsNull = false;
                             
 
-
+                            
 
                             LasthitX = tile.X;
                             LasthitY = tile.Y;
+
+                            if (tile.myTileInfo.wallheightArray == HeightArrays.HEIGHT_ARRAY_FULL && keepCheck)
+                            {
+                                continue; //keep going until blank?
+                            }
 
                             break;
                         }

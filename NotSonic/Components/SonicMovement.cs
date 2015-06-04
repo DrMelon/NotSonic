@@ -213,7 +213,7 @@ namespace NotSonic.Components
             // Check Mode- Going Right, Hit Ramp, Going up!
             if (CurrentFloorMode == FloorMode.FLOOR)
             {
-                if (Angle > 30)
+                if (Angle > 30 && Angle < 90)
                 {
                     // On the right wall
                     Otter.Debugger.Instance.Log("FLOOR -> RIGHT WALL NOW");
@@ -240,7 +240,7 @@ namespace NotSonic.Components
 
             else if (CurrentFloorMode == FloorMode.LEFTWALL)
             {
-                if (Angle > 330)
+                if (Angle >= 330 && Angle < 359)
                 {
                     Otter.Debugger.Instance.Log("LEFT WALL -> FLOOR NOW");
                     CurrentFloorMode = FloorMode.FLOOR;
@@ -318,6 +318,11 @@ namespace NotSonic.Components
             // Check sensors for solid ground:
             CheckGroundSensors();
 
+            // Check and change floor mode
+            ChangeFloorMode();
+
+
+
             // Ground Stuff
             if (CurrentMoveType != MoveType.AIR)
             {
@@ -329,6 +334,9 @@ namespace NotSonic.Components
                 // Do Speed check
                 CalculateSpeedFromGroundSpeed();
 
+                // Make sure to fall off if wall mode speed is too slow
+                CheckWallModeSpeed();
+
             }
 
             // Spindash tick
@@ -337,11 +345,7 @@ namespace NotSonic.Components
             AtrohpyHLock();
 
 
-            // Check and change floor mode
-            ChangeFloorMode();
 
-            // Make sure to fall off if wall mode speed is too slow
-            CheckWallModeSpeed();
 
             // Falling is always considered to be right side up.
             FloorModeWhenFalling();
@@ -365,13 +369,27 @@ namespace NotSonic.Components
 
         private void FlipLeftRight()
         {
-            if (XSpeed > 0)
+            if (CurrentMoveType == MoveType.AIR)
             {
-                FacingRight = true;
+                if (XSpeed > 0)
+                {
+                    FacingRight = true;
+                }
+                if (XSpeed < 0)
+                {
+                    FacingRight = false;
+                }
             }
-            if (XSpeed < 0)
+            else
             {
-                FacingRight = false;
+                if (GroundSpeed > 0)
+                {
+                    FacingRight = true;
+                }
+                if (GroundSpeed < 0)
+                {
+                    FacingRight = false;
+                }
             }
         }
 
@@ -497,12 +515,14 @@ namespace NotSonic.Components
                 groundSensorA.BPos1 = YPos + 0;
                 groundSensorA.BPos2 = YPos + 16 + CurrentHeight;
                 groundSensorA.verticalSensor = true;
+                groundSensorA.keepCheck = false;
 
                 // Sensor B: Positioned at 9, 0 to 9, 20.
                 groundSensorB.APos = XPos + 9;
                 groundSensorB.BPos1 = YPos + 0;
                 groundSensorB.BPos2 = YPos + 16 + CurrentHeight;
                 groundSensorB.verticalSensor = true;
+                groundSensorB.keepCheck = false;
             }
             if (CurrentFloorMode == FloorMode.CEILING)
             {
@@ -510,11 +530,13 @@ namespace NotSonic.Components
                 groundSensorA.BPos1 = YPos - 16 - CurrentHeight;
                 groundSensorA.BPos2 = YPos;
                 groundSensorA.verticalSensor = true;
+                groundSensorA.keepCheck = true;
 
                 groundSensorB.APos = XPos - 9;
                 groundSensorB.BPos1 = YPos - 16 - CurrentHeight;
                 groundSensorB.BPos2 = YPos;
                 groundSensorB.verticalSensor = true;
+                groundSensorB.keepCheck = true;
             }
             if (CurrentFloorMode == FloorMode.RIGHTWALL)
             {
@@ -523,12 +545,14 @@ namespace NotSonic.Components
                 groundSensorA.BPos1 = XPos + 0;
                 groundSensorA.BPos2 = XPos + 16 + CurrentHeight;
                 groundSensorA.verticalSensor = false;
+                groundSensorA.keepCheck = false;
 
                 // Sensor B: Positioned at 9, 0 to 9, 20.
                 groundSensorB.APos = YPos - 9;
                 groundSensorB.BPos1 = XPos + 0;
                 groundSensorB.BPos2 = XPos + 16 + CurrentHeight;
                 groundSensorB.verticalSensor = false;
+                groundSensorB.keepCheck = false;
             }
             if (CurrentFloorMode == FloorMode.LEFTWALL)
             {
@@ -537,12 +561,14 @@ namespace NotSonic.Components
                 groundSensorA.BPos1 = XPos - 16 - CurrentHeight;
                 groundSensorA.BPos2 = XPos + 0;
                 groundSensorA.verticalSensor = false;
+                groundSensorA.keepCheck = true;
 
                 // Sensor B: Positioned at 9, 0 to 9, 20.
                 groundSensorB.APos = YPos + 9;
                 groundSensorB.BPos1 = XPos - 16 - CurrentHeight;
                 groundSensorB.BPos2 = XPos + 0;
                 groundSensorB.verticalSensor = false;
+                groundSensorB.keepCheck = true;
             }
 
             
@@ -680,7 +706,7 @@ namespace NotSonic.Components
                 {
                     // We didn't collide with anything. WE'RE FALLING AAARGH
                     CurrentMoveType = MoveType.AIR;
-                    CurrentFloorMode = FloorMode.FLOOR;
+                    //CurrentFloorMode = FloorMode.FLOOR;
                     return;
                 }
 
@@ -732,8 +758,11 @@ namespace NotSonic.Components
                             XPos = sensorATile.X + 16 - heightOfA - CurrentHeight;
                             if(CurrentFloorMode == FloorMode.LEFTWALL)
                             {
-
-                                XPos = sensorATile.X + heightOfA + CurrentHeight+1;
+                                if(XPos < sensorATile.X + heightOfA + CurrentHeight + 1)
+                                {
+                                    XPos = sensorATile.X + heightOfA + CurrentHeight + 1;
+                                }
+                                
 
                             }
                         
@@ -776,7 +805,10 @@ namespace NotSonic.Components
                             XPos = sensorBTile.X + 16 - heightOfB - CurrentHeight;
                             if (CurrentFloorMode == FloorMode.LEFTWALL)
                             {
-                                XPos = sensorBTile.X + heightOfB + CurrentHeight + 1;
+                                if (XPos < sensorBTile.X + heightOfB + CurrentHeight + 1)
+                                {
+                                    XPos = sensorBTile.X + heightOfB + CurrentHeight + 1;
+                                }
                             }
                            
                         }
