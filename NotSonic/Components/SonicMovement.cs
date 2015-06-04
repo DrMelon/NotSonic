@@ -213,14 +213,14 @@ namespace NotSonic.Components
             // Check Mode- Going Right, Hit Ramp, Going up!
             if (CurrentFloorMode == FloorMode.FLOOR)
             {
-                if (Angle > 30 && Angle < 90)
+                if (Angle > 40 && Angle < 90)
                 {
                     // On the right wall
                     Otter.Debugger.Instance.Log("FLOOR -> RIGHT WALL NOW");
                     CurrentFloorMode = FloorMode.RIGHTWALL;
                 }
 
-                if (Angle < 330 && Angle > 270)
+                if (Angle < 320 && Angle > 270)
                 {
                     // On the left wall
                     Otter.Debugger.Instance.Log("FLOOR -> LEFT WALL NOW");
@@ -231,7 +231,7 @@ namespace NotSonic.Components
             // Going Left, Hit Ramp, Moving Normal Now
             else if (CurrentFloorMode == FloorMode.RIGHTWALL)
             {
-                if (Angle < 30 && Angle > 0)
+                if (Angle < 40 && Angle > 0)
                 {
                     Otter.Debugger.Instance.Log("RIGHT WALL -> FLOOR NOW");
                     CurrentFloorMode = FloorMode.FLOOR;
@@ -240,7 +240,7 @@ namespace NotSonic.Components
 
             else if (CurrentFloorMode == FloorMode.LEFTWALL)
             {
-                if (Angle >= 330 && Angle < 359)
+                if (Angle >= 320 && Angle < 359)
                 {
                     Otter.Debugger.Instance.Log("LEFT WALL -> FLOOR NOW");
                     CurrentFloorMode = FloorMode.FLOOR;
@@ -318,6 +318,9 @@ namespace NotSonic.Components
             // Check sensors for solid ground:
             CheckGroundSensors();
 
+            // Make sure to fall off if wall mode speed is too slow
+            CheckWallModeSpeed();
+
             // Check and change floor mode
             ChangeFloorMode();
 
@@ -334,8 +337,7 @@ namespace NotSonic.Components
                 // Do Speed check
                 CalculateSpeedFromGroundSpeed();
 
-                // Make sure to fall off if wall mode speed is too slow
-                CheckWallModeSpeed();
+       
 
             }
 

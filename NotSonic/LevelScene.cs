@@ -122,24 +122,38 @@ namespace NotSonic
 
             // Recentering Camera Based on Player Position & Direction
 
-            float targetCamX = 0;
-            float targetCamY = 0;
+            float targetCamX = this.CameraCenterX;
+            float targetCamY = this.CameraCenterY;
 
 
-         
-            targetCamX = (thePlayer.X + thePlayer.spriteSheet.Width / 2.0f);
-            targetCamY = thePlayer.Y + 20; // Above player a little.
-
-            if(Math.Abs(targetCamX - this.CameraCenterX) > 8)
+            float distToPlayer = Math.Abs(targetCamX - thePlayer.X);
+            float amtExceeded = 16 - distToPlayer;
+            // X- Cam
+            if(distToPlayer > 16)
             {
-                targetCamX = Util.Approach(this.CameraCenterX, targetCamX, (float)Math.Min(Math.Abs(thePlayer.X - this.CameraCenterX), 16.0f));
+                targetCamX -= Math.Min(Math.Abs(amtExceeded * Math.Sign(targetCamX - thePlayer.X)), 16.0f) * Math.Sign(targetCamX - thePlayer.X);
+            }
+            // Y- Cam
+            if(thePlayer.myMovement.CurrentMoveType == Components.SonicMovement.MoveType.AIR)
+            {
+                float ydistToPlayer = Math.Abs(targetCamY - thePlayer.Y);
+                float yamtExceeded = 64 - ydistToPlayer;
+                if (ydistToPlayer > 64)
+                {
+                    targetCamY -= Math.Min(Math.Abs(yamtExceeded * Math.Sign(targetCamY - thePlayer.Y)), 16.0f) * Math.Sign(targetCamY - thePlayer.Y);
+                }
+            }
+            else
+            {
+                float relYPos = thePlayer.Y - targetCamY;
+                if(relYPos != 96)
+                {
+                    targetCamY += Math.Min(Math.Abs(relYPos), 6) * Math.Sign(relYPos);
+                }
             }
 
-
-            
-            targetCamY = Util.Approach(this.CameraCenterY, targetCamY, (float)Math.Min(Math.Abs(thePlayer.Y - this.CameraCenterY), 16.0f));
-
             this.CenterCamera(targetCamX, targetCamY);
+
 
         }
     }
