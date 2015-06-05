@@ -102,10 +102,11 @@ namespace NotSonic
             // Make debug command to toggle shader
 
             Global.theGame.Surface.Shader = null;
-            Otter.Debugger.CommandFunction myFunc = new Debugger.CommandFunction(ToggleShader);
-            Debugger.Instance.RegisterCommand("instagram", myFunc, (Otter.CommandType[])new Otter.CommandType[0]);
-            Otter.Debugger.CommandFunction myFunc2 = new Debugger.CommandFunction(PlayMusic);
-            Debugger.Instance.RegisterCommand("playmusic", myFunc2, (Otter.CommandType[])new Otter.CommandType[0]);
+            Otter.Debugger.CommandFunction myFunc = new Debugger.CommandFunction(Impulse);
+            Otter.CommandType[] cmdArgs = new Otter.CommandType[1];
+            cmdArgs[0] = CommandType.Int;
+            Debugger.Instance.RegisterCommand("impulse", myFunc, cmdArgs);
+
         }
 
 
@@ -237,7 +238,7 @@ namespace NotSonic
 
         }
 
-        public void ToggleShader(params string[] target)
+        public void ToggleShader()
         {
             if(Global.theGame.Surface.Shader == null)
             {
@@ -249,9 +250,33 @@ namespace NotSonic
             }
         }
 
-        public void PlayMusic(params string[] target)
+        public void PlayMusic()
         {
             mushroomHillMusic.Play();
+        }
+
+        public void Impulse(params string[] target)
+        {
+            // Clone of Valve's Impulse command - accepts an integer, will perform a task based on that integer. So I don't need to register more than one command.
+            if(target.Count() > 0)
+            {
+                string commandPassed = target[0];
+                if(commandPassed == "0")
+                {
+                    // Toggle Debug View
+                    thePlayer.myMovement.ToggleDebugView();
+                }
+                if(commandPassed == "1")
+                {
+                    // Toggle Shaders
+                    ToggleShader();
+                }
+                if(commandPassed == "2")
+                {
+                    // Play Music
+                    PlayMusic();
+                }
+            }
         }
 
 

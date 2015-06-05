@@ -14,6 +14,7 @@ namespace NotSonic.Entities
         public List<NotSonic.Components.Tile> tileList;
 
         public float SmoothAngle;
+        public bool flipReady = false;
         
         public SonicPlayer(List<NotSonic.Components.Tile> tl, float x = 0, float y = 0)
         {
@@ -29,7 +30,8 @@ namespace NotSonic.Entities
             spriteSheet.Add("walk", new int[] { 1, 2, 3, 4, 5, 6, 7, 8 }, new float[] { 6f });
             spriteSheet.Add("run", new int[] { 9, 10, 11, 12}, new float[] { 6f });
             spriteSheet.Add("roll", new int[] { 13, 14, 13, 15, 13, 16, 13, 17 }, new float[] { 12f });
-            spriteSheet.Add("spindash", new int[] { 18 }, new float[] { 6f });
+            spriteSheet.Add("spindash", new int[] { 18, 19, 20, 21, 22, 23 }, new float[] { 6f });
+            spriteSheet.Add("brake", new int[] { 24, 25, 26, 27 }, new float[] { 6f });
             spriteSheet.Play("idle");
             Graphic = spriteSheet;
             this.Layer = 18;
@@ -92,12 +94,38 @@ namespace NotSonic.Entities
                 //Graphic.OriginY = 15;
 
             }
+            // Spindashing?
+            else if (myMovement.CurrentSpindashStrength > 0.0f)
+            {
+                spriteSheet.Play("spindash");
+                for (int i = 0; i < 6; i++)
+                {
+                    spriteSheet.Anims["spindash"].FrameDelays[i] = Math.Max(8 - Math.Abs(myMovement.CurrentSpindashStrength), 1);
+                }
+            }
+
+            // Screeching to a halt
+            else if (myMovement.Braking)
+            {
+                spriteSheet.Play("brake");
+                if (flipReady)
+                {
+                    myMovement.Braking = false;
+                    flipReady = false;
+                }
+                if (spriteSheet.Anims["brake"].CurrentFrameIndex == spriteSheet.Anims["brake"].FrameCount - 1)
+                {
+                    flipReady = true;    
+                }
+
+
+            }
             else if (Math.Abs(myMovement.GroundSpeed) < 0.01)
             {
                 spriteSheet.Play("idle");
                 
             }
-            else if (Math.Abs(myMovement.GroundSpeed) < myMovement.TopSpeed)
+            else if (Math.Abs(myMovement.GroundSpeed) < 6)
             {
 
                 //walking 
@@ -120,10 +148,7 @@ namespace NotSonic.Entities
                 }
             }
 
-            if(myMovement.CurrentSpindashStrength > 0.0f)
-            {
-                spriteSheet.Play("spindash");
-            }
+
         }
 
     }

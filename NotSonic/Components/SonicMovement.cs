@@ -75,6 +75,9 @@ namespace NotSonic.Components
         // Mid-jump?
         public bool Jumping = false;
 
+        // Brake-turning?
+        public bool Braking = false;
+
 
         // Debug view on?
         public bool DebugView = false;
@@ -91,6 +94,7 @@ namespace NotSonic.Components
         // Sounds
         public Sound jumpSound = new Sound(Assets.SND_JUMP);
         public Sound rollingSound = new Sound(Assets.SND_ROLL);
+        
 
         #region Public Methods
 
@@ -105,10 +109,6 @@ namespace NotSonic.Components
             groundSensorB = new Sensor(0,0,0,true);
             ceilingSensorC = new Sensor(0, 0, 0, true);
             ceilingSensorD = new Sensor(0, 0, 0, true);
-
-            // Register console command for flipping debugview
-            Otter.Debugger.CommandFunction myFunc = new Debugger.CommandFunction(ToggleDebugView);
-            Debugger.Instance.RegisterCommand(myFunc, (Otter.CommandType[])new Otter.CommandType[0]);
 
             
             base.Added();
@@ -188,7 +188,20 @@ namespace NotSonic.Components
             }
         }
 
-        public void ToggleDebugView(params string[] target)
+        public void CheckBraking()
+        {
+            if(Math.Abs(GroundSpeed) >= 4.5 && CurrentFloorMode == FloorMode.FLOOR && !Rolling && !Jumping && CurrentMoveType == MoveType.GROUND)
+            {
+                //Pushing away from current direction
+                if ((Global.theController.Left.Down && GroundSpeed > 0) || (Global.theController.Right.Down && GroundSpeed < 0))
+                {
+                    Braking = true;
+                }
+               
+            }
+        }
+
+        public void ToggleDebugView()
         {
             DebugView = !DebugView;
         }
@@ -305,7 +318,9 @@ namespace NotSonic.Components
 
             // Slope factor is added to Ground Speed. This slows sonic when moving uphill, and speeds him up when moving downhill.
             CalculateGroundSpeed();
-            
+
+            // Check for braking
+            CheckBraking();
 
             // Handle input
             HandleInput();
@@ -353,7 +368,6 @@ namespace NotSonic.Components
 
 
 
-
             // Falling is always considered to be right side up.
             FloorModeWhenFalling();
 
@@ -376,6 +390,10 @@ namespace NotSonic.Components
 
         private void FlipLeftRight()
         {
+            if(Braking)
+            {
+                return;
+            }
             if (CurrentMoveType == MoveType.AIR)
             {
                 if (XSpeed > 0)
@@ -854,7 +872,11 @@ namespace NotSonic.Components
                     {
                         if (theController.Left.Down)
                         {
-                            FacingRight = false;
+                            if(!Braking)
+                            {
+                                FacingRight = false;
+                            }
+                            
                             if (HLock <= 0.0f)
                             {
                                 if (GroundSpeed > 0) //Heading right, now going left
@@ -875,7 +897,10 @@ namespace NotSonic.Components
                         }
                         else if (theController.Right.Down)
                         {
-                            FacingRight = true;
+                            if (!Braking)
+                            {
+                                FacingRight = true;
+                            }
                             if (HLock <= 0.0f)
                             {
                                 if (GroundSpeed < 0)
@@ -912,7 +937,10 @@ namespace NotSonic.Components
                         if (theController.Left.Down)
                         {
 
-                            FacingRight = false;
+                            if (!Braking)
+                            {
+                                FacingRight = false;
+                            }
                             if (HLock <= 0.0f)
                             {
                                 if (GroundSpeed > 0) //Heading right, now going left
@@ -924,7 +952,10 @@ namespace NotSonic.Components
                         }
                         else if (theController.Right.Down)
                         {
-                            FacingRight = true;
+                            if (!Braking)
+                            {
+                                FacingRight = true;
+                            }
                             if (HLock <= 0.0f)
                             {
                                 if (GroundSpeed < 0)
@@ -1001,7 +1032,10 @@ namespace NotSonic.Components
                 // AIR MODE
                 if (theController.Left.Down)
                 {
-                    FacingRight = false;
+                    if (!Braking)
+                    {
+                        FacingRight = false;
+                    }
                     if (HLock <= 0.0f)
                     {
                         XSpeed -= AirAccel;
@@ -1009,7 +1043,10 @@ namespace NotSonic.Components
                 }
                 else if (theController.Right.Down)
                 {
-                    FacingRight = true;
+                    if (!Braking)
+                    {
+                        FacingRight = true;
+                    }
                     if (HLock <= 0.0f)
                     {
                         XSpeed += AirAccel;
