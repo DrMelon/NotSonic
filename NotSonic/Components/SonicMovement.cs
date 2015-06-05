@@ -159,6 +159,7 @@ namespace NotSonic.Components
             // Swap these for wallmode?
             YSpeed = GroundSpeed * -(float)Math.Sin(Angle * Math.PI / 180.0f);
             XSpeed = GroundSpeed * (float)Math.Cos(Angle * Math.PI / 180.0f);
+
             
 
             // Wallrunning stuff?
@@ -213,31 +214,30 @@ namespace NotSonic.Components
 
         private void ChangeFloorMode()
         {
+
             // Change which mode we're on
             if((Angle > 315 || Angle < 45) && CurrentFloorMode != FloorMode.FLOOR && Angle != 0)
             {
                 // Now in Floor Mode
                 CurrentFloorMode = FloorMode.FLOOR;
-                Otter.Debugger.Instance.Log(Angle);
-                Otter.Debugger.Instance.Log("FLOOR");
             }
             else if ((Angle > 45 && Angle < 135) && CurrentFloorMode != FloorMode.RIGHTWALL)
             {
                 // Now in Floor Mode
                 CurrentFloorMode = FloorMode.RIGHTWALL;
-                Otter.Debugger.Instance.Log("RIGHT");
+
             }
             else if ((Angle > 135 && Angle < 225) && CurrentFloorMode != FloorMode.CEILING)
             {
                 // Now in Floor Mode
                 CurrentFloorMode = FloorMode.CEILING;
-                Otter.Debugger.Instance.Log("CEILING");
+
             }
             else if ((Angle > 225 && Angle < 315) && CurrentFloorMode != FloorMode.LEFTWALL)
             {
                 // Now in Floor Mode
                 CurrentFloorMode = FloorMode.LEFTWALL;
-                Otter.Debugger.Instance.Log("LEFT");
+
             }
             
 
@@ -755,6 +755,7 @@ namespace NotSonic.Components
                                 if(CurrentFloorMode == FloorMode.CEILING)
                                 {
                                     YPos = sensorATile.Y + heightOfA + CurrentHeight + 1;
+
                                     RegainGround();
                                 }
                                 

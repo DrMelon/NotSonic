@@ -29,6 +29,7 @@ namespace NotSonic
 
         public const string SND_JUMP = "../../Assets/SND/jump.wav";
         public const string SND_ROLL = "../../Assets/SND/roll.wav";
+        public const string SND_DEAD = "../../Assets/SND/dead.wav";
 
         public const string MUS_MUSH = "../../Assets/MUS/mush.ogg";
 

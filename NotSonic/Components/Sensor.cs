@@ -14,7 +14,7 @@ using Otter;
 //----------------
 // Purpose: This is used to "sense" collisions with the ground and objects by the player characters.
 // It's basically a simple line-cast, with room for additional info.
-//  /!\ UNUSED CURRENTLY, NEEDS FIX /!\
+
 
 namespace NotSonic.Components
 {
@@ -54,13 +54,6 @@ namespace NotSonic.Components
         // Need a way to locate nearby tiles in the tile list, rather than iterating. Iterating will do for now.
         public CollisionInfo Sense(List<Tile> tileList)
         {
-            // Sanitise inputs
-           //// if(BPos2 < BPos1)
-           // {
-         //       float tmp = BPos2;
-          //      BPos2 = BPos1;
-          //      BPos1 = tmp;
-         //   }
 
             // Initialize new collision.
             CollisionInfo newCollision = new CollisionInfo();

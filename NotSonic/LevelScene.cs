@@ -40,6 +40,7 @@ namespace NotSonic
 
         // Mushroom Hill Dot M P 3
         Music mushroomHillMusic = new Music(Assets.MUS_MUSH);
+        Sound deadSound = new Sound(Assets.SND_DEAD);
 
 
         public LevelScene(string mapFilename)
@@ -61,7 +62,7 @@ namespace NotSonic
             this.CameraBounds.Height = 16 * tmxMapData.Height;
 
 
-
+            // Make da player!!
             thePlayer = new Entities.SonicPlayer(tileList, 70, 32);
 
                       
@@ -124,7 +125,11 @@ namespace NotSonic
             // For each tile in the Solid layer, we want to create a Tile object, and use the relevant image.
             for(int i = 0; i < tmxMapData.Layers["Solid"].Tiles.Count; i++)
             {
+                // Set otter tile
                 tilemap.SetTile(tmxMapData.Layers["Solid"].Tiles[i].X * 16, tmxMapData.Layers["Solid"].Tiles[i].Y * 16, tmxMapData.Layers["Solid"].Tiles[i].Gid - 1, "base");
+                
+
+
                 tilemap.UsePositions = true;
                 if(tmxMapData.Layers["Solid"].Tiles[i].Gid != 0)
                 {
@@ -141,7 +146,8 @@ namespace NotSonic
                     // Create tile.
                     NotSonic.Components.Tile newTile = new NotSonic.Components.Tile(tmxMapData.Layers["Solid"].Tiles[i].X * 16, tmxMapData.Layers["Solid"].Tiles[i].Y * 16, heightMapID, heightFlipX, heightFlipY);
 
-                  
+                    tilemap.SetTile(tmxMapData.Layers["Solid"].Tiles[i].X * 16, tmxMapData.Layers["Solid"].Tiles[i].Y * 16, tmxMapData.Layers["Solid"].Tiles[i].HorizontalFlip, tmxMapData.Layers["Solid"].Tiles[i].VerticalFlip);
+                    
 
                     
                     // Set the tile's graphic properly.
@@ -166,6 +172,23 @@ namespace NotSonic
             
            
             
+        }
+
+        public override void Update()
+        {
+            if(thePlayer.myMovement.YPos > Global.maxlvlheight)
+            {
+                // DEAD!!
+                Otter.Debugger.Instance.Log("Player Death.");
+                thePlayer.myMovement.XPos = 64;
+                thePlayer.myMovement.YPos = 64;
+                thePlayer.myMovement.XSpeed = 0;
+                thePlayer.myMovement.YSpeed = 0;
+                thePlayer.myMovement.GroundSpeed = 0;
+                deadSound.Play();
+                
+            }
+            base.Update();
         }
 
         public override void UpdateLast()
