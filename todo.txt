@@ -1,3 +1,2 @@
-OK SO
-Sonic's rotational animation can be done by holding an interpolated Angle val based on his ground angle
-this is used to snap the rotation / 45 degree rotation sprites woop wep wap wurp
+This is the last version pre-complex tiles with working curves.
+This could be kept on and developed with groundsensor fixes and so on from later revisions, if Option C is a failure.
