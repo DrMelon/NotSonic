@@ -1148,9 +1148,7 @@ namespace NotSonic.Components
                     // Capture sensor A's result.
                     int heightMapArrayIndex = (int)groundSensorA.APos - (int)sensorATile.X;
 
-                    heightMapArrayIndex = Math.Min(Math.Abs(heightMapArrayIndex), 15);
-
-                    heightOfA = sensorATile.myTileInfo.flatheightArray[heightMapArrayIndex];
+                    heightOfA = groundSensorA.lastHeightHit;
 
                     fullheightOfA = heightOfA + (Global.maxlvlheight - (int)sensorATile.Y);
 
@@ -1169,9 +1167,8 @@ namespace NotSonic.Components
                     // Capture sensor B's result.
                     int heightMapArrayIndex = (int)groundSensorB.APos - (int)sensorBTile.X;
 
-                    heightMapArrayIndex = Math.Min(Math.Abs(heightMapArrayIndex), 15);
 
-                    heightOfB = sensorBTile.myTileInfo.flatheightArray[heightMapArrayIndex];
+                    heightOfB = groundSensorB.lastHeightHit;
 
 
 
