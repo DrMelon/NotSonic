@@ -307,7 +307,11 @@ namespace NotSonic.Components
 
         private void CalculateGroundSpeed()
         {
+
             GroundSpeed += SlopeFactor * -(float)Math.Sin(Angle * Math.PI / 180.0f);
+            
+
+            
         }
 
         /// <summary>
@@ -651,7 +655,7 @@ namespace NotSonic.Components
 
                         heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
 
-                        heightOfA = sensorATile.myTileInfo.flatheightArray[heightMapArrayIndex];
+                        heightOfA = groundSensorA.lastHeightHit;
 
                         fullheightOfA = heightOfA + (Global.maxlvlheight - (int)sensorATile.Y);
 
@@ -673,7 +677,7 @@ namespace NotSonic.Components
 
                         heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
 
-                        heightOfB = sensorBTile.myTileInfo.flatheightArray[heightMapArrayIndex];
+                        heightOfB = groundSensorB.lastHeightHit;
 
 
 
@@ -699,7 +703,7 @@ namespace NotSonic.Components
                         
                         heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
 
-                        heightOfA = sensorATile.myTileInfo.wallheightArray[heightMapArrayIndex];
+                        heightOfA = groundSensorA.lastHeightHit;
 
 
                         fullheightOfA = heightOfA + (Global.maxlvlheight - (int)sensorATile.X);
@@ -721,7 +725,7 @@ namespace NotSonic.Components
 
                         heightMapArrayIndex = Math.Min(heightMapArrayIndex, 15);
 
-                        heightOfB = sensorBTile.myTileInfo.wallheightArray[heightMapArrayIndex];
+                        heightOfB = groundSensorB.lastHeightHit;
 
 
 
@@ -797,10 +801,8 @@ namespace NotSonic.Components
                             XPos = sensorATile.X + 16 - heightOfA - CurrentHeight;
                             if(CurrentFloorMode == FloorMode.LEFTWALL)
                             {
-                                if(XPos < sensorATile.X + heightOfA + CurrentHeight + 1)
-                                {
-                                    XPos = sensorATile.X + heightOfA + CurrentHeight + 1;
-                                }
+                                XPos = sensorATile.X + heightOfA + CurrentHeight + 1;
+                           
                                 
 
                             }
@@ -834,7 +836,7 @@ namespace NotSonic.Components
                                 }
                                 if(CurrentFloorMode == FloorMode.CEILING)
                                 {
-                                    YPos = sensorBTile.Y + heightOfB + CurrentHeight + 1;
+                                    YPos = sensorBTile.Y + heightOfB + CurrentHeight;
                                 }
                             
                             }
@@ -845,10 +847,8 @@ namespace NotSonic.Components
                             XPos = sensorBTile.X + 16 - heightOfB - CurrentHeight;
                             if (CurrentFloorMode == FloorMode.LEFTWALL)
                             {
-                                if (XPos < sensorBTile.X + heightOfB + CurrentHeight + 1)
-                                {
-                                    XPos = sensorBTile.X + heightOfB + CurrentHeight + 1;
-                                }
+                                XPos = sensorBTile.X + heightOfB + CurrentHeight;
+                               
                             }
                            
                         }
@@ -1148,7 +1148,7 @@ namespace NotSonic.Components
                     // Capture sensor A's result.
                     int heightMapArrayIndex = (int)groundSensorA.APos - (int)sensorATile.X;
 
-                    heightOfA = groundSensorA.lastHeightHit;
+                    heightOfA = ceilingSensorC.lastHeightHit;
 
                     fullheightOfA = heightOfA + (Global.maxlvlheight - (int)sensorATile.Y);
 
@@ -1168,7 +1168,7 @@ namespace NotSonic.Components
                     int heightMapArrayIndex = (int)groundSensorB.APos - (int)sensorBTile.X;
 
 
-                    heightOfB = groundSensorB.lastHeightHit;
+                    heightOfB = ceilingSensorD.lastHeightHit;
 
 
 
