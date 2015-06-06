@@ -316,12 +316,14 @@ namespace NotSonic.Components
         {
             base.Update();
 
+            // Slope factor is added to Ground Speed. This slows sonic when moving uphill, and speeds him up when moving downhill.
+            CalculateGroundSpeed();
+
             // Check left/right flip
             FlipLeftRight();
 
 
-            // Slope factor is added to Ground Speed. This slows sonic when moving uphill, and speeds him up when moving downhill.
-            CalculateGroundSpeed();
+
 
             // Check for braking
             CheckBraking();
@@ -730,7 +732,7 @@ namespace NotSonic.Components
                     }
                 }
 
-                if (sensorATile == null && sensorBTile == null)
+                if ((sensorATile == null && sensorBTile == null))
                 {
                     // We didn't collide with anything. WE'RE FALLING AAARGH
                     CurrentMoveType = MoveType.AIR;
@@ -849,7 +851,7 @@ namespace NotSonic.Components
                     }
 
 
-                    
+                    Otter.Debugger.Instance.Log("HA: " + heightOfA.ToString() + " | HB: " + heightOfB.ToString());
                 
 
             }
@@ -1185,6 +1187,8 @@ namespace NotSonic.Components
 
                     fullheightOfB = heightOfB + (Global.maxlvlheight - (int)sensorBTile.Y);
 
+
+
                     
 
                     // If the tile is empty of collision, don't collide with it. Duh!
@@ -1194,11 +1198,12 @@ namespace NotSonic.Components
                     }
                 }
 
-                if(fullheightOfA > fullheightOfB && (sensorATile != null || sensorBTile != null))
+                // Do Collision response
+                if(fullheightOfA >= fullheightOfB && sensorATile != null)
                 {
-                    if(YPos < sensorATile.Y + heightOfA + 16)
+                    if(YPos - 20 < sensorATile.Y + heightOfA)
                     {
-                        YPos = sensorATile.Y + heightOfA + 17;
+                        YPos = sensorATile.Y + heightOfA + CurrentHeight + 1;
                         if (sensorATile.myTileInfo.Angle > 135 && sensorATile.myTileInfo.Angle < 225)
                         {
                             Angle = sensorATile.myTileInfo.Angle;
@@ -1209,14 +1214,15 @@ namespace NotSonic.Components
                         else
                         {
                             YSpeed = 0;
+                            Jumping = false;
                         }
                     }
                 }
-                else if (sensorATile != null || sensorBTile != null)
+                else if (sensorBTile != null)
                 {
-                    if(YPos < sensorBTile.Y + heightOfB + 16)
+                    if(YPos - 20 < sensorBTile.Y + heightOfB)
                     {
-                        YPos = sensorBTile.Y + heightOfB + 17;
+                        YPos = sensorBTile.Y + heightOfB + CurrentHeight + 1;
                         if (sensorBTile.myTileInfo.Angle > 135 && sensorBTile.myTileInfo.Angle < 225)
                         {
                             Angle = sensorBTile.myTileInfo.Angle;
@@ -1227,6 +1233,7 @@ namespace NotSonic.Components
                         else
                         {
                             YSpeed = 0;
+                            Jumping = false;
                         }
                     }
                 }

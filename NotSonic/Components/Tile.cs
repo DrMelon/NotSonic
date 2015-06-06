@@ -39,51 +39,15 @@ namespace NotSonic.Components
 
             tileImage = new ImageSet(Assets.TILE_SHEET, 16, 16);
             Graphic = tileImage;
-            myTileInfo = new SonicTileInfo(HeightArrays.HEIGHT_ARRAY_EMPTY, HeightArrays.HEIGHT_ARRAY_EMPTY, 0.0f);
-
-
-            // Tile Info Stuff
-
-            // Tiletype is cross-linked to the height_tileset image.
-
-            /*
-             *  Tile Type Defs
-             *  0 = Empty
-             *  1 = Basic
-             *  2 = Slope up 45
-             *  3 = Slope down 45
-             *  ======================== LOOP UP
-             *  5 = Loop Up 85
-             *  25 = Loop Up 70
-             *  44 = Loop Up 45
-             *  45 = Loop Up 60
-             *  62 = Loop Up 10
-             *  63 = Loop Up 20
-             *  64 = Loop Up 30
-             * ======================== LOOP DOWN
-             *  82 = Loop Down 10
-             *  102 = Loop Down 20
-             *  122 = Loop Down 30
-             *  123 = Loop Down 45
-             *  143 = Loop Down 60
-             *  144 = Loop Down 70
-             *  145 = Loop Down 85
-             * 
-             * 
-             * 
-             * 
-             * ======================== LOOP UP Y FLIP
-             * 
-             * 
-             * 
-             * 
-             * 
-             * 
-             * 
-             * ======================= LOOP DOWN Y FLIP
-             * 
-             */
             myType = tileType;
+            myTileInfo = new SonicTileInfo(myType, flipX, flipY);
+
+
+
+/*
+
+
+
             if (myType <= (int)TileType.TILE_EMPTY)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_EMPTY;
@@ -312,7 +276,7 @@ namespace NotSonic.Components
             }
 
 
-
+*/
             
         }
     }

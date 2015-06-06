@@ -146,6 +146,10 @@ namespace NotSonic
                     {
                         heightMapID = tmxMapData.Layers["Solid_Height"].Tiles[i].Gid - tmxMapData.Tilesets["Test_Height"].FirstGid;
                     }
+                    else
+                    {
+                        heightMapID = 0;
+                    }
 
                     // Create tile.
                     NotSonic.Components.Tile newTile = new NotSonic.Components.Tile(tmxMapData.Layers["Solid"].Tiles[i].X * 16, tmxMapData.Layers["Solid"].Tiles[i].Y * 16, heightMapID, heightFlipX, heightFlipY);

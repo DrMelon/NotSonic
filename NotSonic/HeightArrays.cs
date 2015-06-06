@@ -43,49 +43,71 @@ namespace NotSonic
 
         public static void GenerateHeightMap()
         {
-//             // Load Angle_Tiles.png
-//             Image angleTileImg = new Image(Assets.TILE_SHEET_ANGLES);
-//             Texture angleTileTex = angleTileImg.Texture;
-//             
-// 
-//             // Loop 16x16, increment tile line counter
-//             int tileLine = 0;
-//             for (tileLine = 0; tileLine < (angleTileImg.Height / 16); tileLine++ )
-//             {
-//                 int[] heightArray = new int[angleTileImg.Width];
-//                 for (int x = 0; x < angleTileImg.Width; x += 16)
-//                 {
-//                     // Read pixel values into height array for this tile
-// 
-//                     int y = 0;
-//                     for (y = 0; y < 16; y++)
-//                     {
-//                         Color returnedCol = angleTileTex.GetPixel(x, angleTileImg.Height - (y + (tileLine * 16)));
-//                         if (returnedCol.R > 0)
-//                         {
-//                             break;
-//                         }
-// 
-//                     }
-//                     heightArray[x] = y;
-//                 }
-// 
-//                 // Store the height values by block in the heightarrayslist
-// 
-//                 for (int i = 0; i < angleTileImg.Width; i++)
-//                 {
-//                     int[] heightOfTile = new int[16];
-//                     for (int j = 0; j < 16; j++)
-//                     {
-//                         heightOfTile[j] = heightArray[i];
-//                     }
-//                     HeightArraysList.Add(heightOfTile);
-// 
-//                 }
+            // Load Angle_Tiles.png
+            Image angleTileImg = new Image(Assets.TILE_SHEET_ANGLES);
+            Texture angleTileTex = angleTileImg.Texture;
+            
+
+            // Loop 16x16, increment tile line counter
+            int tileLine = 0;
+            int[] heightArray = new int[angleTileImg.Width];
+            for (tileLine = 0; tileLine < (angleTileImg.Height / 16); tileLine++ )
+            {
+                
+                for (int x = 0; x < angleTileImg.Width; x++)
+                {
+                    // Read pixel values into height array for this tile
+
+                    int y = 0;
+                    for (y = 0; y < 16; y++)
+                    {
+                        Color returnedCol = angleTileTex.GetPixel(x, (y + (tileLine * 16)));
+                        if (returnedCol.R > 0)
+                        {
+                            break;
+                        }
+
+                    }
+                    heightArray[x] = 16 - y;
+                }
+
+                // Store the height values by block in the heightarrayslist
+
+                for (int i = 0; i < angleTileImg.Width; i+=16)
+                {
+                    int[] heightOfTile = new int[16];
+                    for (int j = 0; j < 16; j++)
+                    {
+                        heightOfTile[j] = heightArray[i+j];
+                    }
+                    HeightArraysList.Add(heightOfTile);
+
+                }
 
 
             }
-            
+
+            int egg = 0;
         }
+
+        public static int[] ReadArrayBackwards(int[] inarray)
+        {
+            int[] newArr = new int[16];
+            for(int i = 0; i < 16; i++)
+            {
+                newArr[i] = inarray[15 - i];
+            }
+            return newArr;
+        }
+        public static int[] ReadArrayInverted(int[] inarray)
+        {
+            int[] newArr = new int[16];
+            for (int i = 0; i < 16; i++)
+            {
+                newArr[i] = 16 - inarray[i];
+            }
+            return newArr;
+        }
+        
     }
 }

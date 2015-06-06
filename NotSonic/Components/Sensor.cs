@@ -85,7 +85,7 @@ namespace NotSonic.Components
                         {
                             // Collision, cap'n!
 
-                            if (tile.myTileInfo.flatheightArray == HeightArrays.HEIGHT_ARRAY_EMPTY)
+                            if (tile.myTileInfo.flatheightArray == HeightArrays.HEIGHT_ARRAY_EMPTY || tile.myTileInfo.wallheightArray == HeightArrays.HEIGHT_ARRAY_EMPTY)
                             {
                                 continue;
                             }
