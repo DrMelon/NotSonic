@@ -48,6 +48,9 @@ namespace NotSonic
 
                 flatheightArray = HeightArrays.HeightArraysList.ElementAt(type);
                 wallheightArray = HeightArrays.ReadArrayBackwards(HeightArrays.HeightArraysList.ElementAt(type));
+
+                // ^^ Not necessarily true for flipped versions? Top Left 85 != Top Right 85 Flipped On WallHeight, it's equal to Bottom Right 10
+
                 switch(type)
                 {
                     default:
@@ -59,46 +62,56 @@ namespace NotSonic
                     case 3:
                         Angle = 315;
                         break;
-                    case 5:
-                        Angle = 85;
-                        break;
-                    case 25:
-                        Angle = 70;
-                        break;
-                    case 44:
-                        Angle = 45;
-                        break;
-                    case 45:
-                        Angle = 60;
-                        break;
                     case 62:
                         Angle = 10;
+                        wallheightArray = HeightArrays.ReadArrayBackwards(HeightArrays.HeightArraysList.ElementAt(5));
                         break;
                     case 63:
                         Angle = 20;
+                        wallheightArray = HeightArrays.ReadArrayBackwards(HeightArrays.HeightArraysList.ElementAt(25));
                         break;
                     case 64:
                         Angle = 30;
+                        wallheightArray = HeightArrays.ReadArrayBackwards(HeightArrays.HeightArraysList.ElementAt(45));
+                        break;
+                    case 44:
+                        Angle = 45;
+                        wallheightArray = HeightArrays.ReadArrayBackwards(HeightArrays.HeightArraysList.ElementAt(44));
+                        break;
+                    case 45:
+                        Angle = 60;
+                        wallheightArray = HeightArrays.ReadArrayBackwards(HeightArrays.HeightArraysList.ElementAt(64));
+                        break;
+                    case 25:
+                        Angle = 70;
+                        wallheightArray = HeightArrays.ReadArrayBackwards(HeightArrays.HeightArraysList.ElementAt(63));
+                        break;
+                    case 5:
+                        Angle = 85;
+                        wallheightArray = HeightArrays.ReadArrayBackwards(HeightArrays.HeightArraysList.ElementAt(62));
                         break;
                 }
 
-                if(flipx && !flipy)
+                if(flipx && !flipy) // Left Wall
                 {
                     Angle = 360 - Angle;
                     flatheightArray = HeightArrays.ReadArrayBackwards(flatheightArray);
                     wallheightArray = HeightArrays.ReadArrayBackwards(wallheightArray);
                 }
-                if (!flipx && flipy)
+                if (!flipx && flipy) // Right Ceil
                 {
                     Angle = 180 - Angle;
-                    flatheightArray = HeightArrays.ReadArrayInverted(flatheightArray);
-                    wallheightArray = HeightArrays.ReadArrayInverted(wallheightArray);
+//                    flatheightArray = HeightArrays.ReadArrayInverted(flatheightArray);
+//                    wallheightArray = HeightArrays.ReadArrayInverted(wallheightArray);
                 }
-                if(flipx && flipy)
+                if(flipx && flipy) // Left Ceil
                 {
                     Angle = 180 + Angle;
-                    flatheightArray = HeightArrays.ReadArrayInverted(HeightArrays.ReadArrayBackwards(flatheightArray));
-                    wallheightArray = HeightArrays.ReadArrayInverted(HeightArrays.ReadArrayBackwards(wallheightArray));
+ //                   flatheightArray = HeightArrays.ReadArrayInverted(HeightArrays.ReadArrayBackwards(flatheightArray));
+ //                   wallheightArray = HeightArrays.ReadArrayInverted(HeightArrays.ReadArrayBackwards(wallheightArray));
+                    flatheightArray = HeightArrays.ReadArrayBackwards(flatheightArray);
+                    wallheightArray = HeightArrays.ReadArrayBackwards(wallheightArray);
+
                 }
 
             }

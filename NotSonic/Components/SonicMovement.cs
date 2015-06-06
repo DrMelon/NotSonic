@@ -255,6 +255,7 @@ namespace NotSonic.Components
                 // Now in Floor Mode
                 CurrentFloorMode = FloorMode.LEFTWALL;
 
+
             }
             
 
@@ -316,20 +317,22 @@ namespace NotSonic.Components
         {
             base.Update();
 
-            // Slope factor is added to Ground Speed. This slows sonic when moving uphill, and speeds him up when moving downhill.
-            CalculateGroundSpeed();
-
             // Check left/right flip
             FlipLeftRight();
 
-
-
+            // Slope factor is added to Ground Speed. This slows sonic when moving uphill, and speeds him up when moving downhill.
+            CalculateGroundSpeed();
 
             // Check for braking
             CheckBraking();
 
             // Handle input
             HandleInput();
+
+
+
+
+
 
             CheckWallSensor();
 
@@ -339,12 +342,14 @@ namespace NotSonic.Components
             // Check sensors for solid ground:
             CheckGroundSensors();
 
-
             // Check and change floor mode
             ChangeFloorMode();
 
             // Make sure to fall off if wall mode speed is too slow
             CheckWallModeSpeed();
+
+
+
 
             // Ground Stuff
             if (CurrentMoveType != MoveType.AIR)
@@ -352,10 +357,10 @@ namespace NotSonic.Components
                 // Update Slope Factor
                 UpdateSlopeFactor();
 
-
-
                 // Do Speed check
                 CalculateSpeedFromGroundSpeed();
+
+
 
        
 
@@ -851,7 +856,7 @@ namespace NotSonic.Components
                     }
 
 
-                    Otter.Debugger.Instance.Log("HA: " + heightOfA.ToString() + " | HB: " + heightOfB.ToString());
+                    Otter.Debugger.Instance.Log("HA: " + heightOfA.ToString() + " | HB: " + heightOfB.ToString() + " | AA: " + angleOfA.ToString() + " | AB: " + angleOfB.ToString());
                 
 
             }
@@ -1097,28 +1102,13 @@ namespace NotSonic.Components
             {
                 return;
             }
+
+            //wallSensor.DrawSelf(Color.Cyan);
+            groundSensorA.DrawSelf(Color.Red);
+            groundSensorB.DrawSelf(Color.Green);
+            ceilingSensorC.DrawSelf(Color.Yellow);
+            ceilingSensorD.DrawSelf(Color.Magenta);
             
-            // DEBUG
-            if (CurrentFloorMode == FloorMode.FLOOR || CurrentFloorMode == FloorMode.CEILING)
-            {
-                Otter.Draw.Line(groundSensorA.APos, groundSensorA.BPos1, groundSensorA.APos, groundSensorA.BPos2, Color.Red);
-                Otter.Draw.Line(groundSensorB.APos, groundSensorB.BPos1, groundSensorB.APos, groundSensorB.BPos2, Color.Green);
-            }
-            else
-            {
-                Otter.Draw.Line(groundSensorA.BPos1, groundSensorA.APos, groundSensorA.BPos2, groundSensorA.APos, Color.Red);
-                Otter.Draw.Line(groundSensorB.BPos1, groundSensorB.APos, groundSensorB.BPos2, groundSensorB.APos, Color.Green);
-            }
-
-            Otter.Draw.Line(wallSensor.BPos1, wallSensor.APos, wallSensor.BPos2, wallSensor.APos, Color.Cyan);
-
-            Otter.Draw.Line(ceilingSensorC.APos, ceilingSensorC.BPos1, ceilingSensorC.APos, ceilingSensorC.BPos2, Color.Yellow);
-            Otter.Draw.Line(ceilingSensorD.APos, ceilingSensorD.BPos1, ceilingSensorD.APos, ceilingSensorD.BPos2, Color.Magenta);
-
-            Otter.Draw.Rectangle(groundSensorA.LasthitX, groundSensorA.LasthitY, 16, 16, null, Color.Red, 1);
-            Otter.Draw.Rectangle(groundSensorB.LasthitX, groundSensorB.LasthitY, 16, 16, null, Color.Green, 1);
-            Otter.Draw.Rectangle(ceilingSensorC.LasthitX, ceilingSensorC.LasthitY, 16, 16, null, Color.Yellow, 1);
-            Otter.Draw.Rectangle(ceilingSensorD.LasthitX, ceilingSensorD.LasthitY, 16, 16, null, Color.Magenta, 1);
 
             
         }

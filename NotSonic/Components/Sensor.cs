@@ -36,6 +36,10 @@ namespace NotSonic.Components
         public float LasthitX;
         public float LasthitY;
 
+        public int lastHeightHit;
+
+        public int[] lastHeight;
+
         public bool keepCheck;
         
         // Sensor type; horizontal / vertical
@@ -96,10 +100,17 @@ namespace NotSonic.Components
                             newCollision.thisIsNull = false;
 
 
-
+                            lastHeight = tile.myTileInfo.flatheightArray;
+                            lastHeightHit = tile.myTileInfo.flatheightArray[Math.Min((int)APos - (int)tile.X, 15)];
+    
 
                             LasthitX = tile.X;
                             LasthitY = tile.Y;
+
+                            if (lastHeightHit == 0)
+                            {
+                                continue;
+                            }
 
                             if (tile.myTileInfo.wallheightArray == HeightArrays.HEIGHT_ARRAY_FULL && keepCheck)
                             {
@@ -146,12 +157,18 @@ namespace NotSonic.Components
 
                             newCollision.tileHit = tile;
                             newCollision.thisIsNull = false;
-                            
 
+                            lastHeight = tile.myTileInfo.wallheightArray;
+                            lastHeightHit = tile.myTileInfo.wallheightArray[Math.Min((int)APos - (int)tile.Y, 15)];
                             
 
                             LasthitX = tile.X;
                             LasthitY = tile.Y;
+
+                            if (lastHeightHit == 0)
+                            {
+                                continue;
+                            }
 
                             if (tile.myTileInfo.wallheightArray == HeightArrays.HEIGHT_ARRAY_FULL && keepCheck)
                             {
@@ -169,6 +186,30 @@ namespace NotSonic.Components
 
 
             return newCollision;
+        }
+
+        public void DrawSelf(Color col)
+        {
+            if (verticalSensor)
+            {
+                Otter.Draw.Line(APos, BPos1, APos, BPos2, col);
+            }
+            else
+            {
+                Otter.Draw.Line(BPos1, APos, BPos2, APos, col);
+            }
+
+            Otter.Draw.Rectangle(LasthitX, LasthitY, 16, 16, null, col, 1);
+
+            // Height info
+            for(int i = 0; i < 16; i++)
+            {
+                if (lastHeight != null)
+                {
+                    Otter.Draw.Line(LasthitX + i + 1, LasthitY + 16, LasthitX + i + 1, LasthitY + 16 - lastHeight[i], col);
+                }
+            }
+
         }
     }
 }
