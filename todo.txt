@@ -1,3 +1,10 @@
-OK SO
-Sonic's rotational animation can be done by holding an interpolated Angle val based on his ground angle
-this is used to snap the rotation / 45 degree rotation sprites woop wep wap wurp
+Option C:
+Engineer it MYSELF
+
+Use Image-Based Collision, not 16-int height arrays.
+Easier to build
+easier to test
+easier to load in tbqh
+simply use a 2d array for the collision info, use that/flip it/etc
+
+REWRITE GROUND SENSOR STUFF FIRST, CLEAN IT UP!! WAY UP!!
