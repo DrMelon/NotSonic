@@ -100,7 +100,7 @@ namespace NotSonic.Entities
                 spriteSheet.Play("spindash");
                 for (int i = 0; i < 6; i++)
                 {
-                    spriteSheet.Anims["spindash"].FrameDelays[i] = Math.Max(8 - Math.Abs(myMovement.CurrentSpindashStrength), 1);
+                    spriteSheet.Anims["spindash"].FrameDelays[i] = Math.Max(4 - Math.Abs(myMovement.CurrentSpindashStrength), 1);
                 }
             }
 

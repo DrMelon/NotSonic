@@ -199,6 +199,10 @@ namespace NotSonic.Components
                 }
                
             }
+            if(CurrentMoveType == MoveType.AIR)
+            {
+                Braking = false;
+            }
         }
 
         public void ToggleDebugView()
@@ -285,7 +289,7 @@ namespace NotSonic.Components
                     GroundSpeed = XSpeed;
                 }
                 CurrentFloorMode = FloorMode.FLOOR;
-
+                CurrentMoveType = MoveType.AIR;
                 
                 // Lock controls, prevent further movement for half a second.
                 HLock = 30.0f;
@@ -333,13 +337,12 @@ namespace NotSonic.Components
             // Check sensors for solid ground:
             CheckGroundSensors();
 
-            // Make sure to fall off if wall mode speed is too slow
-            CheckWallModeSpeed();
 
             // Check and change floor mode
             ChangeFloorMode();
 
-
+            // Make sure to fall off if wall mode speed is too slow
+            CheckWallModeSpeed();
 
             // Ground Stuff
             if (CurrentMoveType != MoveType.AIR)
