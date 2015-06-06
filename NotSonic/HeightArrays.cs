@@ -37,5 +37,55 @@ namespace NotSonic
         public static int[] HEIGHT_LOOP_DOWN_85 = { 3, 3, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1 };
 
 
+        // The Big Generated Array
+        public static List<int[]> HeightArraysList = new List<int[]>();
+
+
+        public static void GenerateHeightMap()
+        {
+//             // Load Angle_Tiles.png
+//             Image angleTileImg = new Image(Assets.TILE_SHEET_ANGLES);
+//             Texture angleTileTex = angleTileImg.Texture;
+//             
+// 
+//             // Loop 16x16, increment tile line counter
+//             int tileLine = 0;
+//             for (tileLine = 0; tileLine < (angleTileImg.Height / 16); tileLine++ )
+//             {
+//                 int[] heightArray = new int[angleTileImg.Width];
+//                 for (int x = 0; x < angleTileImg.Width; x += 16)
+//                 {
+//                     // Read pixel values into height array for this tile
+// 
+//                     int y = 0;
+//                     for (y = 0; y < 16; y++)
+//                     {
+//                         Color returnedCol = angleTileTex.GetPixel(x, angleTileImg.Height - (y + (tileLine * 16)));
+//                         if (returnedCol.R > 0)
+//                         {
+//                             break;
+//                         }
+// 
+//                     }
+//                     heightArray[x] = y;
+//                 }
+// 
+//                 // Store the height values by block in the heightarrayslist
+// 
+//                 for (int i = 0; i < angleTileImg.Width; i++)
+//                 {
+//                     int[] heightOfTile = new int[16];
+//                     for (int j = 0; j < 16; j++)
+//                     {
+//                         heightOfTile[j] = heightArray[i];
+//                     }
+//                     HeightArraysList.Add(heightOfTile);
+// 
+//                 }
+
+
+            }
+            
+        }
     }
 }

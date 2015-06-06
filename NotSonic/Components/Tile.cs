@@ -92,6 +92,8 @@ namespace NotSonic.Components
             else if(myType == (int)TileType.TILE_BASIC)
             {
                 myTileInfo = SonicTileInfoDefaults.TILEINFO_BASIC;
+                // TEST: load solidity from heightmap
+                myTileInfo.flatheightArray = HeightArrays.HeightArraysList.ElementAt(1);
             }
 
             else if(myType == 2)

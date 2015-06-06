@@ -46,6 +46,9 @@ namespace NotSonic
         public LevelScene(string mapFilename)
         {
 
+            // Load the height maps
+            HeightArrays.GenerateHeightMap();
+
             // Get map name
             mapName = mapFilename;
             
@@ -155,7 +158,7 @@ namespace NotSonic
                     newTile.tileImage.Frame = tmxMapData.Layers["Solid"].Tiles[i].Gid - 1;
                     newTile.tileImage.FlippedX = tmxMapData.Layers["Solid"].Tiles[i].HorizontalFlip;
                     newTile.tileImage.FlippedY = tmxMapData.Layers["Solid"].Tiles[i].VerticalFlip;
-
+                  
 
 
                     newTile.Layer = 19;

@@ -20,6 +20,7 @@ namespace NotSonic
         public const string SONIC_SHEET = "../../Assets/GFX/Sonic_3K.png"; //32x40 sprites
         public const string EXAMPLE_TILE = "../../Assets/GFX/TILE0.png"; //16x16 sprites
         public const string TILE_SHEET = "../../Assets/GFX/Mushroom_Hill_bank.png"; //16x16 sprites
+        public const string TILE_SHEET_ANGLES = "../../Assets/GFX/Angle_Tiles.png"; //16x16 sprites
 
         public const string PARA_TREES_1 = "../../Assets/GFX/Parallax/Mush_Trees_1.png";
         public const string PARA_TREES_2 = "../../Assets/GFX/Parallax/Mush_Trees_2.png";
