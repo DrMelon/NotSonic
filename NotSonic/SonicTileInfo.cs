@@ -41,10 +41,22 @@ namespace NotSonic
                     case 2:
                         Angle = 315;
                         break;
-                    // Loop Floor->Right Wall
                     case 3:
                         Angle = 45;
                         break;
+                    // Wall Ceil tiles
+                    case 21:
+                        Angle = 90;
+                        break;
+                    case 41:
+                        Angle = 180;
+                        break;
+                    case 61:
+                        Angle = 270;
+                        break;
+
+
+                    // Loop Floor->Right Wall
                     case 148:
                         Angle = 10;
                         break;
@@ -133,6 +145,97 @@ namespace NotSonic
                         Angle = 100;
                         break;
 
+                    // Outer Curve -> Clockwise 1st Quad
+                    case 15:
+                        Angle = 10;
+                        break;
+                    case 14:
+                        Angle = 20;
+                        break;
+                    case 13:
+                        Angle = 30;
+                        break;
+                    case 33:
+                        Angle = 45;
+                        break;
+                    case 32:
+                        Angle = 60;
+                        break;
+                    case 52:
+                        Angle = 70;
+                        break;
+                    case 72:
+                        Angle = 80;
+                        break;
+
+                    // Outer Curve -> Clockwise 2nd Quad
+                    case 92:
+                        Angle = 100;
+                        break;
+                    case 112:
+                        Angle = 110;
+                        break;
+                    case 132:
+                        Angle = 120;
+                        break;
+                    case 133:
+                        Angle = 135;
+                        break;
+                    case 153:
+                        Angle = 150;
+                        break;
+                    case 154:
+                        Angle = 160;
+                        break;
+                    case 155:
+                        Angle = 170;
+                        break;
+
+                    // Outer Curve -> Clockwise 3rd Quad
+                    case 156:
+                        Angle = 190;
+                        break;
+                    case 157:
+                        Angle = 200;
+                        break;
+                    case 158:
+                        Angle = 210;
+                        break;
+                    case 138:
+                        Angle = 225;
+                        break;
+                    case 139:
+                        Angle = 240;
+                        break;
+                    case 119:
+                        Angle = 250;
+                        break;
+                    case 99:
+                        Angle = 260;
+                        break;
+
+                    // Outer Curve -> Clockwise 4th Quad
+                    case 79:
+                        Angle = 280;
+                        break;
+                    case 59:
+                        Angle = 290;
+                        break;
+                    case 39:
+                        Angle = 300;
+                        break;
+                    case 38:
+                        Angle = 315;
+                        break;
+                    case 18:
+                        Angle = 330;
+                        break;
+                    case 17:
+                        Angle = 340;
+                        break;
+                    case 16:
+                        Angle = 350;
+                        break;
 
                 }
 
