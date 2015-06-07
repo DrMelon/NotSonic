@@ -815,7 +815,7 @@ namespace NotSonic.Components
                         }
                         else
                         {
-                            XPos = (sensorATile.X - 16) - heightOfA;
+                            XPos = (sensorATile.X + 16) - heightOfA - CurrentHeight;
                             if(CurrentFloorMode == FloorMode.LEFTWALL)
                             {
                                 XPos = sensorATile.X + heightOfA + CurrentHeight + 1;
@@ -873,7 +873,7 @@ namespace NotSonic.Components
                     }
 
 
-                    Otter.Debugger.Instance.Log("HA: " + heightOfA.ToString() + " | HB: " + heightOfB.ToString() + " | AA: " + angleOfA.ToString() + " | AB: " + angleOfB.ToString());
+                   
                 
 
             }
@@ -1127,6 +1127,9 @@ namespace NotSonic.Components
             ceilingSensorD.DrawSelf(Color.Magenta);
             wallSensor.DrawSelf(Color.Cyan);
 
+            Text newText = new Text("Angle: " + Angle.ToString() + " | Sensor A Height: " + groundSensorA.lastHeightHit.ToString(), 16);
+            newText.Scroll = 0;
+            newText.Render(0, 0);
             
         }
 

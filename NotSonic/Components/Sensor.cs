@@ -104,8 +104,6 @@ namespace NotSonic.Components
 
 
                             lastHeight = HeightArrays.FetchArrayHeight(tile.myType, senseMode);
-
-                            
                             lastHeightHit = lastHeight[Math.Min((int)APos - (int)tile.X, 15)];
     
 
@@ -114,7 +112,7 @@ namespace NotSonic.Components
 
                             if (lastHeightHit == 0)
                             {
-                                continue;
+                               continue;
                             }
 
                             if (tile.myTileInfo.wallheightArray == HeightArrays.HEIGHT_ARRAY_FULL && keepCheck)
@@ -166,7 +164,7 @@ namespace NotSonic.Components
                             
 
                             lastHeight = HeightArrays.FetchArrayHeight(tile.myType, senseMode);
-                            lastHeightHit = tile.myTileInfo.wallheightArray[Math.Min((int)APos - (int)tile.Y, 15)];
+                            lastHeightHit = lastHeight[Math.Min((int)APos - (int)tile.Y, 15)];
                             
 
                             LasthitX = tile.X;
@@ -174,7 +172,7 @@ namespace NotSonic.Components
 
                             if (lastHeightHit == 0)
                             {
-                                continue;
+                               continue;
                             }
 
                             if (tile.myTileInfo.wallheightArray == HeightArrays.HEIGHT_ARRAY_FULL && keepCheck)

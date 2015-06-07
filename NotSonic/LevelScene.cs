@@ -122,7 +122,7 @@ namespace NotSonic
             tileList = new List<Components.Tile>();
             tilemap = new Tilemap(Assets.TILE_SHEET, tmxMapData.Height * 16, 16);
             Global.maxlvlheight = tmxMapData.Height * 16;
-            Global.maxlvlheight = tmxMapData.Width * 16;
+            Global.maxlvlwidth = tmxMapData.Width * 16;
             tilemap.AddLayer("vis", 19);
             
 
