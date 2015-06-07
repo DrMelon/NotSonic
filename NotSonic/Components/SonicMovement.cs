@@ -474,7 +474,7 @@ namespace NotSonic.Components
         public void CheckWallSensor()
         {
             // debug
-           // return;
+            //return;
             
             // Check for tiles that are at the sides of sonic, relative to Y+4.
             wallSensor.APos = YPos + 4;
@@ -485,7 +485,7 @@ namespace NotSonic.Components
 
             
 
-            Sensor.CollisionInfo colInfo = wallSensor.Sense(TileList);
+            Sensor.CollisionInfo colInfo = wallSensor.Sense(TileList, 1);
             if (!colInfo.thisIsNull && colInfo.tileHit.myType == (int)Tile.TileType.TILE_BASIC)
             {
                 // Collision, cap'n!
@@ -619,8 +619,25 @@ namespace NotSonic.Components
 
 
             // Sense those tiles!
-            Sensor.CollisionInfo colInfoA = groundSensorA.Sense(TileList);
-            Sensor.CollisionInfo colInfoB = groundSensorB.Sense(TileList);
+            int senseMode = 0;
+            if(CurrentFloorMode == FloorMode.FLOOR)
+            {
+                senseMode = 0;
+            }
+            if(CurrentFloorMode == FloorMode.RIGHTWALL)
+            {
+                senseMode = 1;
+            }
+            if (CurrentFloorMode == FloorMode.CEILING)
+            {
+                senseMode = 2;
+            }
+            if (CurrentFloorMode == FloorMode.LEFTWALL)
+            {
+                senseMode = 3;
+            }
+            Sensor.CollisionInfo colInfoA = groundSensorA.Sense(TileList, senseMode);
+            Sensor.CollisionInfo colInfoB = groundSensorB.Sense(TileList, senseMode);
 
             sensorATile = colInfoA.tileHit;
             sensorBTile = colInfoB.tileHit;
@@ -706,7 +723,7 @@ namespace NotSonic.Components
                         heightOfA = groundSensorA.lastHeightHit;
 
 
-                        fullheightOfA = heightOfA + (Global.maxlvlheight - (int)sensorATile.X);
+                        fullheightOfA = heightOfA + (Global.maxlvlwidth - (int)sensorATile.X);
 
 
                         angleOfA = sensorATile.myTileInfo.Angle;
@@ -729,7 +746,7 @@ namespace NotSonic.Components
 
 
 
-                        fullheightOfB = heightOfB + (Global.maxlvlheight - (int)sensorBTile.X);
+                        fullheightOfB = heightOfB + (Global.maxlvlwidth - (int)sensorBTile.X);
 
                         angleOfB = sensorBTile.myTileInfo.Angle;
 
@@ -798,7 +815,7 @@ namespace NotSonic.Components
                         }
                         else
                         {
-                            XPos = sensorATile.X + 16 - heightOfA - CurrentHeight;
+                            XPos = (sensorATile.X - 16) - heightOfA;
                             if(CurrentFloorMode == FloorMode.LEFTWALL)
                             {
                                 XPos = sensorATile.X + heightOfA + CurrentHeight + 1;
@@ -844,7 +861,7 @@ namespace NotSonic.Components
                         }
                         else
                         {
-                            XPos = sensorBTile.X + 16 - heightOfB - CurrentHeight;
+                            XPos = (sensorBTile.X + 16) - heightOfB - CurrentHeight;
                             if (CurrentFloorMode == FloorMode.LEFTWALL)
                             {
                                 XPos = sensorBTile.X + heightOfB + CurrentHeight;
@@ -1103,12 +1120,12 @@ namespace NotSonic.Components
                 return;
             }
 
-            //wallSensor.DrawSelf(Color.Cyan);
+            
             groundSensorA.DrawSelf(Color.Red);
             groundSensorB.DrawSelf(Color.Green);
             ceilingSensorC.DrawSelf(Color.Yellow);
             ceilingSensorD.DrawSelf(Color.Magenta);
-            
+            wallSensor.DrawSelf(Color.Cyan);
 
             
         }
@@ -1135,8 +1152,25 @@ namespace NotSonic.Components
 
 
                 // Sense those tiles!
-                Sensor.CollisionInfo colInfoA = ceilingSensorC.Sense(TileList);
-                Sensor.CollisionInfo colInfoB = ceilingSensorD.Sense(TileList);
+                int senseMode = 0;
+                if (CurrentFloorMode == FloorMode.FLOOR)
+                {
+                    senseMode = 0;
+                }
+                if (CurrentFloorMode == FloorMode.RIGHTWALL)
+                {
+                    senseMode = 1;
+                }
+                if (CurrentFloorMode == FloorMode.CEILING)
+                {
+                    senseMode = 2;
+                }
+                if (CurrentFloorMode == FloorMode.LEFTWALL)
+                {
+                    senseMode = 3;
+                }
+                Sensor.CollisionInfo colInfoA = ceilingSensorC.Sense(TileList, senseMode);
+                Sensor.CollisionInfo colInfoB = ceilingSensorD.Sense(TileList, senseMode);
 
                 sensorATile = colInfoA.tileHit;
                 sensorBTile = colInfoB.tileHit;

@@ -36,6 +36,8 @@ namespace NotSonic.Components
         public float LasthitX;
         public float LasthitY;
 
+        public int senseMode;
+
         public int lastHeightHit;
 
         public int[] lastHeight;
@@ -56,15 +58,16 @@ namespace NotSonic.Components
 
         // This function checks for any tiles in the collision.
         // Need a way to locate nearby tiles in the tile list, rather than iterating. Iterating will do for now.
-        public CollisionInfo Sense(List<Tile> tileList)
+        public CollisionInfo Sense(List<Tile> tileList, int sM)
         {
-
+            senseMode = sM;
             // Initialize new collision.
             CollisionInfo newCollision = new CollisionInfo();
             newCollision.tileHit = null;
             newCollision.thisIsNull = true;
 
             // Check for a tile depending on type.
+            lastHeightHit = 0;
 
             // Vertical
             if(verticalSensor)
@@ -100,8 +103,10 @@ namespace NotSonic.Components
                             newCollision.thisIsNull = false;
 
 
-                            lastHeight = tile.myTileInfo.flatheightArray;
-                            lastHeightHit = tile.myTileInfo.flatheightArray[Math.Min((int)APos - (int)tile.X, 15)];
+                            lastHeight = HeightArrays.FetchArrayHeight(tile.myType, senseMode);
+
+                            
+                            lastHeightHit = lastHeight[Math.Min((int)APos - (int)tile.X, 15)];
     
 
                             LasthitX = tile.X;
@@ -158,7 +163,9 @@ namespace NotSonic.Components
                             newCollision.tileHit = tile;
                             newCollision.thisIsNull = false;
 
-                            lastHeight = tile.myTileInfo.wallheightArray;
+                            
+
+                            lastHeight = HeightArrays.FetchArrayHeight(tile.myType, senseMode);
                             lastHeightHit = tile.myTileInfo.wallheightArray[Math.Min((int)APos - (int)tile.Y, 15)];
                             
 

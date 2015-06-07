@@ -36,58 +36,33 @@ namespace NotSonic
         public static int[] HEIGHT_LOOP_DOWN_70 = { 9, 9, 8, 8, 7, 7, 6, 6, 5, 5, 5, 4, 4, 4, 3, 3 };
         public static int[] HEIGHT_LOOP_DOWN_85 = { 3, 3, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1 };
 
+        // Load Angle_Tiles.png
+        public static Image angleTileImg = new Image(Assets.TILE_SHEET_ANGLES);
+
+        public struct HeightInfo
+        {
+            public int[] floorHeight;
+            public int[] rightHeight;
+            public int[] ceilHeight;
+            public int[] leftHeight;
+        }
+
 
         // The Big Generated Array
-        public static List<int[]> HeightArraysList = new List<int[]>();
+        public static List<HeightInfo> HeightArraysList = new List<HeightInfo>();
 
 
         public static void GenerateHeightMap()
         {
-            // Load Angle_Tiles.png
-            Image angleTileImg = new Image(Assets.TILE_SHEET_ANGLES);
-            Texture angleTileTex = angleTileImg.Texture;
-            
-
-            // Loop 16x16, increment tile line counter
-            int tileLine = 0;
-            int[] heightArray = new int[angleTileImg.Width];
-            for (tileLine = 0; tileLine < (angleTileImg.Height / 16); tileLine++ )
+            // Read all 400 tiles.
+            for(int i = 0; i < 400; i++)
             {
-                
-                for (int x = 0; x < angleTileImg.Width; x++)
-                {
-                    // Read pixel values into height array for this tile
-
-                    int y = 0;
-                    for (y = 0; y < 16; y++)
-                    {
-                        Color returnedCol = angleTileTex.GetPixel(x, (y + (tileLine * 16)));
-                        if (returnedCol.R > 0)
-                        {
-                            break;
-                        }
-
-                    }
-                    heightArray[x] = 16 - y;
-                }
-
-                // Store the height values by block in the heightarrayslist
-
-                for (int i = 0; i < angleTileImg.Width; i+=16)
-                {
-                    int[] heightOfTile = new int[16];
-                    for (int j = 0; j < 16; j++)
-                    {
-                        heightOfTile[j] = heightArray[i+j];
-                    }
-                    HeightArraysList.Add(heightOfTile);
-
-                }
-
-
+                HeightArraysList.Add(ReadTile(i));
             }
 
             int egg = 0;
+
+           
         }
 
         public static int[] ReadArrayBackwards(int[] inarray)
@@ -107,6 +82,143 @@ namespace NotSonic
                 newArr[i] = 16 - inarray[i];
             }
             return newArr;
+        }
+
+        public static int[] FetchArrayHeight(int ID, int type)
+        {
+            if(type == 0)
+            {
+                return HeightArraysList.ElementAt(ID).floorHeight;
+            }
+            if (type == 1)
+            {
+                return HeightArraysList.ElementAt(ID).rightHeight;
+            }
+            if (type == 2)
+            {
+                return HeightArraysList.ElementAt(ID).ceilHeight;
+            }
+            if (type == 3)
+            {
+                return HeightArraysList.ElementAt(ID).leftHeight;
+            }
+            
+
+            return null;
+        }
+
+        public static int[] GetFirstLastHeight(int ID, int type)
+        {
+            int[] info = new int[2];
+            int[] heightarr = FetchArrayHeight(ID, type);
+            int i, j;
+            for (i = 0; i < 16; i++)
+            {
+                if (heightarr[i] != 0)
+                {
+                    break;
+                }
+            }
+            for (j = 15; j >= 0; j--)
+            {
+                if (heightarr[j] != 0)
+                {
+                    break;
+                }
+            }
+            info[0] = heightarr[i];
+            info[1] = heightarr[j];
+
+                return info;
+        }
+
+        public static HeightInfo ReadTile(int tileID)
+        {
+            HeightInfo newInfo = new HeightInfo();
+
+            // Access this tile.
+            int startX = tileID * 16;
+            int startY = 0;
+            while(startX >= angleTileImg.Width)
+            {
+                startX -= angleTileImg.Width;
+                startY += 16;
+            }
+
+            // Now that we have startX and startY, we can read this whole tile in.
+            int[,] tileData = new int[16,16];
+            for (int x = startX; x < startX + 16; x++)
+            {
+                for(int y = startY; y < startY + 16; y++)
+                {
+                    tileData[x-startX,y-startY] = (angleTileImg.Texture.GetPixel(x, y).R > 0) ? 1 : 0;
+                }
+            }
+
+            // Now we do the reads in each of the 4 directions.
+            newInfo.floorHeight = new int[16];
+            newInfo.ceilHeight = new int[16];
+            newInfo.leftHeight = new int[16];
+            newInfo.rightHeight = new int[16];
+
+            // Floor Tile, Top to Bottom
+            for (int x = 0; x < 16; x++)
+            {
+                int y;
+                for(y = 0; y < 16; y++)
+                {
+                    if(tileData[x,y] == 1)
+                    {
+                        break;
+                    }
+                }
+                newInfo.floorHeight[x] = 16 - y;
+            }
+
+            // Ceiling Tile, Bottom to Top
+            for (int x = 0; x < 16; x++)
+            {
+                int y;
+                for (y = 15; y >= 0; y--)
+                {
+                    if (tileData[x,y] == 1)
+                    {
+                        break;
+                    }
+                }
+                newInfo.ceilHeight[x] = y + 1;
+            }
+
+            // Right Wall Tile, Left to Right
+            for (int y = 0; y < 16; y++)
+            {
+                int x;
+                for (x = 0; x < 16; x++)
+                {
+                    if (tileData[x,y] == 1)
+                    {
+                        break;
+                    }
+                }
+                newInfo.rightHeight[y] = 16 - x;
+            }
+
+            // Left Wall  tile, Right to Left
+            for (int y = 0; y < 16; y++)
+            {
+                int x;
+                for (x = 15; x >= 0; x--)
+                {
+                    if (tileData[x,y] == 1)
+                    {
+                        break;
+                    }
+                }
+                newInfo.leftHeight[y] = x + 1;
+            }
+
+
+                return newInfo;
         }
         
     }
