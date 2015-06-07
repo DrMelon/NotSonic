@@ -115,7 +115,7 @@ namespace NotSonic.Components
                                continue;
                             }
 
-                            if (tile.myTileInfo.wallheightArray == HeightArrays.HEIGHT_ARRAY_FULL && keepCheck)
+                            if (lastHeightHit == 16 && keepCheck)
                             {
                                 continue; //keep going until blank?
                             }
@@ -175,7 +175,7 @@ namespace NotSonic.Components
                                continue;
                             }
 
-                            if (tile.myTileInfo.wallheightArray == HeightArrays.HEIGHT_ARRAY_FULL && keepCheck)
+                            if (lastHeightHit == 16 && keepCheck)
                             {
                                 continue; //keep going until blank?
                             }
