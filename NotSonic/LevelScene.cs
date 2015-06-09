@@ -108,7 +108,7 @@ namespace NotSonic
             Otter.Debugger.CommandFunction myFunc = new Debugger.CommandFunction(Impulse);
             Otter.CommandType[] cmdArgs = new Otter.CommandType[1];
             cmdArgs[0] = CommandType.Int;
-            Debugger.Instance.RegisterCommand("impulse", myFunc, cmdArgs);
+            Debugger.Instance.RegisterCommand("i", myFunc, cmdArgs);
 
         }
 

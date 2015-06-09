@@ -26,7 +26,7 @@ void main() {
 	vec4 pixel = texture2D(texture, pos);
 	vec4 gradpix = sampleAs3DTexture(lut, pixel.rgb, 16.0f);
 	gradpix.a = pixel.a;
-	pixel = gradpix;
+	
 
  
     gl_FragColor = gradpix;

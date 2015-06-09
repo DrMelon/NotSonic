@@ -486,7 +486,7 @@ namespace NotSonic.Components
             
 
             Sensor.CollisionInfo colInfo = wallSensor.Sense(TileList, 1);
-            if (!colInfo.thisIsNull && colInfo.tileHit.myType == (int)Tile.TileType.TILE_BASIC)
+            if (!colInfo.thisIsNull && (colInfo.tileHit.myType == 1 || colInfo.tileHit.myType == 21 || colInfo.tileHit.myType == 41 || colInfo.tileHit.myType == 61))
             {
                 // Collision, cap'n!
                 // Now, if the collision is on the left of sonic...
@@ -766,7 +766,7 @@ namespace NotSonic.Components
                     return;
                 }
 
-              
+              float AngleLastFrame = Angle;
 
 
                 // Pop from tiles walked on.
