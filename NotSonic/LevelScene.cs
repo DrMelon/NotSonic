@@ -197,6 +197,23 @@ namespace NotSonic
                 deadSound.Play();
                 
             }
+
+
+            // Prep the tileList based on the player's position and speed.
+            List<NotSonic.Components.Tile> shrunkTileList = new List<NotSonic.Components.Tile>();
+            float checkRadius = 48 + Math.Max(thePlayer.myMovement.XSpeed, thePlayer.myMovement.YSpeed);
+            foreach (NotSonic.Components.Tile tile in tileList)
+            {
+                float curX, curY;
+                curX = tile.X - thePlayer.X;
+                curY = tile.Y - thePlayer.Y;
+                if(curX*curX + curY*curY < checkRadius*checkRadius)
+                {
+                    shrunkTileList.Add(tile);
+                }
+            }
+            thePlayer.myMovement.TileList = shrunkTileList;
+
             base.Update();
         }
 

@@ -1112,24 +1112,31 @@ namespace NotSonic.Components
             }
         }
 
-        public override void Render()
+        private void DrawDebugView()
         {
-            base.Render();
-            if(!DebugView)
+            if (!DebugView)
             {
                 return;
             }
 
-            
+
             groundSensorA.DrawSelf(Color.Red);
             groundSensorB.DrawSelf(Color.Green);
             ceilingSensorC.DrawSelf(Color.Yellow);
             ceilingSensorD.DrawSelf(Color.Magenta);
             wallSensor.DrawSelf(Color.Cyan);
 
-            Text newText = new Text("Angle: " + Angle.ToString() + " | Sensor A Height: " + groundSensorA.lastHeightHit.ToString(), 16);
+            Text newText = new Text("Angle: " + Angle.ToString() + " | Sensor A Height: " + groundSensorA.lastHeightHit.ToString() + " | NumTiles: " + TileList.Count.ToString(), 10);
+            newText.Smooth = false;
             newText.Scroll = 0;
             newText.Render(0, 0);
+        }
+
+        public override void Render()
+        {
+            base.Render();
+            DrawDebugView();
+            return;
             
         }
 
