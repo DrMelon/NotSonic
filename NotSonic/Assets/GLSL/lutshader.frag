@@ -2,8 +2,8 @@
 
 sampler2D texture;
 sampler2D lut;
-
-
+uniform float time;
+uniform float belowwater;
 
 vec4 sampleAs3DTexture(sampler2D texture, vec3 uv, float width) {
     float sliceSize = 1.0 / width;              // space of 1 slice
@@ -20,14 +20,35 @@ vec4 sampleAs3DTexture(sampler2D texture, vec3 uv, float width) {
     vec4 result = mix(slice0Color, slice1Color, zOffset);
     return result;
 }
+
+float floorpr(float f, float p)
+{
+	f *= pow(10, p);
+	f = ceil(f);
+	f /= pow(10, p);
+	return f;
+}
  
 void main() {
     vec2 pos = gl_TexCoord[0];
-	vec4 pixel = texture2D(texture, pos);
+	vec2 wavepos = pos;
+	float cutoff = (2.4f);
+	if((1.0 - wavepos.y) + belowwater > cutoff)
+	{
+		wavepos.x += 0.01 * sin(time * 0.03f + wavepos.y * 10);
+	}
+	vec4 pixel = texture2D(texture, wavepos);
 	vec4 gradpix = sampleAs3DTexture(lut, pixel.rgb, 16.0f);
 	gradpix.a = pixel.a;
 	
 
- 
-    gl_FragColor = gradpix;
+	if((1.0 - wavepos.y) + belowwater > cutoff)
+	{
+		gl_FragColor = gradpix;
+	}
+	else
+	{
+		gl_FragColor = pixel;
+	}
+
 }

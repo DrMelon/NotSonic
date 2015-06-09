@@ -26,7 +26,7 @@ namespace NotSonic
         public const string PARA_TREES_2 = "../../Assets/GFX/Parallax/Mush_Trees_2.png";
 
         public const string LUTSHADER = "../../Assets/GLSL/lutshader.frag";
-        public const string LUTIMAGE = "../../Assets/GLSL/lut.png";
+        public const string LUTIMAGE = "../../Assets/GLSL/lut_b.png";
 
         public const string SND_JUMP = "../../Assets/SND/jump.wav";
         public const string SND_ROLL = "../../Assets/SND/roll.wav";

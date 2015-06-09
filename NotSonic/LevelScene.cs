@@ -259,6 +259,8 @@ namespace NotSonic
             // Shader crud
             LUTShade.SetParameter("texture", Global.theGame.Surface.GetTexture());
             LUTShade.SetParameter("lut", LUTTable.Texture);
+            LUTShade.SetParameter("belowwater", CameraCenterY / 240.0f);
+            LUTShade.SetParameter("time", Global.theGame.Timer);
        
 
         }
