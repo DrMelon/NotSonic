@@ -4,6 +4,7 @@ sampler2D texture;
 sampler2D lut;
 uniform float time;
 uniform float belowwater;
+uniform float cutoff;
 
 vec4 sampleAs3DTexture(sampler2D texture, vec3 uv, float width) {
     float sliceSize = 1.0 / width;              // space of 1 slice
@@ -32,8 +33,7 @@ float floorpr(float f, float p)
 void main() {
     vec2 pos = gl_TexCoord[0];
 	vec2 wavepos = pos;
-	float cutoff = (2.4f);
-	if((1.0 - wavepos.y) + belowwater > cutoff)
+	if(belowwater - pos.y > cutoff)
 	{
 		wavepos.x += 0.01 * sin(time * 0.03f + wavepos.y * 10);
 	}
@@ -42,7 +42,7 @@ void main() {
 	gradpix.a = pixel.a;
 	
 
-	if((1.0 - wavepos.y) + belowwater > cutoff)
+	if(belowwater - pos.y > cutoff)
 	{
 		gl_FragColor = gradpix;
 	}

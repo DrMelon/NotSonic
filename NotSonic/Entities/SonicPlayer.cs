@@ -12,9 +12,13 @@ namespace NotSonic.Entities
         public Spritemap<string> spriteSheet;
         public NotSonic.Components.SonicMovement myMovement;
         public List<NotSonic.Components.Tile> tileList;
+        public NotSonic.Components.ParticleSystem bubbleParticles;
+        public NotSonic.Components.ParticleSystem brakeSmokeParticles;
 
         public float SmoothAngle;
         public bool flipReady = false;
+
+        
         
         public SonicPlayer(List<NotSonic.Components.Tile> tl, float x = 0, float y = 0)
         {

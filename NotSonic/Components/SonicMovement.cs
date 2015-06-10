@@ -78,6 +78,9 @@ namespace NotSonic.Components
         // Brake-turning?
         public bool Braking = false;
 
+        // Underwater?
+        public bool Underwater = false;
+
 
         // Debug view on?
         public bool DebugView = false;
@@ -117,6 +120,43 @@ namespace NotSonic.Components
         public float HexAngleToDec(int hexangle)
         {
             return (hexangle) * 1.40625f;
+        }
+
+        public void CheckUnderwater()
+        {
+            if(Underwater)
+            {
+                  Acceleration = 0.046875f / 2.0f;
+                  Deceleration = 0.5f / 2.0f;
+                  AirAccel = 0.09375f / 2.0f;
+                  Friction = 0.046875f / 2.0f;
+                  TopSpeed = 6.0f / 2.0f;
+                  JumpVelocity = 3.5f;
+                  Gravity = 0.0625f;              
+            }
+            else
+            {
+                  Acceleration = 0.046875f;
+                  Deceleration = 0.5f;
+                  AirAccel = 0.09375f;
+                  Friction = 0.046875f;
+                  TopSpeed = 6.0f;
+                  JumpVelocity = 6.5f;
+                  Gravity = 0.21875f;
+            }
+        }
+
+        public void ExitWater()
+        {
+            Underwater = false;
+            YSpeed *= 2.0f;
+        }
+
+        public void EnterWater()
+        {
+            Underwater = true;
+            XSpeed *= 0.5f;
+            YSpeed *= 0.25f;       
         }
 
 
@@ -323,6 +363,9 @@ namespace NotSonic.Components
 
             // Check left/right flip
             FlipLeftRight();
+
+            // Check Underwater Status
+            CheckUnderwater();
 
             // Slope factor is added to Ground Speed. This slows sonic when moving uphill, and speeds him up when moving downhill.
             CalculateGroundSpeed();

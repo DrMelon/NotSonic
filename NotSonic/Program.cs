@@ -45,12 +45,12 @@ namespace NotSonic
             Global.theController.Up.AddKey(Key.Up);
             Global.theController.Down.AddKey(Key.Down);
 
-
+            Assets.GenerateAssetNames();
             Global.theGame.FirstScene = new LevelScene(Assets.MAP_TEST);
             Global.theGame.Color = new Color("736763");
 
             // Begin otter!
-            
+           
             
             Global.theGame.Start();
 

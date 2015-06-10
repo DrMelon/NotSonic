@@ -1,11 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" nextobjectid="1">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" nextobjectid="4">
+ <properties>
+  <property name="MapName" value="Mushroom Soup Zone"/>
+  <property name="WaterLevel" value="480"/>
+ </properties>
  <tileset firstgid="1" name="Test_Mush" tilewidth="16" tileheight="16">
   <image source="../GFX/Mushroom_Hill_bank.png" width="160" height="320"/>
  </tileset>
  <tileset firstgid="201" name="Test_Height" tilewidth="16" tileheight="16">
   <image source="../GFX/Angle_Tiles.png" width="320" height="320"/>
  </tileset>
+ <imagelayer name="ParaFar" y="230">
+  <image source="../GFX/Parallax/Mush_Trees_1.png"/>
+  <properties>
+   <property name="EngineName" value="PARA_TREES_1"/>
+   <property name="ScrollX" value="0.3"/>
+   <property name="ScrollY" value="0.15"/>
+  </properties>
+ </imagelayer>
+ <imagelayer name="ParaNear" y="-160">
+  <image source="../GFX/Parallax/Mush_Trees_2.png"/>
+  <properties>
+   <property name="EngineName" value="PARA_TREES_2"/>
+   <property name="ScrollX" value="0.5"/>
+   <property name="ScrollY" value="0.2"/>
+  </properties>
+ </imagelayer>
  <layer name="Solid" width="100" height="100">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -214,4 +234,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup name="Objects">
+  <object id="1" name="SonicStart" x="387" y="65" width="40" height="40"/>
+ </objectgroup>
 </map>

@@ -28,10 +28,15 @@ namespace NotSonic
 
         // Map Name
         public string mapName;
+        public string friendlyMapName;
         
         // Tiled TMX Loader instance
         public TmxMap tmxMapData;
         Tilemap tilemap;
+
+        // Water level
+        bool hasWater = true;
+        float waterLevel = 480.0f;
 
 
         // Shader fun
@@ -54,6 +59,7 @@ namespace NotSonic
             
             // Load the map
             LoadMap();
+            SetProperties();
 
             this.UseCameraBounds = true;
             this.ApplyCamera = true;
@@ -66,24 +72,26 @@ namespace NotSonic
 
 
             // Make da player!!
-            thePlayer = new Entities.SonicPlayer(tileList, 70, 32);
+            // Use the Objects layer, with the position of the SonicStart object.
+            CreateObjects();
 
                       
             
             
-            // Create the parallax bg bits
-            Image para_Far = new Image(Assets.PARA_TREES_1);
+            // Create the parallax bg bits using tmx data
+            
+            Image para_Far = new Image(Assets.GetAsset(tmxMapData.ImageLayers["ParaFar"].Properties["EngineName"]));
             para_Far.RepeatX = true;
-            para_Far.ScrollY = 0.15f;
-            para_Far.ScrollX = 0.3f;
-            para_Far.Y = 230;
+            para_Far.ScrollY = tmxMapData.ImageLayers["ParaFar"].Properties.ValueAsFloat("ScrollY");
+            para_Far.ScrollX = tmxMapData.ImageLayers["ParaFar"].Properties.ValueAsFloat("ScrollX");
+            para_Far.Y = tmxMapData.ImageLayers["ParaFar"].Y;
             AddGraphic(para_Far);
 
-            Image para_Close = new Image(Assets.PARA_TREES_2);
+            Image para_Close = new Image(Assets.GetAsset(tmxMapData.ImageLayers["ParaNear"].Properties["EngineName"]));
             para_Close.RepeatX = true;
-            para_Close.ScrollY = 0.2f;
-            para_Close.ScrollX = 0.5f;
-            para_Close.Y = -160;
+            para_Close.ScrollY = tmxMapData.ImageLayers["ParaNear"].Properties.ValueAsFloat("ScrollY");
+            para_Close.ScrollX = tmxMapData.ImageLayers["ParaNear"].Properties.ValueAsFloat("ScrollX");
+            para_Close.Y = tmxMapData.ImageLayers["ParaNear"].Y;
             AddGraphic(para_Close);
 
 
@@ -104,7 +112,7 @@ namespace NotSonic
 
             // Make debug command to toggle shader
 
-            Global.theGame.Surface.Shader = null;
+            Global.theGame.Surface.Shader = LUTShade;
             Otter.Debugger.CommandFunction myFunc = new Debugger.CommandFunction(Impulse);
             Otter.CommandType[] cmdArgs = new Otter.CommandType[1];
             cmdArgs[0] = CommandType.Int;
@@ -179,7 +187,9 @@ namespace NotSonic
             }
 
             
-           
+
+            
+            
             
         }
 
@@ -213,6 +223,23 @@ namespace NotSonic
                 }
             }
             thePlayer.myMovement.TileList = shrunkTileList;
+
+            // Check if player is underwater
+            if(thePlayer.Y > waterLevel)
+            {
+                if(thePlayer.myMovement.Underwater == false)
+                {
+                    thePlayer.myMovement.EnterWater();
+                }
+            }
+            else
+            {
+                if(thePlayer.myMovement.Underwater == true)
+                {
+                    thePlayer.myMovement.ExitWater();
+                }
+                
+            }
 
             base.Update();
         }
@@ -259,10 +286,33 @@ namespace NotSonic
             // Shader crud
             LUTShade.SetParameter("texture", Global.theGame.Surface.GetTexture());
             LUTShade.SetParameter("lut", LUTTable.Texture);
-            LUTShade.SetParameter("belowwater", CameraCenterY / 240.0f);
+            LUTShade.SetParameter("belowwater", (CameraCenterY + 120.0f) / 240.0f);
+            LUTShade.SetParameter("cutoff", waterLevel / 240.0f);
             LUTShade.SetParameter("time", Global.theGame.Timer);
        
 
+        }
+
+        public void CreateObjects()
+        {
+            for (int i = 0; i < tmxMapData.ObjectGroups.Count; i++ )
+            {
+                for (int j = 0; j < tmxMapData.ObjectGroups[i].Objects.Count; j++)
+                {
+                    // Process current object
+                    TmxObjectGroup.TmxObject tmObj = tmxMapData.ObjectGroups[i].Objects[j];
+                    if(tmObj.Name == "SonicStart")
+                    {
+                        thePlayer = new Entities.SonicPlayer(tileList, (float)tmObj.X, (float)tmObj.Y);
+                    }
+                }
+            }
+        }
+
+        public void SetProperties()
+        {
+            waterLevel = tmxMapData.Properties.ValueAsFloat("WaterLevel");
+            tmxMapData.Properties.TryGetValue("MapName", out friendlyMapName);
         }
 
         public void ToggleShader()

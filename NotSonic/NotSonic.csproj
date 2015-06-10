@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets.cs" />
+    <Compile Include="Components\ParticleSystem.cs" />
     <Compile Include="Components\Sensor.cs" />
     <Compile Include="Components\SonicMovement.cs" />
     <Compile Include="Components\Tile.cs" />

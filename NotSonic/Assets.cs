@@ -35,5 +35,20 @@ namespace NotSonic
         public const string MUS_MUSH = "../../Assets/MUS/mush.ogg";
 
         public const string MAP_TEST = "../../Assets/MAP/Test_Mush.tmx"; // Tiled TMX File.
+
+        public static Dictionary<string, string> lookupAssets = new Dictionary<string, string>();
+
+        public static void GenerateAssetNames()
+        {
+            Assets.lookupAssets.Add("PARA_TREES_1", Assets.PARA_TREES_1);
+            Assets.lookupAssets.Add("PARA_TREES_2", Assets.PARA_TREES_2);
+        }
+
+        public static string GetAsset(string tryget)
+        {
+            string val;
+            Assets.lookupAssets.TryGetValue(tryget, out val);
+            return val;
+        }
     }
 }
