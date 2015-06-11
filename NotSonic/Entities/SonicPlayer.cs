@@ -14,6 +14,7 @@ namespace NotSonic.Entities
         public List<NotSonic.Components.Tile> tileList;
         public NotSonic.Components.ParticleSystem bubbleParticles;
         public NotSonic.Components.ParticleSystem brakeSmokeParticles;
+        public NotSonic.Components.ParticleSystem speedTrailParticles;
 
         public float SmoothAngle;
         public bool flipReady = false;
@@ -49,11 +50,56 @@ namespace NotSonic.Entities
             // Add to pausable objects group
             Group = Global.GROUP_ACTIVEOBJECTS;
 
+
+            
+
+        }
+
+        public override void Added()
+        {
+            base.Added();
+            // Create particle systems
+            speedTrailParticles = new Components.ParticleSystem(0, 0);
+            speedTrailParticles.Initialize(0, 0, 0, 0, 1, 2, Assets.SONIC_SHEET, 40, 40, 1, true, 1, 1);
+            speedTrailParticles.beginColour.A = 0.25f;
+            speedTrailParticles.endColour.A = 0.1f;
+            
+            this.Scene.Add(speedTrailParticles);
+            speedTrailParticles.Start();
+            speedTrailParticles.Visible = false;
+
+        }
+
+        private void UpdateSpeedTrails()
+        {
+            speedTrailParticles.Visible = (Math.Max(Math.Abs(myMovement.YSpeed), Math.Abs(myMovement.XSpeed)) >= 10);
+            speedTrailParticles.X = X;
+            speedTrailParticles.Y = Y;
+            speedTrailParticles.Update();
+            foreach (Particle p in speedTrailParticles.activeLocalParticles)
+            {
+                p.Angle = spriteSheet.Angle;
+                p.FlipX = !myMovement.FacingRight;
+                p.FrameOffset = spriteSheet.CurrentFrame;
+                p.Visible = speedTrailParticles.Visible;
+                p.Layer = this.Layer + 1;
+            }
+        }
+
+        private void UpdateParticleSystems()
+        {
+            // Speed Trails
+            UpdateSpeedTrails();
+
+
         }
 
         public override void UpdateLast()
         {
             UpdateAnimations();
+            UpdateParticleSystems();
+
+
             base.UpdateLast();
         }
 

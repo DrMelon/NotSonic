@@ -56,6 +56,7 @@ namespace NotSonic.Components
         public float SlopeFactor = 0.0f;
         public float CurrentHeight = 20.0f;
         public float HLock = 0.0f;
+        public float DashSpeed = 8.0f;
 
         // Spindashing
         public float CurrentSpindashStrength = 0.0f;
@@ -80,6 +81,9 @@ namespace NotSonic.Components
 
         // Underwater?
         public bool Underwater = false;
+
+        // Can megamix airdash?
+        public bool CanAirdash = true;
 
 
         // Debug view on?
@@ -132,7 +136,8 @@ namespace NotSonic.Components
                   Friction = 0.046875f / 2.0f;
                   TopSpeed = 6.0f / 2.0f;
                   JumpVelocity = 3.5f;
-                  Gravity = 0.0625f;              
+                  Gravity = 0.0625f;
+                  DashSpeed = 4.0f;
             }
             else
             {
@@ -143,6 +148,7 @@ namespace NotSonic.Components
                   TopSpeed = 6.0f;
                   JumpVelocity = 6.5f;
                   Gravity = 0.21875f;
+                  DashSpeed = 8.0f;
             }
         }
 
@@ -567,6 +573,7 @@ namespace NotSonic.Components
             {
                 CurrentMoveType = MoveType.GROUND;
                 Rolling = false;
+                CanAirdash = true;
 
 
                 // Account for sloping...
@@ -957,10 +964,10 @@ namespace NotSonic.Components
                                 {
                                     // Zoom!
                                     GroundSpeed -= Acceleration;
-                                }
-                                else
-                                {
-                                    GroundSpeed = -TopSpeed;
+                                    if(GroundSpeed < -TopSpeed)
+                                    {
+                                        GroundSpeed = -TopSpeed;
+                                    }
                                 }
                             }
 
@@ -980,10 +987,10 @@ namespace NotSonic.Components
                                 else if (GroundSpeed < TopSpeed)
                                 {
                                     GroundSpeed += Acceleration;
-                                }
-                                else
-                                {
-                                    GroundSpeed = TopSpeed;
+                                    if(GroundSpeed > TopSpeed)
+                                    {
+                                        GroundSpeed = TopSpeed;
+                                    }
                                 }
                             }
                         }
@@ -1149,6 +1156,20 @@ namespace NotSonic.Components
                     {
                         YSpeed = -4.0f;
                     }
+                }
+
+                // Air Curl (Megamix)
+                if(!Rolling && theController.A.Pressed)
+                {
+                    Rolling = true;
+                }
+
+                if(CanAirdash && Rolling && (theController.B.Pressed || theController.C.Pressed))
+                {
+                    //Launch forwards!
+                    CanAirdash = false;
+                    XSpeed = DashSpeed * ((FacingRight) ? 1 : -1);
+                    YSpeed = 0;
                 }
 
 
