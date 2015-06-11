@@ -101,7 +101,8 @@ namespace NotSonic.Components
         // Sounds
         public Sound jumpSound = new Sound(Assets.SND_JUMP);
         public Sound rollingSound = new Sound(Assets.SND_ROLL);
-        
+        public Sound revSound = new Sound(Assets.SND_REV);
+        public Sound dashGoSound = new Sound(Assets.SND_DASHGO);
 
         #region Public Methods
 
@@ -1063,11 +1064,14 @@ namespace NotSonic.Components
                     if (theController.Down.Down && !Rolling && Math.Abs(GroundSpeed) < 1.03125)
                     {
                         // Add to spindash counter
+                        revSound.Stop();
+                        revSound.Pitch = 1.0f + (CurrentSpindashStrength / MaxSpindashStrength) / 1.2f;
+                        revSound.Play();
                         CurrentSpindashStrength += 2.0f;
                         if(CurrentSpindashStrength > MaxSpindashStrength)
                         {
                             CurrentSpindashStrength = MaxSpindashStrength;
-                           
+                            
                         }
 
                     }
@@ -1089,6 +1093,8 @@ namespace NotSonic.Components
                 // Spindash release
                 if (theController.Down.Released && CurrentSpindashStrength > 0.0f)
                 {
+                    revSound.Stop();
+                    dashGoSound.Play();
                     if (FacingRight)
                     {
                         GroundSpeed += 8 + (float)(Math.Floor(CurrentSpindashStrength) / 2);
@@ -1164,12 +1170,14 @@ namespace NotSonic.Components
                     Rolling = true;
                 }
 
+                // Air Dash (Megamix)
                 if(CanAirdash && Rolling && (theController.B.Pressed || theController.C.Pressed))
                 {
                     //Launch forwards!
                     CanAirdash = false;
                     XSpeed = DashSpeed * ((FacingRight) ? 1 : -1);
                     YSpeed = 0;
+                    dashGoSound.Play();
                 }
 
 

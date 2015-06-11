@@ -18,7 +18,7 @@ namespace NotSonic.Entities
 
         public float SmoothAngle;
         public bool flipReady = false;
-
+        public bool GrossMode = false; //gross animation rotation mode
         
         
         public SonicPlayer(List<NotSonic.Components.Tile> tl, float x = 0, float y = 0)
@@ -129,6 +129,11 @@ namespace NotSonic.Entities
             if (myMovement.CurrentFloorMode == NotSonic.Components.SonicMovement.FloorMode.LEFTWALL)
             {
                 Graphic.Angle = 270;
+            }
+
+            if(GrossMode)
+            {
+                Graphic.Angle = myMovement.Angle;
             }
 
             if(myMovement.Rolling)

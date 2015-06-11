@@ -353,6 +353,10 @@ namespace NotSonic
                     // Play Music
                     PlayMusic();
                 }
+                if(commandPassed == "3")
+                {
+                    thePlayer.GrossMode = !thePlayer.GrossMode;
+                }
             }
         }
 
