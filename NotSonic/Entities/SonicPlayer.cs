@@ -19,6 +19,10 @@ namespace NotSonic.Entities
         public float SmoothAngle;
         public bool flipReady = false;
         public bool GrossMode = false; //gross animation rotation mode
+
+        // Chain destruction stuff
+        public float comboTime;
+        public int comboAmt;
         
         
         public SonicPlayer(List<NotSonic.Components.Tile> tl, float x = 0, float y = 0)
@@ -26,6 +30,10 @@ namespace NotSonic.Entities
             // Set Spawn Loc
             X = x;
             Y = y;
+            float CollisionWidth = 40;
+            float CollisionHeight = 40;
+            this.Collider = new BoxCollider((int)CollisionWidth, (int)CollisionHeight, new int[] { 0 });
+            this.Collider.CenterOrigin();
             tileList = tl;
 
 
@@ -66,6 +74,7 @@ namespace NotSonic.Entities
             
             this.Scene.Add(speedTrailParticles);
             speedTrailParticles.Start();
+            speedTrailParticles.Group = Global.GROUP_ACTIVEOBJECTS;
             speedTrailParticles.Visible = false;
 
         }
@@ -78,6 +87,7 @@ namespace NotSonic.Entities
             speedTrailParticles.Update();
             foreach (Particle p in speedTrailParticles.activeLocalParticles)
             {
+                p.Group = Global.GROUP_ACTIVEOBJECTS;
                 p.Angle = spriteSheet.Angle;
                 p.FlipX = !myMovement.FacingRight;
                 p.FrameOffset = spriteSheet.CurrentFrame;
@@ -90,6 +100,23 @@ namespace NotSonic.Entities
         {
             // Speed Trails
             UpdateSpeedTrails();
+
+
+        }
+
+        public override void Update()
+        {
+            base.Update();
+            // Update combo timings
+            if(comboTime > 0 && myMovement.CurrentMoveType == NotSonic.Components.SonicMovement.MoveType.GROUND)
+            {
+                comboTime--;
+            }
+            if(comboTime <= 0)
+            {
+                comboTime = 0;
+                comboAmt = 0;
+            }
 
 
         }

@@ -17,15 +17,17 @@ namespace NotSonic
     class Assets
     {
 
-        public const string SONIC_SHEET = "../../Assets/GFX/Sonic_3K.png"; //32x40 sprites
+        public const string SONIC_SHEET = "../../Assets/GFX/Sonic_3K.png"; //40x40 sprites
         public const string EXAMPLE_TILE = "../../Assets/GFX/TILE0.png"; //16x16 sprites
         public const string TILE_SHEET = "../../Assets/GFX/Mushroom_Hill_bank.png"; //16x16 sprites
         public const string TILE_SHEET_ANGLES = "../../Assets/GFX/Angle_Tiles.png"; //16x16 sprites
+        public const string BADNIK_SHEET = "../../Assets/GFX/badnik.png"; 
 
         public const string PARA_TREES_1 = "../../Assets/GFX/Parallax/Mush_Trees_1.png";
         public const string PARA_TREES_2 = "../../Assets/GFX/Parallax/Mush_Trees_2.png";
 
         public const string LUTSHADER = "../../Assets/GLSL/lutshader.frag";
+        public const string DARKSHADER = "../../Assets/GLSL/dark.frag";
         public const string LUTIMAGE = "../../Assets/GLSL/lut_b.png";
 
         public const string SND_JUMP = "../../Assets/SND/jump.wav";
@@ -33,6 +35,9 @@ namespace NotSonic
         public const string SND_DEAD = "../../Assets/SND/dead.wav";
         public const string SND_REV = "../../Assets/SND/rev.wav";
         public const string SND_DASHGO = "../../Assets/SND/dashgo.wav";
+        public const string SND_ORCH = "../../Assets/SND/orch2.wav";
+        public const string SND_POP = "../../Assets/SND/pop.wav";
+        public const string SND_BRAKE = "../../Assets/SND/brake.wav";
 
         public const string MUS_MUSH = "../../Assets/MUS/mush.ogg";
 

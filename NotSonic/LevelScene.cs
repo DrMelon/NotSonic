@@ -18,6 +18,8 @@ namespace NotSonic
 
 
 
+
+
     class LevelScene : Scene
     {
         // The Player
@@ -34,6 +36,10 @@ namespace NotSonic
         public TmxMap tmxMapData;
         Tilemap tilemap;
 
+        // Freezelock
+        bool freezeLocked = false;
+        float freezeLockTime = 0.0f;
+
         // Water level
         bool hasWater = true;
         float waterLevel = 480.0f;
@@ -42,10 +48,13 @@ namespace NotSonic
         // Shader fun
         Shader LUTShade = new Shader(ShaderType.Fragment, Assets.LUTSHADER);
         Image LUTTable = new Image(Assets.LUTIMAGE);
+        Shader DarkenShader = new Shader(ShaderType.Fragment, Assets.DARKSHADER);
 
         // Mushroom Hill Dot M P 3
         Music mushroomHillMusic = new Music(Assets.MUS_MUSH);
         Sound deadSound = new Sound(Assets.SND_DEAD);
+
+        CameraShaker theCamShaker = new CameraShaker();
 
 
         public LevelScene(string mapFilename)
@@ -100,11 +109,12 @@ namespace NotSonic
             AddGraphic(tilemap);
 
             Add(thePlayer);
+            Add(theCamShaker);
 
 
+            MakeBadniks();
 
-            
-            
+
 
 
 
@@ -195,6 +205,11 @@ namespace NotSonic
 
         public override void Update()
         {
+            // Process messages first.
+            ProcessMessages();
+            // Check freezelock
+            CheckFreezeLock();
+
             if(thePlayer.myMovement.YPos > Global.maxlvlheight)
             {
                 // DEAD!!
@@ -332,6 +347,67 @@ namespace NotSonic
             mushroomHillMusic.Play();
         }
 
+        public void ProcessMessages()
+        {
+            // Loop through all messages
+            foreach(MessageEvent msg in Global.eventList)
+            {
+                ProcessMessage(msg);
+            }
+
+            // Messages checked, clear list. 
+            Global.eventList.Clear();
+        }
+
+        public void ProcessMessage(MessageEvent msg)
+        {
+            if(msg.myType == "DESTROYED")
+            {
+                if(thePlayer.comboAmt > 2)
+                {
+                    freezeLockTime += 3 * thePlayer.comboAmt;
+                    if(thePlayer.comboAmt > 4 && thePlayer.comboAmt <= 6)
+                    {
+                        theCamShaker.ShakeCamera();
+                        
+                    }
+                    if(thePlayer.comboAmt > 6)
+                    {
+                        theCamShaker.ShakeCamera(20 + thePlayer.comboAmt * 1.1f, 0.05f * thePlayer.comboAmt);
+                    }
+                }
+                
+            }
+        }
+
+        public void CheckFreezeLock()
+        {
+            if(freezeLockTime > 0 && !freezeLocked)
+            {
+                freezeLocked = true;
+                if (thePlayer.comboAmt > 2)
+                {
+                    SetDarkener(true);
+                }
+                PauseGroupToggle(Global.GROUP_ACTIVEOBJECTS);
+            }
+
+            if(freezeLocked)
+            {
+                if(freezeLockTime > 0)
+                {
+                    freezeLockTime--;
+                }
+                else
+                {
+                    freezeLockTime = 0;
+                    SetDarkener(false);
+                    freezeLocked = false;
+                    PauseGroupToggle(Global.GROUP_ACTIVEOBJECTS);
+                }
+            }
+        }
+
         public void Impulse(params string[] target)
         {
             // Clone of Valve's Impulse command - accepts an integer, will perform a task based on that integer. So I don't need to register more than one command.
@@ -357,9 +433,57 @@ namespace NotSonic
                 {
                     thePlayer.GrossMode = !thePlayer.GrossMode;
                 }
+                if (commandPassed == "4")
+                {
+                    MakeBadniks();
+                }
             }
         }
 
+
+        public void SetDarkener(bool set)
+        {
+            // Set the shader to the darkening shader for all non-active objects in scene.
+            foreach(Entity ent in this.GetEntities<Entity>())
+            {
+                if(ent.Group != Global.GROUP_ACTIVEOBJECTS && ent.Graphic != null)
+                {
+                    if (set)
+                    {
+                        ent.Graphic.Shader = DarkenShader;
+                    }
+                    else
+                    {
+                        ent.Graphic.ClearShader();
+                    }
+                }
+
+            }
+            foreach (Graphic g in GetGraphics())
+            {
+                if (set)
+                {
+                    g.Shader = DarkenShader;
+                }
+                else
+                {
+                    g.ClearShader();
+                }
+
+            }
+
+        }
+
+        private void MakeBadniks()
+        {
+            // DEBUG: CREATE A BADNIK
+            for (int i = 0; i < 16; i++)
+            {
+                BadnikTest newBad = new BadnikTest(500.0f + i * (64), 74.0f);
+                newBad.thePlayer = thePlayer;
+                Add(newBad);
+            }
+        }
 
         public override void Render()
         {

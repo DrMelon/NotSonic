@@ -22,6 +22,7 @@ namespace NotSonic
         {
             // Init internal resolution of 400x240 - 16:9 version of MegaDrive/Genesis spec.
             Global.theGame = new Game("NotSonic", 400, 240, 60, false);
+            Global.eventList = new List<MessageEvent>();
 
             // Render at 720p.
             Global.theGame.SetWindow(1280, 720, false, true);
@@ -48,6 +49,7 @@ namespace NotSonic
             Assets.GenerateAssetNames();
             Global.theGame.FirstScene = new LevelScene(Assets.MAP_TEST);
             Global.theGame.Color = new Color("736763");
+            
 
             // Begin otter!
            

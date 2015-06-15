@@ -103,6 +103,7 @@ namespace NotSonic.Components
         public Sound rollingSound = new Sound(Assets.SND_ROLL);
         public Sound revSound = new Sound(Assets.SND_REV);
         public Sound dashGoSound = new Sound(Assets.SND_DASHGO);
+        public Sound brakeSound = new Sound(Assets.SND_BRAKE);
 
         #region Public Methods
 
@@ -242,6 +243,10 @@ namespace NotSonic.Components
                 //Pushing away from current direction
                 if ((Global.theController.Left.Down && GroundSpeed > 0) || (Global.theController.Right.Down && GroundSpeed < 0))
                 {
+                    if(Braking == false)
+                    {
+                        brakeSound.Play();
+                    }
                     Braking = true;
                 }
                
@@ -1119,10 +1124,10 @@ namespace NotSonic.Components
                     {
                         FacingRight = false;
                     }
-                    if (HLock <= 0.0f)
-                    {
+                 //   if (HLock <= 0.0f)
+                //    {
                         XSpeed -= AirAccel;
-                    }
+                //    }
                 }
                 else if (theController.Right.Down)
                 {
@@ -1130,10 +1135,10 @@ namespace NotSonic.Components
                     {
                         FacingRight = true;
                     }
-                    if (HLock <= 0.0f)
-                    {
+                //    if (HLock <= 0.0f)
+                //    {
                         XSpeed += AirAccel;
-                    }
+                //    }
                 }
 
                 // Air Drag
