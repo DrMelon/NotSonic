@@ -368,6 +368,10 @@ namespace NotSonic
                 if(thePlayer.comboAmt > 2)
                 {
                     freezeLockTime += 3 * thePlayer.comboAmt;
+                    if(freezeLockTime > 30)
+                    {
+                        freezeLockTime = 30;
+                    }
                     if(thePlayer.comboAmt > 4 && thePlayer.comboAmt <= 6)
                     {
                         theCamShaker.ShakeCamera();
