@@ -23,6 +23,8 @@ namespace NotSonic.Entities
         // Chain destruction stuff
         public float comboTime;
         public int comboAmt;
+
+        Sound comboResetSound = new Sound(Assets.SND_WARP);
         
         
         public SonicPlayer(List<NotSonic.Components.Tile> tl, float x = 0, float y = 0)
@@ -45,6 +47,7 @@ namespace NotSonic.Entities
             spriteSheet.Add("roll", new int[] { 13, 14, 13, 15, 13, 16, 13, 17 }, new float[] { 12f });
             spriteSheet.Add("spindash", new int[] { 18, 19, 20, 21, 22, 23 }, new float[] { 6f });
             spriteSheet.Add("brake", new int[] { 24, 25, 26, 27 }, new float[] { 6f });
+            spriteSheet.Add("freezers", new int[] { 28, 29, 30, 31, 32 }, new float[] { 600f });
             spriteSheet.Play("idle");
             Graphic = spriteSheet;
             this.Layer = 18;
@@ -108,14 +111,22 @@ namespace NotSonic.Entities
         {
             base.Update();
             // Update combo timings
-            if(comboTime > 0 && myMovement.CurrentMoveType == NotSonic.Components.SonicMovement.MoveType.GROUND)
+            if(comboTime > 0 && !myMovement.Rolling)
             {
-                comboTime--;
+                comboTime -= 5;
             }
-            if(comboTime <= 0)
+            if(comboTime <= 0 && comboAmt > 0)
             {
+                // Combo reset.
+                // Pick combo reset noise.
+                if(comboAmt > 2)
+                {
+                    comboResetSound.Play();
+                }
+                
                 comboTime = 0;
                 comboAmt = 0;
+
             }
 
 

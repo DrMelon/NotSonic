@@ -367,10 +367,10 @@ namespace NotSonic
             {
                 if(thePlayer.comboAmt > 2)
                 {
-                    freezeLockTime += 3 * thePlayer.comboAmt;
-                    if(freezeLockTime > 30)
+                    freezeLockTime += 2.0f * thePlayer.comboAmt;
+                    if(freezeLockTime > 35)
                     {
-                        freezeLockTime = 30;
+                        freezeLockTime = 35;
                     }
                     if(thePlayer.comboAmt > 4 && thePlayer.comboAmt <= 6)
                     {
@@ -395,6 +395,15 @@ namespace NotSonic
                 {
                     SetDarkener(true);
                     DarkenShader.SetParameter("maxfreeze", freezeLockTime);
+                    // Pick and set an animation for the player to be in.
+                    thePlayer.spriteSheet.Play("freezers");
+                    Range pickRange = new Range(0, 4);
+                    thePlayer.spriteSheet.CurrentFrameIndex = pickRange.RandInt;
+                    thePlayer.spriteSheet.FlippedX = Rand.Bool;
+                    thePlayer.spriteSheet.FlippedY = Rand.Bool;
+                    thePlayer.spriteSheet.Update();
+
+
                 }
                 PauseGroupToggle(Global.GROUP_ACTIVEOBJECTS);
             }

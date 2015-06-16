@@ -104,7 +104,7 @@ namespace NotSonic
                 
                 if(thePlayer.comboAmt > 2)
                 {
-                    OrchHitSound.Pitch = Math.Min(1.0f + ((thePlayer.comboAmt - 3) * 0.1f), 10.0f);
+                    OrchHitSound.Pitch = Math.Min(1.0f + ((thePlayer.comboAmt - 3) * 0.05f), 10.0f);
                     OrchHitSound.Play();
                     float popPitch = 1.0f - (thePlayer.comboAmt * 0.05f);
 
@@ -118,7 +118,6 @@ namespace NotSonic
                     if(thePlayer.comboAmt == 20)
                     {
                         // Play a warp noise
-                        
                         warpSound.Play();
                     }
 
