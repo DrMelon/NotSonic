@@ -17,6 +17,7 @@ namespace NotSonic
         public bool Destroyed = false;
         public Sound OrchHitSound = new Sound(Assets.SND_ORCH);
         public Sound PopSound = new Sound(Assets.SND_POP);
+        Sound warpSound = new Sound(Assets.SND_WARP);
         public DestroyableEntity(float x = 0, float y = 0)
         {
             X = x;
@@ -51,6 +52,7 @@ namespace NotSonic
                     // Add to player combo.
                     thePlayer.comboAmt += 1;
                     thePlayer.comboTime = 60.0f;
+                    thePlayer.myMovement.CanAirdash = true;
 
                     GetDestroyed();
                     MessageEvent msg = new MessageEvent();
@@ -60,28 +62,31 @@ namespace NotSonic
 
 
 
-                    // Rebound!
-                    if(thePlayer.Y > Y || thePlayer.myMovement.YSpeed < 0)
+                    // Rebound! (Dont want to rebound if we're rolling down a hill)
+                    if(thePlayer.myMovement.CurrentMoveType == NotSonic.Components.SonicMovement.MoveType.AIR)
                     {
-                        thePlayer.myMovement.YSpeed -= 1.0f * (float)Math.Sign(thePlayer.myMovement.YSpeed);
-                    }
-                    else if(thePlayer.Y < Y && thePlayer.myMovement.YSpeed > 0)
-                    {
-                        if(Global.theController.A.Down || Global.theController.B.Down || Global.theController.C.Down)
+                        if (thePlayer.Y > Y || thePlayer.myMovement.YSpeed < 0)
                         {
-                            thePlayer.myMovement.YSpeed *= -1;
+                            thePlayer.myMovement.YSpeed -= 1.0f * (float)Math.Sign(thePlayer.myMovement.YSpeed);
                         }
-                        else
+                        else if (thePlayer.Y < Y && thePlayer.myMovement.YSpeed > 0)
                         {
-                            thePlayer.myMovement.YSpeed *= Math.Max(-1.0f, thePlayer.myMovement.YSpeed * -1.0f);
+                            if (Global.theController.A.Down || Global.theController.B.Down || Global.theController.C.Down)
+                            {
+                                thePlayer.myMovement.YSpeed *= -1;
+                            }
+                            else
+                            {
+                                thePlayer.myMovement.YSpeed *= Math.Max(-1.0f, thePlayer.myMovement.YSpeed * -1.0f);
+                            }
                         }
                     }
 
                     // Accelerate!!
                     if(thePlayer.comboAmt > 5)
                     {
-                        thePlayer.myMovement.XSpeed *= (1.0f + 0.06f*thePlayer.comboAmt);
-                        thePlayer.myMovement.YSpeed *= (1.0f + 0.02f * thePlayer.comboAmt);
+                        thePlayer.myMovement.XSpeed *= (1.0f + 0.005f * thePlayer.comboAmt);
+                        thePlayer.myMovement.YSpeed *= (1.0f + 0.002f * thePlayer.comboAmt);
                     }
                 }
 
@@ -101,8 +106,22 @@ namespace NotSonic
                 {
                     OrchHitSound.Pitch = Math.Min(1.0f + ((thePlayer.comboAmt - 3) * 0.1f), 10.0f);
                     OrchHitSound.Play();
+                    float popPitch = 1.0f - (thePlayer.comboAmt * 0.05f);
+
+                    if (popPitch < 0.1f)
+                    {
+                        popPitch = 0.1f;
+                    }
+                    PopSound.Pitch = popPitch;
                     PopSound.Play();
-                    PopSound.Pitch = 1.0f - (thePlayer.comboAmt * 0.05f);
+
+                    if(thePlayer.comboAmt == 20)
+                    {
+                        // Play a warp noise
+                        
+                        warpSound.Play();
+                    }
+
                 }
                 else
                 {

@@ -304,6 +304,8 @@ namespace NotSonic
             LUTShade.SetParameter("belowwater", (CameraCenterY + 120.0f) / 240.0f);
             LUTShade.SetParameter("cutoff", waterLevel / 240.0f);
             LUTShade.SetParameter("time", Global.theGame.Timer);
+            DarkenShader.SetParameter("freezetime", freezeLockTime);
+            DarkenShader.SetParameter("comboamt", thePlayer.comboAmt);
        
 
         }
@@ -388,6 +390,7 @@ namespace NotSonic
                 if (thePlayer.comboAmt > 2)
                 {
                     SetDarkener(true);
+                    DarkenShader.SetParameter("maxfreeze", freezeLockTime);
                 }
                 PauseGroupToggle(Global.GROUP_ACTIVEOBJECTS);
             }
@@ -477,9 +480,9 @@ namespace NotSonic
         private void MakeBadniks()
         {
             // DEBUG: CREATE A BADNIK
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < 32; i++)
             {
-                BadnikTest newBad = new BadnikTest(500.0f + i * (64), 74.0f);
+                BadnikTest newBad = new BadnikTest(100.0f + i * (32), 96.0f);
                 newBad.thePlayer = thePlayer;
                 Add(newBad);
             }

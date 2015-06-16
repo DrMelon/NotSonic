@@ -38,6 +38,8 @@ namespace NotSonic
         public const string SND_ORCH = "../../Assets/SND/orch2.wav";
         public const string SND_POP = "../../Assets/SND/pop.wav";
         public const string SND_BRAKE = "../../Assets/SND/brake.wav";
+        public const string SND_EXPLODE = "../../Assets/SND/explode.wav";
+        public const string SND_WARP = "../../Assets/SND/warp.wav";
 
         public const string MUS_MUSH = "../../Assets/MUS/mush.ogg";
 
