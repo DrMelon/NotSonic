@@ -20,6 +20,7 @@ namespace NotSonic
             CollisionWidth = Graphic.HalfWidth;
             CollisionHeight = Graphic.HalfHeight;
             Group = Global.GROUP_ACTIVEOBJECTS;
+            
         }
 
         public override void Update()

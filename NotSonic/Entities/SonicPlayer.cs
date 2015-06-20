@@ -119,8 +119,19 @@ namespace NotSonic.Entities
             {
                 // Combo reset.
                 // Pick combo reset noise.
-                if(comboAmt > 2)
+                if(comboAmt > 2 && comboAmt < 5)
                 {
+                    comboResetSound = new Sound(Assets.SND_VO_EXCELLENT);
+                    comboResetSound.Play();
+                }
+                if (comboAmt >= 5 && comboAmt < 10)
+                {
+                    comboResetSound = new Sound(Assets.SND_VO_IMPRESSIVE);
+                    comboResetSound.Play();
+                }
+                if (comboAmt >= 10)
+                {
+                    comboResetSound = new Sound(Assets.SND_VO_BLUESTREAK);
                     comboResetSound.Play();
                 }
                 

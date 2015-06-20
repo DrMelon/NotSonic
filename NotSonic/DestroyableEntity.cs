@@ -15,6 +15,8 @@ namespace NotSonic
         public float CollisionWidth = 0;
         public float CollisionHeight = 0;
         public bool Destroyed = false;
+        public bool FinishedDestroy = false;
+        public float DestroyTime = 0;
         public Sound OrchHitSound = new Sound(Assets.SND_ORCH);
         public Sound PopSound = new Sound(Assets.SND_POP);
         Sound warpSound = new Sound(Assets.SND_WARP);
@@ -41,6 +43,34 @@ namespace NotSonic
             }
         }
 
+        public override void UpdateLast()
+        {
+            base.UpdateLast();
+            if(Destroyed && !FinishedDestroy && DestroyTime < 1)
+            {
+                if (Graphic != null)
+                {
+                    Graphic.Shader = Global.paleShader;
+                }
+                DestroyTime += 1;
+                Layer = 21;
+                return;
+            }
+            if(DestroyTime > 0 && !FinishedDestroy)
+            {
+                GetDestroyed();
+                FinishedDestroy = true;
+                return;
+            }
+
+            if(FinishedDestroy)
+            {
+                RemoveSelf();
+            }
+
+            
+        }
+
         void CheckForPlayer()
         {
             // Check for a collision w/ this player.
@@ -54,7 +84,7 @@ namespace NotSonic
                     thePlayer.comboTime = 60.0f;
                     thePlayer.myMovement.CanAirdash = true;
 
-                    GetDestroyed();
+                    
                     MessageEvent msg = new MessageEvent();
                     msg.myType = "DESTROYED";
                     Global.eventList.Add(msg);

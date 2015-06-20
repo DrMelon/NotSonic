@@ -27,7 +27,9 @@ namespace NotSonic
         public const string PARA_TREES_2 = "../../Assets/GFX/Parallax/Mush_Trees_2.png";
 
         public const string LUTSHADER = "../../Assets/GLSL/lutshader.frag";
+        //public const string LUTSHADER = "../../Assets/GLSL/dither.frag";
         public const string DARKSHADER = "../../Assets/GLSL/dark.frag";
+        public const string PALESHADER = "../../Assets/GLSL/pale.frag";
         public const string LUTIMAGE = "../../Assets/GLSL/lut_b.png";
 
         public const string SND_JUMP = "../../Assets/SND/jump.wav";
@@ -40,6 +42,9 @@ namespace NotSonic
         public const string SND_BRAKE = "../../Assets/SND/brake.wav";
         public const string SND_EXPLODE = "../../Assets/SND/explode.wav";
         public const string SND_WARP = "../../Assets/SND/warp.wav";
+        public const string SND_VO_IMPRESSIVE = "../../Assets/SND/announcer/impressive.wav";
+        public const string SND_VO_BLUESTREAK = "../../Assets/SND/announcer/bluestreak.wav";
+        public const string SND_VO_EXCELLENT = "../../Assets/SND/announcer/excellent.wav";
 
         public const string MUS_MUSH = "../../Assets/MUS/mush.ogg";
 

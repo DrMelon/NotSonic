@@ -77,8 +77,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Assets\GLSL\dark.frag" />
     <None Include="Assets\GLSL\lutshader.frag" />
+    <None Include="Assets\GLSL\pale.frag" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Otter2D\Otter2D\Otter\Otter.csproj">
