@@ -283,33 +283,32 @@ namespace NotSonic.Components
 
         private void ChangeFloorMode()
         {
-
-            // Change which mode we're on
-            if((Angle > 315 || Angle < 45) && CurrentFloorMode != FloorMode.FLOOR && Angle != 0)
+            if(Math.Abs(GroundSpeed) >= 2.5)
             {
-                // Now in Floor Mode
-                CurrentFloorMode = FloorMode.FLOOR;
-            }
-            else if ((Angle > 45 && Angle < 135) && CurrentFloorMode != FloorMode.RIGHTWALL)
-            {
-                // Now in Floor Mode
-                CurrentFloorMode = FloorMode.RIGHTWALL;
+                // Change which mode we're on
+                if((Angle > 315 || Angle < 45) && CurrentFloorMode != FloorMode.FLOOR && Angle != 0)
+                {
+                    // Now in Floor Mode
+                    CurrentFloorMode = FloorMode.FLOOR;
+                }
+                else if ((Angle > 45 && Angle < 135) && CurrentFloorMode != FloorMode.RIGHTWALL)
+                {
+                    // Now in Floor Mode
+                    CurrentFloorMode = FloorMode.RIGHTWALL;
 
-            }
-            else if ((Angle > 135 && Angle < 225) && CurrentFloorMode != FloorMode.CEILING)
-            {
-                // Now in Floor Mode
-                CurrentFloorMode = FloorMode.CEILING;
+                }
+                else if ((Angle > 135 && Angle < 225) && CurrentFloorMode != FloorMode.CEILING)
+                {
+                    // Now in Floor Mode
+                    CurrentFloorMode = FloorMode.CEILING;
 
+                }
+                else if ((Angle > 225 && Angle < 315) && CurrentFloorMode != FloorMode.LEFTWALL)
+                {
+                    // Now in Floor Mode
+                    CurrentFloorMode = FloorMode.LEFTWALL;
+                }
             }
-            else if ((Angle > 225 && Angle < 315) && CurrentFloorMode != FloorMode.LEFTWALL)
-            {
-                // Now in Floor Mode
-                CurrentFloorMode = FloorMode.LEFTWALL;
-
-
-            }
-            
 
 
         }
@@ -388,15 +387,11 @@ namespace NotSonic.Components
             // Handle input
             HandleInput();
 
-
-
-
-
-
-            CheckWallSensor();
-
             // Check heights
             UpdateObjectHeight();
+
+            // Check walls
+            CheckWallSensor();
 
             // Check sensors for solid ground:
             CheckGroundSensors();
@@ -534,14 +529,19 @@ namespace NotSonic.Components
             // Check for tiles that are at the sides of sonic, relative to Y+4.
             wallSensor.APos = YPos + 4;
 
+
             // Left and Right edges are at +-10 on the X axis.
             wallSensor.BPos1 = XPos - 10;
             wallSensor.BPos2 = XPos + 10;
+     
+            
+            
 
             
 
             Sensor.CollisionInfo colInfo = wallSensor.Sense(TileList, 1);
-            if (!colInfo.thisIsNull && (colInfo.tileHit.myType == 1 || colInfo.tileHit.myType == 21 || colInfo.tileHit.myType == 41 || colInfo.tileHit.myType == 61))
+
+            if (!colInfo.thisIsNull && (colInfo.tileHit.myType == 411 || colInfo.tileHit.myType == 412 || colInfo.tileHit.myType == 413 || colInfo.tileHit.myType == 414) )
             {
                 // Collision, cap'n!
                 // Now, if the collision is on the left of sonic...
@@ -1256,6 +1256,7 @@ namespace NotSonic.Components
                 {
                     senseMode = 3;
                 }
+                senseMode = 2;
                 Sensor.CollisionInfo colInfoA = ceilingSensorC.Sense(TileList, senseMode);
                 Sensor.CollisionInfo colInfoB = ceilingSensorD.Sense(TileList, senseMode);
 
@@ -1312,7 +1313,7 @@ namespace NotSonic.Components
                     if(YPos - 20 < sensorATile.Y + heightOfA)
                     {
                         YPos = sensorATile.Y + heightOfA + CurrentHeight + 1;
-                        if (sensorATile.myTileInfo.Angle > 135 && sensorATile.myTileInfo.Angle < 225)
+                        if ((sensorATile.myTileInfo.Angle >= 90 && sensorATile.myTileInfo.Angle <= 135) || (sensorATile.myTileInfo.Angle >= 225 && sensorATile.myTileInfo.Angle <= 270))
                         {
                             Angle = sensorATile.myTileInfo.Angle;
                             CurrentFloorMode = FloorMode.CEILING;
@@ -1331,7 +1332,7 @@ namespace NotSonic.Components
                     if(YPos - 20 < sensorBTile.Y + heightOfB)
                     {
                         YPos = sensorBTile.Y + heightOfB + CurrentHeight + 1;
-                        if (sensorBTile.myTileInfo.Angle > 135 && sensorBTile.myTileInfo.Angle < 225)
+                        if ((sensorBTile.myTileInfo.Angle >= 90 && sensorBTile.myTileInfo.Angle <= 135) || (sensorBTile.myTileInfo.Angle >= 225 && sensorBTile.myTileInfo.Angle <= 270))
                         {
                             Angle = sensorBTile.myTileInfo.Angle;
                             CurrentFloorMode = FloorMode.CEILING;

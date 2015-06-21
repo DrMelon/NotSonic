@@ -54,8 +54,8 @@ namespace NotSonic
 
         public static void GenerateHeightMap()
         {
-            // Read all 400 tiles.
-            for(int i = 0; i < 400; i++)
+            // Read all tiles.
+            for(int i = 0; i < 755; i++)
             {
                 HeightArraysList.Add(ReadTile(i));
             }
