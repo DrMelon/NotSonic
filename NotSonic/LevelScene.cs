@@ -44,6 +44,10 @@ namespace NotSonic
         bool hasWater = true;
         float waterLevel = 480.0f;
 
+        // Slomo for testing
+        bool sloMo = false;
+
+
 
         // Shader fun
         Shader LUTShade = new Shader(ShaderType.Fragment, Assets.LUTSHADER);
@@ -211,6 +215,16 @@ namespace NotSonic
             ProcessMessages();
             // Check freezelock
             CheckFreezeLock();
+            // Check Slomo
+            if(sloMo)
+            {
+                Game.TargetFramerate = 10;
+            }
+            else
+            {
+                Game.TargetFramerate = 60;
+            }
+
 
             if(thePlayer.myMovement.YPos > Global.maxlvlheight)
             {
@@ -451,9 +465,13 @@ namespace NotSonic
                 {
                     thePlayer.GrossMode = !thePlayer.GrossMode;
                 }
-                if (commandPassed == "4")
+                if(commandPassed == "4")
                 {
                     MakeBadniks();
+                }
+                if(commandPassed == "5")
+                {
+                    
                 }
             }
         }

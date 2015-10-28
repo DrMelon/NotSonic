@@ -48,7 +48,7 @@ namespace NotSonic
 
             Assets.GenerateAssetNames();
             Global.theGame.FirstScene = new LevelScene(Assets.MAP_TEST);
-            Global.theGame.Color = new Color("736763");
+            Global.theGame.Color = new Color("5D516E");
             
 
             // Begin otter!

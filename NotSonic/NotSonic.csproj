@@ -81,7 +81,7 @@
     <None Include="Assets\GLSL\pale.frag" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Otter2D\Otter2D\Otter\Otter.csproj">
+    <ProjectReference Include="..\..\..\Otter\Otter\Otter.csproj">
       <Project>{236485c2-a7ba-4dcd-808a-b3a634764402}</Project>
       <Name>Otter</Name>
     </ProjectReference>
