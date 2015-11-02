@@ -25,7 +25,7 @@ namespace NotSonic
             Global.eventList = new List<MessageEvent>();
 
             // Render at 720p.
-            Global.theGame.SetWindow(1280, 720, false, true);
+            Global.theGame.SetWindowScale(2);
 
             // Initialize player controls.
             Global.playerSession = Global.theGame.AddSession("PlayerControls");

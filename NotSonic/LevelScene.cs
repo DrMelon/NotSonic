@@ -48,6 +48,9 @@ namespace NotSonic
         bool sloMo = false;
 
 
+        // Ring Count
+        public int Rings = 0;
+
 
         // Shader fun
         Shader LUTShade = new Shader(ShaderType.Fragment, Assets.LUTSHADER);
@@ -116,7 +119,7 @@ namespace NotSonic
             Add(theCamShaker);
 
 
-            MakeBadniks();
+            //MakeBadniks();
 
 
 
@@ -215,7 +218,8 @@ namespace NotSonic
             ProcessMessages();
             // Check freezelock
             CheckFreezeLock();
-            Util.Log(sloMo);
+            
+            // Check slomo
             if(sloMo && Math.Floor(Game.Timer) % 2 == 0)
             {
                 freezeLocked = true;
@@ -334,6 +338,11 @@ namespace NotSonic
                     {
                         thePlayer = new Entities.SonicPlayer(tileList, (float)tmObj.X, (float)tmObj.Y);
                     }
+                    if(tmObj.Name == "Ring")
+                    {
+                        Ring newRing = new Ring((float)tmObj.X, (float)tmObj.Y);
+                        Add(newRing); 
+                    }
                 }
             }
         }
@@ -395,6 +404,13 @@ namespace NotSonic
                     }
                 }
                 
+            }
+
+            if(msg.myType == "ring_collect")
+            {
+                int ringAdd = 0;
+                int.TryParse(msg.infoString, out ringAdd);
+                Rings += ringAdd;
             }
         }
 

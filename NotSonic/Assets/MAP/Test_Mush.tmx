@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" nextobjectid="4">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" nextobjectid="17">
  <properties>
   <property name="MapName" value="Mushroom Soup Zone"/>
   <property name="WaterLevel" value="480"/>
@@ -4071,5 +4071,17 @@
  </layer>
  <objectgroup name="Objects">
   <object id="1" name="SonicStart" x="387" y="65" width="40" height="40"/>
+  <object id="4" name="Ring" x="760" y="160" width="16" height="16"/>
+  <object id="6" name="Ring" x="820" y="160" width="16" height="16"/>
+  <object id="7" name="Ring" x="790" y="160" width="16" height="16"/>
+  <object id="8" name="Ring" x="296.667" y="222" width="16" height="16"/>
+  <object id="9" name="Ring" x="266.667" y="222" width="16" height="16"/>
+  <object id="10" name="Ring" x="236.667" y="222" width="16" height="16"/>
+  <object id="11" name="Ring" x="352" y="86.6667" width="16" height="16"/>
+  <object id="12" name="Ring" x="322" y="86.6667" width="16" height="16"/>
+  <object id="13" name="Ring" x="292" y="86.6667" width="16" height="16"/>
+  <object id="14" name="Ring" x="89.5" y="325.917" width="16" height="16"/>
+  <object id="15" name="Ring" x="89.25" y="304.667" width="16" height="16"/>
+  <object id="16" name="Ring" x="89.3333" y="283.333" width="16" height="16"/>
  </objectgroup>
 </map>
