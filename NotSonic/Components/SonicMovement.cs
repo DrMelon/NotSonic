@@ -85,6 +85,8 @@ namespace NotSonic.Components
         // Can megamix airdash?
         public bool CanAirdash = true;
 
+        // Should we ignore the floor? 
+        public bool IgnoreFloor = false;
 
         // Debug view on?
         public bool DebugView = false;
@@ -497,29 +499,9 @@ namespace NotSonic.Components
         public void Jump()
         {
             // When sonic jumps, we need to make sure we jump perpendicular to the angle of travel.
-            if(Angle == 0 && CurrentFloorMode != FloorMode.FLOOR)
-            {
-                if (CurrentFloorMode == FloorMode.RIGHTWALL)
-                {
-                    XSpeed -= JumpVelocity * (float)Math.Sin((90) * Math.PI / 180.0f);
-                    YSpeed -= JumpVelocity * (float)Math.Cos((90) * Math.PI / 180.0f);
-                }
-                if (CurrentFloorMode == FloorMode.LEFTWALL)
-                {
-                    XSpeed -= JumpVelocity * (float)Math.Sin((270) * Math.PI / 180.0f);
-                    YSpeed -= JumpVelocity * (float)Math.Cos((270) * Math.PI / 180.0f);
-                }
-                if(CurrentFloorMode == FloorMode.CEILING)
-                {
-                    XSpeed -= JumpVelocity * (float)Math.Sin((180) * Math.PI / 180.0f);
-                    YSpeed -= JumpVelocity * (float)Math.Cos((180) * Math.PI / 180.0f);
-                }
-            }
-            else
-            {
-                XSpeed -= JumpVelocity * (float)Math.Sin(Angle * Math.PI / 180.0f);
-                YSpeed -= JumpVelocity * (float)Math.Cos(Angle * Math.PI / 180.0f);
-            }
+            XSpeed -= JumpVelocity * (float)Math.Sin(Angle * Math.PI / 180.0f);
+            YSpeed -= JumpVelocity * (float)Math.Cos(Angle * Math.PI / 180.0f);
+            
 
 
 
@@ -611,7 +593,10 @@ namespace NotSonic.Components
 
         public void CheckGroundSensors()
         {
-            
+            if(IgnoreFloor)
+            {
+                return;
+            }
 
 
             // Check Mode.
@@ -1097,6 +1082,7 @@ namespace NotSonic.Components
                         Jump();
                         // Voluntary jumps = rolling state...
                         Rolling = true;
+                        
                     }
                 }
 
@@ -1325,12 +1311,13 @@ namespace NotSonic.Components
                     if(YPos - 20 < sensorATile.Y + heightOfA)
                     {
                         YPos = sensorATile.Y + heightOfA + CurrentHeight + 1;
-                        if ((sensorATile.myTileInfo.Angle >= 90 && sensorATile.myTileInfo.Angle <= 135) || (sensorATile.myTileInfo.Angle >= 225 && sensorATile.myTileInfo.Angle <= 270))
+                        if (((sensorATile.myTileInfo.Angle >= 90 && sensorATile.myTileInfo.Angle <= 135) || (sensorATile.myTileInfo.Angle >= 225 && sensorATile.myTileInfo.Angle <= 270)))
                         {
                             Angle = sensorATile.myTileInfo.Angle;
                             CurrentFloorMode = FloorMode.CEILING;
                             Jumping = false;
                             CurrentMoveType = MoveType.GROUND;
+                            GroundSpeed = YSpeed * -Math.Sign(Math.Cos(Angle));
                         }
                         else
                         {
@@ -1344,12 +1331,13 @@ namespace NotSonic.Components
                     if(YPos - 20 < sensorBTile.Y + heightOfB)
                     {
                         YPos = sensorBTile.Y + heightOfB + CurrentHeight + 1;
-                        if ((sensorBTile.myTileInfo.Angle >= 90 && sensorBTile.myTileInfo.Angle <= 135) || (sensorBTile.myTileInfo.Angle >= 225 && sensorBTile.myTileInfo.Angle <= 270))
+                        if (((sensorBTile.myTileInfo.Angle >= 90 && sensorBTile.myTileInfo.Angle <= 135) || (sensorBTile.myTileInfo.Angle >= 225 && sensorBTile.myTileInfo.Angle <= 270)))
                         {
                             Angle = sensorBTile.myTileInfo.Angle;
                             CurrentFloorMode = FloorMode.CEILING;
                             Jumping = false;
                             CurrentMoveType = MoveType.GROUND;
+                            GroundSpeed = YSpeed * -Math.Sign(Math.Cos(Angle));
                         }
                         else
                         {

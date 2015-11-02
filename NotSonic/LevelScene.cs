@@ -215,16 +215,12 @@ namespace NotSonic
             ProcessMessages();
             // Check freezelock
             CheckFreezeLock();
-            // Check Slomo
-            if(sloMo)
+            Util.Log(sloMo);
+            if(sloMo && Math.Floor(Game.Timer) % 2 == 0)
             {
-                Game.TargetFramerate = 10;
+                freezeLocked = true;
+                freezeLockTime = 1;
             }
-            else
-            {
-                Game.TargetFramerate = 60;
-            }
-
 
             if(thePlayer.myMovement.YPos > Global.maxlvlheight)
             {
@@ -406,6 +402,7 @@ namespace NotSonic
         {
             if(freezeLockTime > 0 && !freezeLocked)
             {
+                
                 freezeLocked = true;
                 if (thePlayer.comboAmt > 2)
                 {
@@ -471,8 +468,30 @@ namespace NotSonic
                 }
                 if(commandPassed == "5")
                 {
+                    sloMo = !sloMo;
+                }
+                if(commandPassed == "6")
+                {
+                    // record
+                    Global.playerSession.Controller.Record();
+                }
+                if (commandPassed == "7")
+                {
+                    // save record
+                    Global.playerSession.Controller.SaveRecording("plyrec.log");
+                }
+                if (commandPassed == "8")
+                {
+                    // play 
+                    Global.playerSession.Controller.PlaybackFile("plyrec.log");
                     
                 }
+                if(commandPassed == "100")
+                {
+                    //Reset
+                    Global.theGame.SwitchScene(new LevelScene(Assets.MAP_TEST));
+                }
+
             }
         }
 
