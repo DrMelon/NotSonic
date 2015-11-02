@@ -333,7 +333,7 @@ namespace NotSonic
                 for (int j = 0; j < tmxMapData.ObjectGroups[i].Objects.Count; j++)
                 {
                     // Process current object
-                    TmxObjectGroup.TmxObject tmObj = tmxMapData.ObjectGroups[i].Objects[j];
+                    TmxObject tmObj = tmxMapData.ObjectGroups[i].Objects[j];
                     if(tmObj.Name == "SonicStart")
                     {
                         thePlayer = new Entities.SonicPlayer(tileList, (float)tmObj.X, (float)tmObj.Y);

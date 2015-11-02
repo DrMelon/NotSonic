@@ -333,19 +333,27 @@ namespace NotSonic.Components
         private void CheckWallModeSpeed()
         {
             // Check speed for wall mode.
-            if (Math.Abs(GroundSpeed) < 2.5 && CurrentFloorMode != FloorMode.FLOOR)
+            if (Math.Abs(GroundSpeed) < 2.5 && (Angle > 60 && Angle < 360-60 ))
             {
                 // We slipped off!
                 if (CurrentFloorMode == FloorMode.CEILING)
                 {
                     GroundSpeed = XSpeed;
+                    
                 }
-                CurrentFloorMode = FloorMode.FLOOR;
-                CurrentMoveType = MoveType.AIR;
+
+                if (CurrentFloorMode != FloorMode.FLOOR)
+                {
+                    CurrentFloorMode = FloorMode.FLOOR;
+                    CurrentMoveType = MoveType.AIR;
+                    Angle = 0;
+                }
                 
                 // Lock controls, prevent further movement for half a second.
                 HLock = 30.0f;
             }
+
+            
         }
 
         private void FloorModeWhenFalling()
@@ -393,14 +401,22 @@ namespace NotSonic.Components
             // Check walls
             CheckWallSensor();
 
+            // Make sure to fall off if wall mode speed is too slow
+            CheckWallModeSpeed();
+
+            if(CurrentMoveType == MoveType.AIR)
+            {
+                // Check ceiling sensors
+                CheckCeilingSensors();
+            }
+
             // Check sensors for solid ground:
             CheckGroundSensors();
 
             // Check and change floor mode
             ChangeFloorMode();
 
-            // Make sure to fall off if wall mode speed is too slow
-            CheckWallModeSpeed();
+
 
 
 
@@ -419,11 +435,7 @@ namespace NotSonic.Components
        
 
             }
-            else
-            {
-                // Check ceiling sensors
-                CheckCeilingSensors();
-            }
+
 
             // Spindash tick
             AtrophySpindashStrength();
@@ -527,7 +539,7 @@ namespace NotSonic.Components
             //return;
             
             // Check for tiles that are at the sides of sonic, relative to Y+4.
-            wallSensor.APos = YPos + 4;
+            wallSensor.APos = YPos + 0;
 
 
             // Left and Right edges are at +-10 on the X axis.
