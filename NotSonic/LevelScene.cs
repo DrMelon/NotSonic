@@ -478,12 +478,12 @@ namespace NotSonic
                 if (commandPassed == "7")
                 {
                     // save record
-                    Global.playerSession.Controller.SaveRecording("plyrec.log");
+                    Global.playerSession.Controller.SaveRecording("./plyrec.log");
                 }
                 if (commandPassed == "8")
                 {
                     // play 
-                    Global.playerSession.Controller.PlaybackFile("plyrec.log");
+                    Global.playerSession.Controller.PlaybackFile("./plyrec.log");
                     
                 }
                 if(commandPassed == "100")

@@ -521,7 +521,7 @@ namespace NotSonic.Components
             //return;
             
             // Check for tiles that are at the sides of sonic, relative to Y+4.
-            wallSensor.APos = YPos + 0;
+            wallSensor.APos = YPos + 1;
 
 
             // Left and Right edges are at +-10 on the X axis.
