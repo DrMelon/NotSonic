@@ -44,6 +44,7 @@ namespace NotSonic
         public const string SND_BRAKE = "../../Assets/SND/brake.wav";
         public const string SND_EXPLODE = "../../Assets/SND/explode.wav";
         public const string SND_WARP = "../../Assets/SND/warp.wav";
+        public const string SND_RING = "../../Assets/SND/ring.wav";
         public const string SND_VO_IMPRESSIVE = "../../Assets/SND/announcer/impressive.wav";
         public const string SND_VO_BLUESTREAK = "../../Assets/SND/announcer/bluestreak.wav";
         public const string SND_VO_EXCELLENT = "../../Assets/SND/announcer/excellent.wav";

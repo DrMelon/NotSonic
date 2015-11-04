@@ -430,6 +430,9 @@ namespace NotSonic
                 int ringAdd = 0;
                 int.TryParse(msg.infoString, out ringAdd);
                 Rings += ringAdd;
+                Sound ringSound = new Sound(Assets.SND_RING, false);
+                ringSound.Play();
+
             }
         }
 
