@@ -415,14 +415,13 @@ namespace NotSonic.Components
             // Check sensors for solid ground:
             CheckGroundSensors();
 
+            
+                           
+
             // Check and change floor mode
             ChangeFloorMode();
 
-
-
-
-
-
+            
             // Ground Stuff
             if (CurrentMoveType != MoveType.AIR)
             {
@@ -431,11 +430,7 @@ namespace NotSonic.Components
 
                 // Do Speed check
                 CalculateSpeedFromGroundSpeed();
-
-
-
-       
-
+                
             }
 
 
@@ -1229,7 +1224,7 @@ namespace NotSonic.Components
             ceilingSensorD.verticalSensor = true;
             ceilingSensorD.keepCheck = true;
             
-            if(YSpeed < 0)
+            if(YSpeed <= 0)
             {
                 // The tiles that will be located.
                 Tile sensorATile = null;
@@ -1311,18 +1306,23 @@ namespace NotSonic.Components
                     if(YPos - 20 < sensorATile.Y + heightOfA)
                     {
                         YPos = sensorATile.Y + heightOfA + CurrentHeight + 1;
-                        if (((sensorATile.myTileInfo.Angle >= 90 && sensorATile.myTileInfo.Angle <= 135) || (sensorATile.myTileInfo.Angle >= 225 && sensorATile.myTileInfo.Angle <= 270)))
+                        if (((sensorATile.myTileInfo.Angle > 90 && sensorATile.myTileInfo.Angle < 135) || (sensorATile.myTileInfo.Angle > 225 && sensorATile.myTileInfo.Angle < 270)))
                         {
+                            //re-attach
+                            YPos += 2;
                             Angle = sensorATile.myTileInfo.Angle;
                             CurrentFloorMode = FloorMode.CEILING;
                             Jumping = false;
                             CurrentMoveType = MoveType.GROUND;
-                            GroundSpeed = YSpeed * -Math.Sign(Math.Cos(Angle));
+                            GroundSpeed = YSpeed * Math.Sign(Math.Cos(Angle));
+                            YSpeed = 0;
                         }
                         else
                         {
+                            YPos += 2;
                             YSpeed = 0;
                             Jumping = false;
+                         
                         }
                     }
                 }
@@ -1331,18 +1331,25 @@ namespace NotSonic.Components
                     if(YPos - 20 < sensorBTile.Y + heightOfB)
                     {
                         YPos = sensorBTile.Y + heightOfB + CurrentHeight + 1;
-                        if (((sensorBTile.myTileInfo.Angle >= 90 && sensorBTile.myTileInfo.Angle <= 135) || (sensorBTile.myTileInfo.Angle >= 225 && sensorBTile.myTileInfo.Angle <= 270)))
+                        if (((sensorBTile.myTileInfo.Angle > 90 && sensorBTile.myTileInfo.Angle < 135) || (sensorBTile.myTileInfo.Angle > 225 && sensorBTile.myTileInfo.Angle < 270)))
                         {
+                            //re-attach
+
+                            YPos += 2;
                             Angle = sensorBTile.myTileInfo.Angle;
                             CurrentFloorMode = FloorMode.CEILING;
                             Jumping = false;
                             CurrentMoveType = MoveType.GROUND;
-                            GroundSpeed = YSpeed * -Math.Sign(Math.Cos(Angle));
+                            GroundSpeed = YSpeed * Math.Sign(Math.Cos(Angle));
+                            YSpeed = 0;
                         }
                         else
                         {
+                            YPos += 2;
+                            //fall
                             YSpeed = 0;
                             Jumping = false;
+                            
                         }
                     }
                 }

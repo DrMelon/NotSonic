@@ -490,6 +490,8 @@ namespace NotSonic
                 {
                     // record
                     Global.playerSession.Controller.Record();
+                    
+                    
                 }
                 if (commandPassed == "7")
                 {

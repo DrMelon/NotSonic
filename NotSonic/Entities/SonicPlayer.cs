@@ -185,7 +185,7 @@ namespace NotSonic.Entities
                 Graphic.Angle = myMovement.Angle;
             }
 
-            if(myMovement.Rolling)
+            if (myMovement.Rolling)
             {
                 spriteSheet.Play("roll");
                 for (int i = 0; i < 8; i++)
@@ -193,7 +193,7 @@ namespace NotSonic.Entities
                     spriteSheet.Anims["roll"].FrameDelays[i] = Math.Max(5 - Math.Abs(myMovement.GroundSpeed), 1);
 
                 }
-                    
+
                 Graphic.Angle = 0;
                 //Graphic.OriginY = 15;
 
@@ -219,12 +219,12 @@ namespace NotSonic.Entities
                 }
                 if (spriteSheet.Anims["brake"].CurrentFrameIndex == spriteSheet.Anims["brake"].FrameCount - 1)
                 {
-                    flipReady = true;    
+                    flipReady = true;
                 }
 
 
             }
-            else if (Math.Abs(myMovement.GroundSpeed) < 0.01)
+            else if (Math.Abs(myMovement.GroundSpeed) < 0.01 && Math.Abs(myMovement.YSpeed) < 0.3)
             {
                 spriteSheet.Play("idle");
                 
