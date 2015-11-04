@@ -103,6 +103,25 @@ namespace NotSonic
             para_Far.Y = tmxMapData.ImageLayers["ParaFar"].Y;
             AddGraphic(para_Far);
 
+            Image para_Mid2 = new Image(Assets.GetAsset(tmxMapData.ImageLayers["ParaNear"].Properties["EngineName"]));
+            para_Mid2.RepeatX = true;
+            para_Mid2.ScrollY = tmxMapData.ImageLayers["ParaNear"].Properties.ValueAsFloat("ScrollY") * 0.6f;
+            para_Mid2.ScrollX = tmxMapData.ImageLayers["ParaNear"].Properties.ValueAsFloat("ScrollX") * 0.6f;
+            para_Mid2.Scale = 0.6f;
+            para_Mid2.Color = Color.Gray * 0.5f;
+            para_Mid2.Y = tmxMapData.ImageLayers["ParaNear"].Y + 120.0f;
+            AddGraphic(para_Mid2);
+
+            Image para_Mid = new Image(Assets.GetAsset(tmxMapData.ImageLayers["ParaNear"].Properties["EngineName"]));
+            para_Mid.RepeatX = true;
+            para_Mid.ScrollY = tmxMapData.ImageLayers["ParaNear"].Properties.ValueAsFloat("ScrollY") * 0.8f;
+            para_Mid.ScrollX = tmxMapData.ImageLayers["ParaNear"].Properties.ValueAsFloat("ScrollX") * 0.8f;
+            para_Mid.Scale = 0.8f;
+            
+            para_Mid.Color = Color.Gray;
+            para_Mid.Y = tmxMapData.ImageLayers["ParaNear"].Y + 64.0f;
+            AddGraphic(para_Mid);
+
             Image para_Close = new Image(Assets.GetAsset(tmxMapData.ImageLayers["ParaNear"].Properties["EngineName"]));
             para_Close.RepeatX = true;
             para_Close.ScrollY = tmxMapData.ImageLayers["ParaNear"].Properties.ValueAsFloat("ScrollY");
