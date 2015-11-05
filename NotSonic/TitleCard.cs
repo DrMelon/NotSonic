@@ -47,6 +47,7 @@ namespace NotSonic
             TitleCard_Text = new RichText(text + "\nact 1", Assets.TITLE_CARD_FONT, 36);
             TitleCard_Text.Scroll = 0;
             TitleCard_Text.Smooth = false;
+            TitleCard_Text.X = 100;
             TitleCard_Text.Y = 280; // slide up from bottom
 
             // Add in render order
@@ -71,7 +72,7 @@ namespace NotSonic
             TitleCard_Middle.X = -400;
             TitleCard_Top.X = 400;
             TitleCard_Text.Y = 280;
-            TitleCard_Text.X = 200;
+            TitleCard_Text.X = 100;
         }
 
         public float ConvertReverseTime(float currentTime, float maxTime)

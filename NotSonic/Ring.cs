@@ -43,6 +43,7 @@ namespace NotSonic
                 ringMsg.infoString = "1";
                 Global.eventList.Add(ringMsg);
                 RemoveSelf();
+                
             }
 
         }
