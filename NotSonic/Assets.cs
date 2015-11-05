@@ -25,6 +25,11 @@ namespace NotSonic
         public const string BADNIK_SHEET = "../../Assets/GFX/badnik.png";
         public const string GFX_RING = "../../Assets/GFX/rings.png";
 
+        public const string TITLE_CARD_B = "../../Assets/GFX/titlecard_bottom.png";
+        public const string TITLE_CARD_M = "../../Assets/GFX/titlecard_middle.png";
+        public const string TITLE_CARD_T = "../../Assets/GFX/titlecard_top.png";
+        public const string TITLE_CARD_FONT = "../../Assets/FNT/titlecardfont.ttf";
+
         public const string PARA_TREES_1 = "../../Assets/GFX/Parallax/Mush_Trees_1.png";
         public const string PARA_TREES_2 = "../../Assets/GFX/Parallax/Mush_Trees_2.png";
 

@@ -75,6 +75,7 @@
     <Compile Include="SonicTileInfo.cs" />
     <Compile Include="SonicTileInfoDefaults.cs" />
     <Compile Include="System\SegaController.cs" />
+    <Compile Include="TitleCard.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -31,6 +31,9 @@ namespace NotSonic
         // Map Name
         public string mapName;
         public string friendlyMapName;
+
+        // Title card
+        public TitleCard theTitleCard;
         
         // Tiled TMX Loader instance
         public TmxMap tmxMapData;
@@ -138,7 +141,9 @@ namespace NotSonic
             Add(theCamShaker);
 
 
-            //MakeBadniks();
+            // Create title card
+            theTitleCard = new TitleCard(friendlyMapName);
+            Add(theTitleCard);
 
 
 
@@ -146,7 +151,7 @@ namespace NotSonic
 
             Otter.Debugger.Instance.ShowPerformance(5);
 
-            // Make debug command to toggle shader
+            // Make debug commands, and shaders
 
             Global.theGame.Surface.Shader = LUTShade;
             Otter.Debugger.CommandFunction myFunc = new Debugger.CommandFunction(Impulse);
@@ -233,10 +238,17 @@ namespace NotSonic
 
         public override void Update()
         {
+            // Freezelock with title card
+            if(theTitleCard.Waited == false)
+            {
+                freezeLockTime = 1.0f;
+            }
+
             // Process messages first.
             ProcessMessages();
             // Check freezelock
             CheckFreezeLock();
+
             
             // Check slomo
             if(sloMo && Math.Floor(Game.Timer) % 2 == 0)
