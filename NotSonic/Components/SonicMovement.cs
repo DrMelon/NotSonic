@@ -1249,7 +1249,7 @@ namespace NotSonic.Components
                 {
                     senseMode = 3;
                 }
-                senseMode = 2;
+                //senseMode = 2;
                 Sensor.CollisionInfo colInfoA = ceilingSensorC.Sense(TileList, senseMode);
                 Sensor.CollisionInfo colInfoB = ceilingSensorD.Sense(TileList, senseMode);
 
@@ -1314,7 +1314,7 @@ namespace NotSonic.Components
                             CurrentFloorMode = FloorMode.CEILING;
                             Jumping = false;
                             CurrentMoveType = MoveType.GROUND;
-                            GroundSpeed = YSpeed * Math.Sign(Math.Cos(Angle));
+                            GroundSpeed = YSpeed * -Math.Sign(Math.Cos(Angle));
                             YSpeed = 0;
                         }
                         else
@@ -1340,7 +1340,7 @@ namespace NotSonic.Components
                             CurrentFloorMode = FloorMode.CEILING;
                             Jumping = false;
                             CurrentMoveType = MoveType.GROUND;
-                            GroundSpeed = YSpeed * Math.Sign(Math.Cos(Angle));
+                            GroundSpeed = YSpeed * -Math.Sign(Math.Cos(Angle));
                             YSpeed = 0;
                         }
                         else
