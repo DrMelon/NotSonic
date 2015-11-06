@@ -1315,7 +1315,7 @@ namespace NotSonic.Components
                             Jumping = false;
                             CurrentMoveType = MoveType.GROUND;
                             GroundSpeed = YSpeed * -Math.Sign(Math.Cos(Angle));
-                            YSpeed = 0;
+                            
                         }
                         else
                         {
@@ -1341,7 +1341,7 @@ namespace NotSonic.Components
                             Jumping = false;
                             CurrentMoveType = MoveType.GROUND;
                             GroundSpeed = YSpeed * -Math.Sign(Math.Cos(Angle));
-                            YSpeed = 0;
+                            
                         }
                         else
                         {
