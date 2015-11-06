@@ -169,7 +169,6 @@ namespace NotSonic.Entities
             if(myMovement.CurrentFloorMode == NotSonic.Components.SonicMovement.FloorMode.RIGHTWALL)
             {
                 Graphic.Angle = 90;
-
             }
             if (myMovement.CurrentFloorMode == NotSonic.Components.SonicMovement.FloorMode.CEILING)
             {

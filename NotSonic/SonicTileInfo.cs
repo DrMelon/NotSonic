@@ -16,11 +16,19 @@ namespace NotSonic
         // Tile angle
         public float Angle;
 
+        // On/off
+        public bool On = true;
+
         public SonicTileInfo(int[] fha, int[] wha, float Ang)
         {
             flatheightArray = fha;
             wallheightArray = wha;
             Angle = Ang;
+        }
+
+        public void Toggle()
+        {
+            On = !On;
         }
 
         public SonicTileInfo(int type, bool flipx, bool flipy)

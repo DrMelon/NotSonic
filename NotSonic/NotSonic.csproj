@@ -68,6 +68,7 @@
     <Compile Include="Global.cs" />
     <Compile Include="HeightArrays.cs" />
     <Compile Include="LevelScene.cs" />
+    <Compile Include="Loop.cs" />
     <Compile Include="MessageEvent.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -27,6 +27,8 @@ namespace NotSonic
 
         // List of Tiles
         List<NotSonic.Components.Tile> tileList;
+        // List of Loops
+        List<Loop> loopList = new List<Loop>();
 
         // Map Name
         public string mapName;
@@ -38,6 +40,7 @@ namespace NotSonic
         // Tiled TMX Loader instance
         public TmxMap tmxMapData;
         Tilemap tilemap;
+        Tilemap closeTilemap;
 
         // Freezelock
         bool freezeLocked = false;
@@ -138,8 +141,15 @@ namespace NotSonic
 
 
             AddGraphic(tilemap);
+            
+            Entity abovePlayerMap = new Entity(0, 0, closeTilemap);
+            abovePlayerMap.Layer = thePlayer.Layer - 1;
+            Add(abovePlayerMap);
 
             Add(thePlayer);
+
+            
+            
             Add(theCamShaker);
 
 
@@ -172,28 +182,40 @@ namespace NotSonic
             // Load Level from Tiled map.
             tileList = new List<Components.Tile>();
             tilemap = new Tilemap(Assets.TILE_SHEET, tmxMapData.Height * 16, 16);
+            closeTilemap = new Tilemap(Assets.TILE_SHEET, tmxMapData.Height * 16, 16);
             Global.maxlvlheight = tmxMapData.Height * 16;
             Global.maxlvlwidth = tmxMapData.Width * 16;
             tilemap.AddLayer("vis", 19);
-            
+            tilemap.UsePositions = true;
+            closeTilemap.AddLayer("vis", 19);
+            closeTilemap.UsePositions = true;
 
             // For each tile in the Solid layer, we want to create a Tile object, and use the relevant image.
-            for(int i = 0; i < tmxMapData.Layers["Solid"].Tiles.Count; i++)
+            for (int i = 0; i < tmxMapData.Layers["Foreground"].Tiles.Count; i++)
+            {
+                closeTilemap.SetTile(tmxMapData.Layers["Foreground"].Tiles[i].X * 16, tmxMapData.Layers["Foreground"].Tiles[i].Y * 16, tmxMapData.Layers["Foreground"].Tiles[i].Gid - 1, "base");
+                if (tmxMapData.Layers["Foreground"].Tiles[i].Gid != 0)
+                {
+                    closeTilemap.SetTile(tmxMapData.Layers["Foreground"].Tiles[i].X * 16, tmxMapData.Layers["Foreground"].Tiles[i].Y * 16, tmxMapData.Layers["Foreground"].Tiles[i].HorizontalFlip, tmxMapData.Layers["Foreground"].Tiles[i].VerticalFlip);
+                }
+                
+            }
+            for (int i = 0; i < tmxMapData.Layers["Solid"].Tiles.Count; i++)
             {
                 // Set otter tile
                 tilemap.SetTile(tmxMapData.Layers["Solid"].Tiles[i].X * 16, tmxMapData.Layers["Solid"].Tiles[i].Y * 16, tmxMapData.Layers["Solid"].Tiles[i].Gid - 1, "base");
-                
 
 
-                tilemap.UsePositions = true;
-                if(tmxMapData.Layers["Solid"].Tiles[i].Gid != 0)
+
+
+                if (tmxMapData.Layers["Solid"].Tiles[i].Gid != 0)
                 {
                     // Heightmap Data
                     // In the Solid_Height layer, we find the appropriate tile type. Angles are included in this.
                     int heightMapID = tmxMapData.Layers["Solid_Height"].Tiles[i].Gid;
                     bool heightFlipX = tmxMapData.Layers["Solid_Height"].Tiles[i].HorizontalFlip;
                     bool heightFlipY = tmxMapData.Layers["Solid_Height"].Tiles[i].VerticalFlip;
-                    if(heightMapID >= tmxMapData.Tilesets["Test_Height"].FirstGid)
+                    if (heightMapID >= tmxMapData.Tilesets["Test_Height"].FirstGid)
                     {
                         heightMapID = tmxMapData.Layers["Solid_Height"].Tiles[i].Gid - tmxMapData.Tilesets["Test_Height"].FirstGid;
                     }
@@ -210,26 +232,26 @@ namespace NotSonic
 
 
                     float tileAngle = tmxMapData.Tilesets["Test_Height"].Tiles[heightMapID].Properties.ValueAsFloat("Angle");
-                    
+
                     // Set the tile's graphic properly.
                     newTile.tileImage.Frame = tmxMapData.Layers["Solid"].Tiles[i].Gid - 1;
                     newTile.tileImage.FlippedX = tmxMapData.Layers["Solid"].Tiles[i].HorizontalFlip;
                     newTile.tileImage.FlippedY = tmxMapData.Layers["Solid"].Tiles[i].VerticalFlip;
                     newTile.myTileInfo.Angle = tileAngle;
-                  
+
 
 
                     newTile.Layer = 19;
-                    
+
                     tileList.Add(newTile);
                 }
 
-                
 
-                
-                
 
-            }
+
+
+
+                }
 
             
 
@@ -376,6 +398,15 @@ namespace NotSonic
                         Ring newRing = new Ring((float)tmObj.X, (float)tmObj.Y);
                         Add(newRing); 
                     }
+                    if (tmObj.Name == "Loop")
+                    {
+                        string atilesstring, btilesstring;
+                        tmObj.Properties.TryGetValue("ATiles", out atilesstring);
+                        tmObj.Properties.TryGetValue("BTiles", out btilesstring);
+                        Loop newLoop = new Loop(tileList, (float)tmObj.X, (float)tmObj.Y, atilesstring, btilesstring);
+                        Add(newLoop);
+                        loopList.Add(newLoop);
+                    }
                 }
             }
         }
@@ -500,6 +531,11 @@ namespace NotSonic
                 {
                     // Toggle Debug View
                     thePlayer.myMovement.ToggleDebugView();
+                    foreach(Loop l in loopList)
+                    {
+                        l.DrawDebug = !l.DrawDebug;
+                    }
+
                 }
                 if(commandPassed == "1")
                 {

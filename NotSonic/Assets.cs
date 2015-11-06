@@ -56,7 +56,7 @@ namespace NotSonic
 
         public const string MUS_MUSH = "../../Assets/MUS/mush.ogg";
 
-        public const string MAP_TEST = "../../Assets/MAP/Test_Mush.tmx"; // Tiled TMX File.
+        public const string MAP_TEST = "../../Assets/MAP/Test_Long.tmx"; // Tiled TMX File.
 
         public static Dictionary<string, string> lookupAssets = new Dictionary<string, string>();
 
