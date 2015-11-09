@@ -285,10 +285,40 @@ namespace NotSonic.Components
 
         private void ChangeFloorMode()
         {
-            if(Math.Abs(GroundSpeed) >= 0.5)
+            // Clockwise
+            if(GroundSpeed <= -0.5)
             {
                 // Change which mode we're on
-                if((Angle > 315 || Angle < 45) && CurrentFloorMode != FloorMode.FLOOR && Angle != 0)
+                if ((Angle > 315 || Angle <= 45) && CurrentFloorMode != FloorMode.FLOOR && Angle != 0)
+                {
+                    // Now in Floor Mode
+                    CurrentFloorMode = FloorMode.FLOOR;
+                }
+                else if ((Angle > 45 && Angle <= 135) && CurrentFloorMode != FloorMode.RIGHTWALL)
+                {
+                    // Now in Floor Mode
+                    CurrentFloorMode = FloorMode.RIGHTWALL;
+
+                }
+                else if ((Angle > 135 && Angle <= 225) && CurrentFloorMode != FloorMode.CEILING)
+                {
+                    // Now in Floor Mode
+                    CurrentFloorMode = FloorMode.CEILING;
+
+                }
+                else if ((Angle > 225 && Angle <= 315) && CurrentFloorMode != FloorMode.LEFTWALL)
+                {
+                    // Now in Floor Mode
+                    CurrentFloorMode = FloorMode.LEFTWALL;
+                }
+            }
+
+
+            // Anticlockwise
+            if(GroundSpeed >= 0.5)
+            {
+                // Change which mode we're on
+                if ((Angle >= 315 || Angle < 45) && CurrentFloorMode != FloorMode.FLOOR && Angle != 0)
                 {
                     // Now in Floor Mode
                     CurrentFloorMode = FloorMode.FLOOR;
@@ -299,18 +329,20 @@ namespace NotSonic.Components
                     CurrentFloorMode = FloorMode.RIGHTWALL;
 
                 }
-                else if ((Angle > 135 && Angle < 225) && CurrentFloorMode != FloorMode.CEILING)
+                else if ((Angle >= 135 && Angle < 225) && CurrentFloorMode != FloorMode.CEILING)
                 {
                     // Now in Floor Mode
                     CurrentFloorMode = FloorMode.CEILING;
 
                 }
-                else if ((Angle > 225 && Angle < 315) && CurrentFloorMode != FloorMode.LEFTWALL)
+                else if ((Angle >= 225 && Angle < 315) && CurrentFloorMode != FloorMode.LEFTWALL)
                 {
                     // Now in Floor Mode
                     CurrentFloorMode = FloorMode.LEFTWALL;
                 }
             }
+
+
 
 
         }
