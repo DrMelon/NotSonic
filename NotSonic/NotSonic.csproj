@@ -61,7 +61,6 @@
     <Compile Include="CameraShaker.cs" />
     <Compile Include="Components\ParticleSystem.cs" />
     <Compile Include="Components\Sensor.cs" />
-    <Compile Include="Components\SensorGroup.cs" />
     <Compile Include="Components\SonicMovement.cs" />
     <Compile Include="Components\Tile.cs" />
     <Compile Include="DestroyableEntity.cs" />

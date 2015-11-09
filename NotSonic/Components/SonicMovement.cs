@@ -285,7 +285,7 @@ namespace NotSonic.Components
 
         private void ChangeFloorMode()
         {
-            if(Math.Abs(GroundSpeed) >= 2.5)
+            if(Math.Abs(GroundSpeed) >= 0.5)
             {
                 // Change which mode we're on
                 if((Angle > 315 || Angle < 45) && CurrentFloorMode != FloorMode.FLOOR && Angle != 0)
@@ -293,7 +293,7 @@ namespace NotSonic.Components
                     // Now in Floor Mode
                     CurrentFloorMode = FloorMode.FLOOR;
                 }
-                else if ((Angle > 45 && Angle < 135) && CurrentFloorMode != FloorMode.RIGHTWALL)
+                else if ((Angle >= 45 && Angle < 135) && CurrentFloorMode != FloorMode.RIGHTWALL)
                 {
                     // Now in Floor Mode
                     CurrentFloorMode = FloorMode.RIGHTWALL;
@@ -360,7 +360,7 @@ namespace NotSonic.Components
 
         private void FloorModeWhenFalling()
         {
-            if (CurrentMoveType == MoveType.AIR /*&& YSpeed > 0*/)
+            if (CurrentMoveType == MoveType.AIR)
             {
                 CurrentFloorMode = FloorMode.FLOOR;
             }
@@ -400,6 +400,12 @@ namespace NotSonic.Components
             // Check heights
             UpdateObjectHeight();
 
+            // Check and change floor mode
+            ChangeFloorMode();
+
+            // Falling is always considered to be right side up.
+            FloorModeWhenFalling();
+
             // Check walls
             CheckWallSensor();
 
@@ -415,11 +421,7 @@ namespace NotSonic.Components
             // Check sensors for solid ground:
             CheckGroundSensors();
 
-            
-                           
 
-            // Check and change floor mode
-            ChangeFloorMode();
 
             
             // Ground Stuff
@@ -441,8 +443,6 @@ namespace NotSonic.Components
 
 
 
-            // Falling is always considered to be right side up.
-            FloorModeWhenFalling();
 
             // Apply speeds to pos
             ApplySpeedToPos();
@@ -514,6 +514,10 @@ namespace NotSonic.Components
         {
             // debug
             //return;
+            if (!(CurrentFloorMode == FloorMode.FLOOR || CurrentMoveType == MoveType.AIR))
+            {
+                return;
+            }
             
             // Check for tiles that are at the sides of sonic, relative to Y+4.
             wallSensor.APos = YPos + 1;
@@ -874,6 +878,7 @@ namespace NotSonic.Components
                         
                         }
                         Angle = angleOfA;
+                      
 
                     }
                     else if(sensorBTile != null)

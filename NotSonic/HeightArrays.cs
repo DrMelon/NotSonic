@@ -107,6 +107,82 @@ namespace NotSonic
             return null;
         }
 
+        public static float GetAngleFromArrayHeight(int[] arrayheight, int type)
+        {
+            float firstHeight = 0;
+            float lastHeight = 0;
+            float firstHeightPos = 0;
+            float lastHeightPos = 0;
+
+            for(int i = 0; i < 16; i++)
+            {
+                // go through array, find first nonempty first height
+                if(arrayheight[i] > 0 && firstHeight == 0)
+                {
+                    firstHeight = arrayheight[i];
+                    firstHeightPos = i;
+                }
+                //find last height
+                if(arrayheight[i] > 0)
+                {
+                    lastHeight = arrayheight[i];
+                    lastHeightPos = i;
+                }
+            }
+
+            float slope = 0;
+            float Angle = 0;
+
+            // get slope of these two values
+            if ((lastHeightPos - firstHeightPos) == 0)
+            {
+                //vertical? 
+                Angle = 90;
+            }
+            else
+            {
+                slope = (lastHeight - firstHeight) / (lastHeightPos - firstHeightPos);
+                Angle = (float)Math.Atan(slope) * (180.0f / (float)Math.PI);
+                // to nearest multiple of 5
+                Angle = (float)Math.Round(Angle / 5.0f) * 5.0f;
+            }
+
+            
+
+            if(type == 0)
+            {
+                Angle += 0;
+                if (Angle < 0)
+                {
+                    Angle = 360 + Angle;
+                }
+            }
+            if (type == 1)
+            {
+                Angle += 90;
+                if(Angle > 90)
+                {
+                    Angle = 180 - Angle;
+                }
+            }
+            if (type == 2)
+            {
+                Angle += 180;
+                if(Angle > 180)
+                {
+                    Angle = 360 - Angle;
+                }
+            }
+            if (type == 3)
+            {
+                Angle += 270;
+            }
+
+
+
+            return Angle;
+        }
+
         public static int[] GetFirstLastHeight(int ID, int type)
         {
             int[] info = new int[2];

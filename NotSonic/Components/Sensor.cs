@@ -104,6 +104,7 @@ namespace NotSonic.Components
 
 
                             lastHeight = HeightArrays.FetchArrayHeight(tile.myType, senseMode);
+                            newCollision.tileHit.myTileInfo.Angle = HeightArrays.GetAngleFromArrayHeight(lastHeight, senseMode);
                             lastHeightHit = lastHeight[Math.Min((int)APos - (int)tile.X, 15)];
     
 
@@ -164,6 +165,7 @@ namespace NotSonic.Components
                             
 
                             lastHeight = HeightArrays.FetchArrayHeight(tile.myType, senseMode);
+                            newCollision.tileHit.myTileInfo.Angle = HeightArrays.GetAngleFromArrayHeight(lastHeight, senseMode);
                             lastHeightHit = lastHeight[Math.Min((int)APos - (int)tile.Y, 15)];
                             
 
