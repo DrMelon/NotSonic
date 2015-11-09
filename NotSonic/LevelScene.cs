@@ -569,12 +569,13 @@ namespace NotSonic
                 if (commandPassed == "7")
                 {
                     // save record
-                    Global.playerSession.Controller.SaveRecording("./plyrec.log");
+                    Global.playerSession.Controller.Stop();
+                    Global.playerSession.Controller.SaveRecording(Assets.INPUT_RECORD_DEBUG);
                 }
                 if (commandPassed == "8")
                 {
                     // play 
-                    Global.playerSession.Controller.PlaybackFile("./plyrec.log");
+                    Global.playerSession.Controller.PlaybackFile(Assets.INPUT_RECORD_DEBUG);
                     
                 }
                 if(commandPassed == "100")
