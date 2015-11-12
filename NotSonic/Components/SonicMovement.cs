@@ -60,7 +60,7 @@ namespace NotSonic.Components
 
         // Spindashing
         public float CurrentSpindashStrength = 0.0f;
-        public float MaxSpindashStrength = 8.0f;
+        public float MaxSpindashStrength = 12.0f;
 
         // Position in world
         public float XPos = 0.0f;

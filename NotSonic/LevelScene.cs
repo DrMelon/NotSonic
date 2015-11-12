@@ -324,7 +324,7 @@ namespace NotSonic
                 {
                     thePlayer.myMovement.ExitWater();
                 }
-                
+           
             }
 
             base.Update();
