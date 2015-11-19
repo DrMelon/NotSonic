@@ -107,7 +107,7 @@ namespace NotSonic
             return null;
         }
 
-        public static float GetAngleFromArrayHeight(int[] arrayheight, int type, bool moveRight)
+        public static float GetAngleFromArrayHeight(int[] arrayheight, int type)
         {
             float firstHeight = 0;
             float lastHeight = 0;
@@ -144,101 +144,66 @@ namespace NotSonic
                 
                 slope = (lastHeight - firstHeight) / (lastHeightPos - firstHeightPos);
                 float atanSlope = (float)Math.Atan(slope);
-                if (atanSlope < 0 && moveRight)
+                if(atanSlope < 0)
                 {
                     atanSlope += (float)Math.PI * 2.0f;
                 }
                 Angle = atanSlope * (180.0f / (float)Math.PI);
-
+              
                 // to nearest multiple of 5
                 Angle = (float)Math.Round(Angle / 5.0f) * 5.0f;
-
-                
-                
-                
             }
 
-            if (moveRight)
+            
+
+            if(type == 1)
             {
-
-                if (type == 1)
+                
+                if(Angle > 180)
                 {
-
-                    if (Angle > 180)
-                    {
-                        Angle = 360 - Angle;
-                        Angle += 90;
-                    }
-                    else
-                    {
-                        Angle += 90;
-                    }
-
+                    Angle = 360 - Angle;
+                    Angle += 90;
                 }
-                if (type == 2)
-                {
-
-                    if (Angle > 270)
-                    {
-                        Angle = 360 - Angle;
-                        Angle += 180;
-                    }
-                    else
-                    {
-                        Angle += 180;
-                    }
-
-
-
-                }
-                if (type == 3)
-                {
-                    
-                    if (Angle > 360)
-                    {
-                        Angle = 360 - Angle;
-                        Angle += 270;
-                    }
-                    else
-                    {
-                        Angle += 270;
-                    }
-
-
-                    
-                }
-
-            }
-            else
-            {
-                if(type == 0)
-                {
-                    if(Angle < 0)
-                    {
-                        Angle = 360 + Angle;
-                    }
-                }
-                if(type == 1)
+                else
                 {
                     Angle += 90;
-                    if(Angle > 90)
-                    {
-                        Angle = 180 - Angle;
-                    }
                 }
-                if(type == 2)
+                
+            }
+            if(type == 2)
+            {
+               
+                if(Angle > 270)
+                {
+                    Angle = 360 - Angle;
+                    Angle += 180;
+                }
+                else
                 {
                     Angle += 180;
-                    if(Angle > 180)
-                    {
-                        Angle = 360 - Angle;
-                    }
                 }
-                if(type == 3)
+
+
+                
+            }
+            if (type == 3)
+            {
+                Util.Log("BEFORE: " + Angle.ToString());
+                if (Angle > 360)
+                {
+                    Angle = 360 - Angle;
+                    Angle += 270;
+                }
+                else
                 {
                     Angle += 270;
                 }
+
+
+                Util.Log("AFTER: " + Angle.ToString());
             }
+
+            
 
             return Angle;
         }

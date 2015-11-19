@@ -37,6 +37,7 @@ namespace NotSonic.Components
         public float LasthitY;
 
         public int senseMode;
+        public bool moveRight;
 
         public int lastHeightHit;
 
@@ -104,7 +105,7 @@ namespace NotSonic.Components
 
 
                             lastHeight = HeightArrays.FetchArrayHeight(tile.myType, senseMode);
-                            newCollision.tileHit.myTileInfo.Angle = HeightArrays.GetAngleFromArrayHeight(lastHeight, senseMode);
+                            newCollision.tileHit.myTileInfo.Angle = HeightArrays.GetAngleFromArrayHeight(lastHeight, senseMode, moveRight);
                             lastHeightHit = lastHeight[Math.Min((int)APos - (int)tile.X, 15)];
     
 
@@ -165,7 +166,7 @@ namespace NotSonic.Components
                             
 
                             lastHeight = HeightArrays.FetchArrayHeight(tile.myType, senseMode);
-                            newCollision.tileHit.myTileInfo.Angle = HeightArrays.GetAngleFromArrayHeight(lastHeight, senseMode);
+                            newCollision.tileHit.myTileInfo.Angle = HeightArrays.GetAngleFromArrayHeight(lastHeight, senseMode, moveRight);
                             lastHeightHit = lastHeight[Math.Min((int)APos - (int)tile.Y, 15)];
                             
 

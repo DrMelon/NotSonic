@@ -15,11 +15,7 @@ using TiledSharp;
 
 namespace NotSonic
 {
-
-
-
-
-
+    
     class LevelScene : Scene
     {
         // The Player
@@ -40,6 +36,7 @@ namespace NotSonic
         // Tiled TMX Loader instance
         public TmxMap tmxMapData;
         Tilemap tilemap;
+        Tilemap bgtilemap;
         Tilemap closeTilemap;
 
         // Freezelock
@@ -52,8 +49,7 @@ namespace NotSonic
 
         // Slomo for testing
         bool sloMo = false;
-
-
+        
         // Ring Count
         public int Rings = 0;
 
@@ -69,9 +65,9 @@ namespace NotSonic
         Music mushroomHillMusic = new Music(Assets.MUS_MUSH);
         Sound deadSound = new Sound(Assets.SND_DEAD);
 
+        // The camera shaking stuff
         CameraShaker theCamShaker = new CameraShaker();
-
-
+        
         public LevelScene(string mapFilename)
         {
 
@@ -138,7 +134,7 @@ namespace NotSonic
             AddGraphic(para_Close);
 
 
-
+            AddGraphic(bgtilemap);
 
             AddGraphic(tilemap);
             
@@ -182,6 +178,7 @@ namespace NotSonic
             // Load Level from Tiled map.
             tileList = new List<Components.Tile>();
             tilemap = new Tilemap(Assets.TILE_SHEET, tmxMapData.Height * 16, 16);
+            bgtilemap = new Tilemap(Assets.TILE_SHEET, tmxMapData.Height * 16, 16);
             closeTilemap = new Tilemap(Assets.TILE_SHEET, tmxMapData.Height * 16, 16);
             Global.maxlvlheight = tmxMapData.Height * 16;
             Global.maxlvlwidth = tmxMapData.Width * 16;
@@ -189,6 +186,8 @@ namespace NotSonic
             tilemap.UsePositions = true;
             closeTilemap.AddLayer("vis", 19);
             closeTilemap.UsePositions = true;
+            bgtilemap.AddLayer("vis", 19);
+            bgtilemap.UsePositions = true;
 
             // For each tile in the Solid layer, we want to create a Tile object, and use the relevant image.
             for (int i = 0; i < tmxMapData.Layers["Foreground"].Tiles.Count; i++)
@@ -199,6 +198,15 @@ namespace NotSonic
                     closeTilemap.SetTile(tmxMapData.Layers["Foreground"].Tiles[i].X * 16, tmxMapData.Layers["Foreground"].Tiles[i].Y * 16, tmxMapData.Layers["Foreground"].Tiles[i].HorizontalFlip, tmxMapData.Layers["Foreground"].Tiles[i].VerticalFlip);
                 }
                 
+            }
+            for (int i = 0; i < tmxMapData.Layers["Background"].Tiles.Count; i++)
+            {
+                bgtilemap.SetTile(tmxMapData.Layers["Background"].Tiles[i].X * 16, tmxMapData.Layers["Background"].Tiles[i].Y * 16, tmxMapData.Layers["Background"].Tiles[i].Gid - 1, "base");
+                if (tmxMapData.Layers["Background"].Tiles[i].Gid != 0)
+                {
+                    bgtilemap.SetTile(tmxMapData.Layers["Background"].Tiles[i].X * 16, tmxMapData.Layers["Background"].Tiles[i].Y * 16, tmxMapData.Layers["Background"].Tiles[i].HorizontalFlip, tmxMapData.Layers["Background"].Tiles[i].VerticalFlip);
+                }
+
             }
             for (int i = 0; i < tmxMapData.Layers["Solid"].Tiles.Count; i++)
             {
@@ -292,11 +300,17 @@ namespace NotSonic
                 thePlayer.myMovement.GroundSpeed = 0;
                 deadSound.Play();
                 
+                
             }
 
 
             // Prep the tileList based on the player's position and speed.
-            List<NotSonic.Components.Tile> shrunkTileList = new List<NotSonic.Components.Tile>();
+            if(thePlayer.myMovement.TileList == null)
+            {
+                thePlayer.myMovement.TileList = new List<NotSonic.Components.Tile>();
+            }
+
+            thePlayer.myMovement.TileList.Clear();
             float checkRadius = 48 + Math.Max(thePlayer.myMovement.XSpeed, thePlayer.myMovement.YSpeed);
             foreach (NotSonic.Components.Tile tile in tileList)
             {
@@ -305,10 +319,10 @@ namespace NotSonic
                 curY = tile.Y - thePlayer.Y;
                 if(curX*curX + curY*curY < checkRadius*checkRadius)
                 {
-                    shrunkTileList.Add(tile);
+                    thePlayer.myMovement.TileList.Add(tile);
                 }
             }
-            thePlayer.myMovement.TileList = shrunkTileList;
+            
 
             // Check if player is underwater
             if(thePlayer.Y > waterLevel)
@@ -391,7 +405,7 @@ namespace NotSonic
                     TmxObject tmObj = tmxMapData.ObjectGroups[i].Objects[j];
                     if(tmObj.Name == "SonicStart")
                     {
-                        thePlayer = new Entities.SonicPlayer(tileList, (float)tmObj.X, (float)tmObj.Y);
+                        thePlayer = new Entities.SonicPlayer(null, (float)tmObj.X, (float)tmObj.Y);
                     }
                     if(tmObj.Name == "Ring")
                     {

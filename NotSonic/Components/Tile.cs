@@ -47,8 +47,6 @@ namespace NotSonic.Components
             Graphic = tileImage;
             myType = tileType;
             myTileInfo = new SonicTileInfo(myType, flipX, flipY);
-
-
             
         }
     }

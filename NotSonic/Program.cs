@@ -21,11 +21,13 @@ namespace NotSonic
         static void Main(string[] args)
         {
             // Init internal resolution of 400x240 - 16:9 version of MegaDrive/Genesis spec.
-            Global.theGame = new Game("NotSonic", 400, 240, 60, false);
+            Global.theGame = new Game("NotSonic", 400, 240, 60, true);
             Global.eventList = new List<MessageEvent>();
 
             // Render at 720p.
             Global.theGame.SetWindowScale(3);
+            Global.theGame.SetWindowAutoFullscreen(true);
+            Global.theGame.EnableQuitButton = false;
 
             // Initialize player controls.
             Global.playerSession = Global.theGame.AddSession("PlayerControls");
