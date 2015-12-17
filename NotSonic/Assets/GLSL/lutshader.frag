@@ -1,12 +1,12 @@
+#version 120
 
-
-sampler2D texture;
-sampler2D lut;
+uniform sampler2D texture;
+uniform sampler2D lut;
 uniform float time;
 uniform float belowwater;
 uniform float cutoff;
 
-vec4 sampleAs3DTexture(sampler2D texture, vec3 uv, float width) {
+vec4 sampleAs3Dtexture2D(sampler2D texture, vec3 uv, float width) {
     float sliceSize = 1.0 / width;              // space of 1 slice
     float slicePixelSize = sliceSize / width;           // space of 1 pixel
     float sliceInnerSize = slicePixelSize * (width - 1.0);  // space of width pixels
@@ -31,14 +31,14 @@ float floorpr(float f, float p)
 }
  
 void main() {
-    vec2 pos = gl_TexCoord[0];
+    vec2 pos = gl_TexCoord[0].xy;
 	vec2 wavepos = pos;
 	if(belowwater - pos.y > cutoff)
 	{
 		wavepos.x += 0.01 * sin(time * 0.03f + wavepos.y * 10);
 	}
 	vec4 pixel = texture2D(texture, wavepos);
-	vec4 gradpix = sampleAs3DTexture(lut, pixel.rgb, 16.0f);
+	vec4 gradpix = sampleAs3Dtexture2D(lut, pixel.rgb, 16.0f);
 	gradpix.a = pixel.a;
 	
 
