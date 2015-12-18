@@ -37,6 +37,9 @@ namespace NotSonic.Components
         public MoveType CurrentMoveType = MoveType.GROUND;
         public FloorMode CurrentFloorMode = FloorMode.FLOOR;
 
+        // Current controller
+        public NotSonic.System.SegaController theController;
+
         // This is a reference to the current list of tiles.
         public List<Tile> TileList;
         
@@ -237,7 +240,7 @@ namespace NotSonic.Components
             if(Math.Abs(GroundSpeed) >= 4.5 && CurrentFloorMode == FloorMode.FLOOR && !Rolling && !Jumping && CurrentMoveType == MoveType.GROUND)
             {
                 //Pushing away from current direction
-                if ((Global.theController.Left.Down && GroundSpeed > 0) || (Global.theController.Right.Down && GroundSpeed < 0))
+                if ((theController.Left.Down && GroundSpeed > 0) || (theController.Right.Down && GroundSpeed < 0))
                 {
                     if(Braking == false)
                     {
@@ -540,7 +543,7 @@ namespace NotSonic.Components
                 {
                     // Pop sonic to the right by the requisite amount.
                     XPos = colInfo.tileHit.X + 16.0f + 10.0f;
-                    if(Global.theController.Right.Down)
+                    if(theController.Right.Down)
                     {
                         // Running away!
                         return;
@@ -550,7 +553,7 @@ namespace NotSonic.Components
                 {
                     // Pop sonic to the left
                     XPos = colInfo.tileHit.X - 10.0f;
-                    if (Global.theController.Left.Down)
+                    if (theController.Left.Down)
                     {
                         // Running away!
                         return;
@@ -918,7 +921,7 @@ namespace NotSonic.Components
         public void HandleInput()
         {
             // Get ref to controller
-            NotSonic.System.SegaController theController = Global.playerSession.GetController<NotSonic.System.SegaController>();
+            //NotSonic.System.SegaController theController = Global.playerSession.GetController<NotSonic.System.SegaController>();
 
             /// Check d-pad.
             /// GROUND:

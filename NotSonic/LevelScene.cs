@@ -283,6 +283,23 @@ namespace NotSonic
             
         }
 
+        public override void UpdateFirst()
+        {
+            base.UpdateFirst();
+
+            // if we're networked, we want to update netplayer controllers
+            if(theServer != null)
+            {
+                foreach(NotSonic.Entities.SonicPlayer ply in thePlayers)
+                {
+                    if(ply != thePlayer)
+                    {
+                        ply.myController.UpdateFirst();
+                    }
+                }
+            }
+        }
+
         public override void Update()
         {
             // Freezelock with title card
@@ -293,6 +310,14 @@ namespace NotSonic
 
             // Process messages first.
             ProcessMessages();
+            // Attempt to send networked controller stuff if networked
+            if(thePlayer.myController.thePeer != null)
+            {
+               // if ((int)Math.Floor(Timer) % 10 == 0) // send inputs 1/6th of a sec DEBUG
+               // {
+                    thePlayer.myController.SendInputs();
+               // }
+            }
             // Check freezelock
             CheckFreezeLock();
 
@@ -426,7 +451,7 @@ namespace NotSonic
                     TmxObject tmObj = tmxMapData.ObjectGroups[i].Objects[j];
                     if(tmObj.Name == "SonicStart")
                     {
-                        thePlayer = new Entities.SonicPlayer(null, (float)tmObj.X, (float)tmObj.Y);
+                        thePlayer = new Entities.SonicPlayer(Global.playerSession.GetController<NotSonic.System.SegaController>(), null, (float)tmObj.X, (float)tmObj.Y);
                         thePlayers.Add(thePlayer);
                     }
                     if(tmObj.Name == "Ring")
@@ -497,6 +522,8 @@ namespace NotSonic
                             if (netmsg.SenderConnection.Status == NetConnectionStatus.Connected)
                             {
                                 Util.LogTag("netclient", "Connection success!");
+                                // make controller networked (TODO: fetch id from serv, auth)
+                                thePlayer.myController.BeginNetworkingController(theClient, 1);
                             }
                             if (netmsg.SenderConnection.Status == NetConnectionStatus.Disconnected)
                             {
@@ -524,6 +551,24 @@ namespace NotSonic
                     {
                         case NetIncomingMessageType.Data:
                             // handle data
+                            // unpack data.
+                            int nettype = netmsg.ReadInt32();
+                            switch(nettype)
+                            {
+                                case NetFlags.NETMSG_INPUTS:
+                                    // Input data incoming... find out which player it belongs to.
+                                    int forPlayer = netmsg.ReadInt32();
+                                    // Get inputs, play back on correct player.
+                                    Int32 inputs = netmsg.ReadInt32();
+
+                                    //thePlayers[forPlayer].myController.ReceiveInputs(inputs);
+                                    thePlayers[forPlayer].myController.ReceiveInputs(inputs);
+
+                                    break;
+                                default:
+                                    break;
+                            }
+
                             break;
                         case NetIncomingMessageType.StatusChanged:
                             // handle status update
@@ -531,7 +576,12 @@ namespace NotSonic
                             {
                                 Util.LogTag("netserv", "User connected!");
                                 // Make a sonic
-
+                                
+                                NotSonic.System.SegaController newNetController = new System.SegaController(0);
+                                NotSonic.Entities.SonicPlayer newPlayer = new NotSonic.Entities.SonicPlayer(newNetController, null, thePlayer.X, thePlayer.Y);
+                                newPlayer.Graphic.Color = Color.Green;
+                                Add(newPlayer);
+                                thePlayers.Add(newPlayer);
                             }
                             if(netmsg.SenderConnection.Status == NetConnectionStatus.Disconnected)
                             {
@@ -729,7 +779,11 @@ namespace NotSonic
                 if (commandPassed == "8")
                 {
                     // play 
-                    Global.playerSession.Controller.PlaybackFile(Assets.INPUT_RECORD_DEBUG);
+                    foreach(NotSonic.Entities.SonicPlayer ply in thePlayers)
+                    {
+                        ply.myController.PlaybackFile(Assets.INPUT_RECORD_DEBUG);
+                    }
+                    //Global.playerSession.Controller.PlaybackFile(Assets.INPUT_RECORD_DEBUG);
                     
                 }
                 if(commandPassed == "100")

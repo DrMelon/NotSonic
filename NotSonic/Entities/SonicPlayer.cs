@@ -15,6 +15,7 @@ namespace NotSonic.Entities
         public NotSonic.Components.ParticleSystem bubbleParticles;
         public NotSonic.Components.ParticleSystem brakeSmokeParticles;
         public NotSonic.Components.ParticleSystem speedTrailParticles;
+        public NotSonic.System.SegaController myController;
 
         public float SmoothAngle;
         public bool flipReady = false;
@@ -27,7 +28,7 @@ namespace NotSonic.Entities
         Sound comboResetSound = new Sound(Assets.SND_WARP);
         
         
-        public SonicPlayer(List<NotSonic.Components.Tile> tl, float x = 0, float y = 0)
+        public SonicPlayer(NotSonic.System.SegaController ctrl, List<NotSonic.Components.Tile> tl, float x = 0, float y = 0)
         {
             // Set Spawn Loc
             X = x;
@@ -37,7 +38,7 @@ namespace NotSonic.Entities
             this.Collider = new BoxCollider((int)CollisionWidth, (int)CollisionHeight, new int[] { 0 });
             this.Collider.CenterOrigin();
             tileList = tl;
-
+            myController = ctrl;
 
             // Create sprites
             spriteSheet = new Spritemap<string>(Assets.SONIC_SHEET, 40, 40);
@@ -56,6 +57,7 @@ namespace NotSonic.Entities
             // Create movement
             myMovement = new Components.SonicMovement();
             myMovement.TileList = tileList;
+            myMovement.theController = myController;
             AddComponent(myMovement);
 
             // Add to pausable objects group
