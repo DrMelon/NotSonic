@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Otter;
+using Lidgren.Network;
 
 //----------------
 // Author: J. Brown (DrMelon)
@@ -106,6 +107,14 @@ namespace NotSonic.Components
         public Sound revSound = new Sound(Assets.SND_REV);
         public Sound dashGoSound = new Sound(Assets.SND_DASHGO);
         public Sound brakeSound = new Sound(Assets.SND_BRAKE);
+
+        // Net stuff
+        public float DXPos;
+        public float DYPos;
+        public float DXSpeed;
+        public float DYSpeed;
+        public float DGroundSpeed;
+        public float DAngle;
 
         #region Public Methods
 
@@ -461,6 +470,8 @@ namespace NotSonic.Components
             AtrophySpindashStrength();
             // HLock tick
             AtrohpyHLock();
+
+            
             
             // Apply speeds to pos
             ApplySpeedToPos();
@@ -1330,8 +1341,130 @@ namespace NotSonic.Components
             }
 
         }
-       
+
         #endregion
 
+        public NetOutgoingMessage SerializePhysicalState(NetPeer netUser)
+        {
+            var serializedPhysState = netUser.CreateMessage();
+
+            // Build Packet
+            serializedPhysState.Write(NetFlags.NETMSG_PLAYERPHYS);
+            serializedPhysState.Write(theController.NetID);
+            // Order is as follows:
+            // X, Y Pos
+            // X, Y Vel
+            // GSP
+            // Ang
+            // Move State
+            // Ceil Mode
+            // Rolling State
+            // Timestamp
+
+            serializedPhysState.Write(XPos);
+            serializedPhysState.Write(YPos);
+            serializedPhysState.Write(XSpeed);
+            serializedPhysState.Write(YSpeed);
+            serializedPhysState.Write(GroundSpeed);
+            serializedPhysState.Write(Angle);
+            switch(CurrentMoveType)
+            {
+                case MoveType.AIR:
+                    serializedPhysState.Write(0);
+                    break;
+                case MoveType.GROUND:
+                    serializedPhysState.Write(1);
+                    break;
+            }
+            switch(CurrentFloorMode)
+            {
+                case FloorMode.FLOOR:
+                    serializedPhysState.Write(0);
+                    break;
+                case FloorMode.RIGHTWALL:
+                    serializedPhysState.Write(1);
+                    break;
+                case FloorMode.CEILING:
+                    serializedPhysState.Write(2);
+                    break;
+                case FloorMode.LEFTWALL:
+                    serializedPhysState.Write(3);
+                    break;
+            }
+            serializedPhysState.Write(Rolling);
+            serializedPhysState.Write(Global.theGame.Timer);
+            return serializedPhysState;
+
+        }
+
+        public void DeserializeState(NetIncomingMessage netmsg)
+        {
+            DXPos = netmsg.ReadFloat();
+            DYPos = netmsg.ReadFloat();
+            DXSpeed = netmsg.ReadFloat();
+            DYSpeed = netmsg.ReadFloat();
+            DGroundSpeed = netmsg.ReadFloat();
+            DAngle = netmsg.ReadFloat();
+            switch (netmsg.ReadInt32())
+            {
+                case 0:
+                    CurrentMoveType = MoveType.AIR;
+                    break;
+                case 1:
+                    CurrentMoveType = MoveType.GROUND;
+                    break;
+            }
+            switch (netmsg.ReadInt32())
+            {
+                case 0:
+                    CurrentFloorMode = FloorMode.FLOOR;
+                    break;
+                case 1:
+                    CurrentFloorMode = FloorMode.RIGHTWALL;
+                    break;
+                case 2:
+                    CurrentFloorMode = FloorMode.CEILING;
+                    break;
+                case 3:
+                    CurrentFloorMode = FloorMode.LEFTWALL;
+                    break;
+            }
+            Rolling = netmsg.ReadBoolean();
+            float DTimer = netmsg.ReadFloat();
+
+            // Read inputs for this tick, if any stored
+
+            // Fast-forward movements, applying inputs
+
+            // Interp between states? (non-float types not interp'd) [HACK]
+            // dependant on tick vs current
+            /*float LerpAmt = 0.1f;
+            XPos = Util.Lerp(XPos, DXPos, LerpAmt);
+            YPos = Util.Lerp(YPos, DYPos, LerpAmt);
+            XSpeed = Util.Lerp(XSpeed, DXSpeed, LerpAmt);
+            YSpeed = Util.Lerp(YSpeed, DYSpeed, LerpAmt);
+            GroundSpeed = Util.Lerp(GroundSpeed, DGroundSpeed, LerpAmt);
+            Angle = Util.Lerp(Angle, DAngle, LerpAmt);*/
+
+            
+            LerpNet(0.5f);
+
+        }
+
+        public void LerpNet(float LerpAmt)
+        {
+            
+            XPos = Util.Lerp(XPos, DXPos, LerpAmt);
+            YPos = Util.Lerp(YPos, DYPos, LerpAmt);
+            XSpeed = Util.Lerp(XSpeed, DXSpeed, LerpAmt);
+            YSpeed = Util.Lerp(YSpeed, DYSpeed, LerpAmt);
+            GroundSpeed = Util.Lerp(GroundSpeed, DGroundSpeed, LerpAmt);
+            Angle = Util.Lerp(Angle, DAngle, LerpAmt);
+        }
+
     }
+
+    
+    
+
 }
