@@ -206,11 +206,16 @@ namespace NotSonic.Components
                     particle.FinalY += (Y - oldY);
                     particle.Angle = Angle;
                 }
+
             }
 
             // Update particle system's old position
             oldX = X;
             oldY = Y;
+
+            // clean particles
+            activeLocalParticles.ForEach(x => x.Timer += Game.DeltaTime);
+            activeLocalParticles.RemoveAll(x => x.Timer > x.LifeSpan);
 
         }
 

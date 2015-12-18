@@ -20,7 +20,7 @@ namespace NotSonic.Components
 {
     class Sensor
     {
-        public struct CollisionInfo
+        public class CollisionInfo
         {
             // Whether this collision is valid or not
             public bool thisIsNull;
@@ -61,6 +61,7 @@ namespace NotSonic.Components
         // Need a way to locate nearby tiles in the tile list, rather than iterating. Iterating will do for now.
         public CollisionInfo Sense(List<Tile> tileList, int sM)
         {
+            
             senseMode = sM;
             // Initialize new collision.
             CollisionInfo newCollision = new CollisionInfo();
