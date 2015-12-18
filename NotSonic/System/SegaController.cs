@@ -37,7 +37,7 @@ namespace NotSonic.System
 
         // Network stuff
         public NetClient thePeer;
-        public int NetID;
+        public int NetID = 0;
 
         public SegaController(params int[] joystickId)
         {
@@ -86,11 +86,11 @@ namespace NotSonic.System
             Right
         }
 
-        public void BeginNetworkingController(NetClient peer, int id)
+        public void BeginNetworkingController(NetClient peer)
         {
             thePeer = peer;
-            NetID = id;
-            Record();
+            
+            
         }
 
         public Int32 SerializeState()

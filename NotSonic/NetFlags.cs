@@ -11,6 +11,7 @@ namespace NotSonic
         public const int NETMSG_CONNECTINFO = 0;
         public const int NETMSG_INPUTS = 1;
         public const int NETMSG_PLAYERPHYS = 2;
+        public const int NETMSG_PLAYERSPAWN = 3;
 
     }
 }
