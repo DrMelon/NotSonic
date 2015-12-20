@@ -82,6 +82,9 @@ namespace NotSonic.Components
         // Brake-turning?
         public bool Braking = false;
 
+        // Bumped a wall this frame?
+        public bool Bumped = false;
+
         // Underwater?
         public bool Underwater = false;
 
@@ -93,6 +96,7 @@ namespace NotSonic.Components
 
         // Debug view on?
         public bool DebugView = false;
+        public List<KeyValuePair<Vector2, Vector2>> DebugPopLineBuffer;
 
         // Sensors
         public Sensor wallSensor;
@@ -107,6 +111,11 @@ namespace NotSonic.Components
         public Sound revSound = new Sound(Assets.SND_REV);
         public Sound dashGoSound = new Sound(Assets.SND_DASHGO);
         public Sound brakeSound = new Sound(Assets.SND_BRAKE);
+
+        // Physics Pop-Out Stuff
+        public float TotalPopX;
+        public float TotalPopY;
+      
 
         // Net stuff
         public float DXPos;
@@ -129,6 +138,8 @@ namespace NotSonic.Components
             groundSensorB = new Sensor(0,0,0,true);
             ceilingSensorC = new Sensor(0, 0, 0, true);
             ceilingSensorD = new Sensor(0, 0, 0, true);
+
+            DebugPopLineBuffer = new List<KeyValuePair<Vector2, Vector2>>();
             
             base.Added();
         }
@@ -431,29 +442,40 @@ namespace NotSonic.Components
             UpdateObjectHeight();
 
             // Check and change floor mode
-            ChangeFloorMode();
+            if (!Bumped)
+            {
+                ChangeFloorMode();
+            }
+            
 
             // Falling is always considered to be right side up.
             FloorModeWhenFalling();
 
+            // Reset pop vals
+            TotalPopX = 0;
+            TotalPopY = 0;
+
             // Check walls
+            Bumped = false;
             CheckWallSensor();
 
             // Make sure to fall off if wall mode speed is too slow
             CheckWallModeSpeed();
 
-            if(CurrentMoveType == MoveType.AIR)
+            // Check sensors for solid ground:
+            CheckGroundSensors();
+
+            // Set pop
+            XPos += TotalPopX;
+            YPos += TotalPopY;
+
+            
+            if (CurrentMoveType == MoveType.AIR)
             {
                 // Check ceiling sensors
                 CheckCeilingSensors();
             }
 
-            // Check sensors for solid ground:
-            CheckGroundSensors();
-
-
-
-            
             // Ground Stuff
             if (CurrentMoveType != MoveType.AIR)
             {
@@ -553,7 +575,10 @@ namespace NotSonic.Components
                 if (colInfo.tileHit.X < XPos)
                 {
                     // Pop sonic to the right by the requisite amount.
-                    XPos = colInfo.tileHit.X + 16.0f + 10.0f;
+                    TotalPopX -= (XPos - (colInfo.tileHit.X + 16.0f + 10.0f));
+
+                    Bumped = true;
+                    
                     if(theController.Right.Down)
                     {
                         // Running away!
@@ -563,7 +588,10 @@ namespace NotSonic.Components
                 else
                 {
                     // Pop sonic to the left
-                    XPos = colInfo.tileHit.X - 10.0f;
+                    TotalPopX -= (XPos - (colInfo.tileHit.X - 10.0f));
+
+                    Bumped = true;
+
                     if (theController.Left.Down)
                     {
                         // Running away!
@@ -582,6 +610,12 @@ namespace NotSonic.Components
 
         private void RegainGround()
         {
+            // Prevent ground regain if we just clipped into the wall
+            if(Bumped && Math.Abs(TotalPopX) > 1)
+            {
+                TotalPopY = 0;
+                return;
+            }
             if (CurrentMoveType == MoveType.AIR && YSpeed >= 0)
             {
                 CurrentMoveType = MoveType.GROUND;
@@ -843,7 +877,7 @@ namespace NotSonic.Components
                                     // In air mode, we only stick to the ground if we are below the new pos
                                     if(YPos >= sensorATile.Y + 16 - heightOfA - CurrentHeight)
                                     {
-                                        YPos = sensorATile.Y + (16 - heightOfA) - 20;
+                                        TotalPopY -= YPos - (sensorATile.Y + (16 - heightOfA) - 20);
                                         RegainGround();
                                     }
 
@@ -852,12 +886,12 @@ namespace NotSonic.Components
                                 }
                                 else
                                 {
-                                    YPos = sensorATile.Y + 16 - heightOfA - CurrentHeight;
+                                    TotalPopY -= YPos - (sensorATile.Y + 16 - heightOfA - CurrentHeight);
                                     RegainGround();
                                 }
                                 if(CurrentFloorMode == FloorMode.CEILING)
                                 {
-                                    YPos = sensorATile.Y + heightOfA + CurrentHeight + 1;
+                                    TotalPopY += YPos - (sensorATile.Y + 16 - heightOfA - CurrentHeight);
 
                                     RegainGround();
                                 }
@@ -867,10 +901,10 @@ namespace NotSonic.Components
                         }
                         else
                         {
-                            XPos = (sensorATile.X + 16) - heightOfA - CurrentHeight;
+                            TotalPopX -= XPos - ((sensorATile.X + 16) - (heightOfA + CurrentHeight));
                             if(CurrentFloorMode == FloorMode.LEFTWALL)
                             {
-                                XPos = sensorATile.X + heightOfA + CurrentHeight + 1;
+                                TotalPopX += XPos - ((sensorATile.X + 16) - (heightOfA + CurrentHeight));
                             }
                         
                         }
@@ -888,35 +922,36 @@ namespace NotSonic.Components
                                     // In air mode, we only stick to the ground if we are below the new pos
                                     if (YPos >= sensorBTile.Y + 16 - heightOfB - CurrentHeight)
                                     {
-                                        YPos = sensorBTile.Y + 16 - heightOfB - 20;
+                                        TotalPopY -= YPos - (sensorBTile.Y + 16 - heightOfB - 20);
                                         RegainGround();
                                     }
               
                                 }
                                 else
                                 {
-                                    YPos = sensorBTile.Y + 16 - heightOfB - CurrentHeight;
+                                    TotalPopY -= YPos - (sensorBTile.Y + 16 - heightOfB - CurrentHeight);
                                     RegainGround();
                                 }
                                 if(CurrentFloorMode == FloorMode.CEILING)
                                 {
-                                    YPos = sensorBTile.Y + heightOfB + CurrentHeight;
-                                }
+                                    TotalPopY += YPos - (sensorBTile.Y + 16 - heightOfB - CurrentHeight); 
+                            }
                             
                             }
                             
                         }
                         else
                         {
-                            XPos = (sensorBTile.X + 16) - heightOfB - CurrentHeight;
-                            if (CurrentFloorMode == FloorMode.LEFTWALL)
+                        TotalPopX -= XPos - ((sensorBTile.X + 16) - (heightOfB + CurrentHeight));
+                        if (CurrentFloorMode == FloorMode.LEFTWALL)
                             {
-                                XPos = sensorBTile.X + heightOfB + CurrentHeight;
+                                TotalPopX += XPos - ((sensorBTile.X + 16) - (heightOfB + CurrentHeight));
                             }
                            
                         }
                         Angle = angleOfB;
                     }
+
 
 
                    
@@ -1188,9 +1223,29 @@ namespace NotSonic.Components
 
             groundSensorA.DrawSelf(Color.Red);
             groundSensorB.DrawSelf(Color.Green);
-            ceilingSensorC.DrawSelf(Color.Yellow);
-            ceilingSensorD.DrawSelf(Color.Magenta);
+            //ceilingSensorC.DrawSelf(Color.Yellow);
+            //ceilingSensorD.DrawSelf(Color.Magenta);
             wallSensor.DrawSelf(Color.Cyan);
+
+            // Draw pop lines
+            // Push newest pop stuff on
+            if(TotalPopX != 0 || TotalPopY != 0)
+            {
+                DebugPopLineBuffer.Add(new KeyValuePair<Vector2, Vector2>(new Vector2(XPos, XPos - TotalPopX), new Vector2(YPos, YPos - TotalPopY)));
+            }
+            
+            if(DebugPopLineBuffer.Count > 60)
+            {
+                DebugPopLineBuffer.RemoveAt(0);
+
+            }
+            foreach (KeyValuePair<Vector2, Vector2> kv in DebugPopLineBuffer)
+            {
+
+                Draw.Line(kv.Key.X, kv.Value.X, kv.Key.Y, kv.Value.X, Color.Magenta, 3);
+                Draw.Line(kv.Key.X, kv.Value.X, kv.Key.X, kv.Value.Y, Color.Yellow, 3);
+
+            }
 
             Text newText = new Text("Angle: " + Angle.ToString() + " | Sensor A Height: " + groundSensorA.lastHeightHit.ToString() + " | NumTiles: " + TileList.Count.ToString(), 10);
             newText.Smooth = false;
@@ -1289,11 +1344,11 @@ namespace NotSonic.Components
                 {
                     if(YPos - 20 < sensorATile.Y + heightOfA)
                     {
-                        YPos = sensorATile.Y + heightOfA + CurrentHeight + 1;
+                        TotalPopY -= YPos - (sensorATile.Y + heightOfA + CurrentHeight + 1);
                         if (((sensorATile.myTileInfo.Angle > 90 && sensorATile.myTileInfo.Angle < 135) || (sensorATile.myTileInfo.Angle > 225 && sensorATile.myTileInfo.Angle < 270)))
                         {
                             //re-attach
-                            YPos += 2;
+                            TotalPopY += 2;
                             Angle = sensorATile.myTileInfo.Angle;
                             CurrentFloorMode = FloorMode.CEILING;
                             Jumping = false;
@@ -1303,7 +1358,7 @@ namespace NotSonic.Components
                         }
                         else
                         {
-                            YPos += 2;
+                            TotalPopY += 2;
                             YSpeed = 0;
                             Jumping = false;
                          
@@ -1314,12 +1369,12 @@ namespace NotSonic.Components
                 {
                     if(YPos - 20 < sensorBTile.Y + heightOfB)
                     {
-                        YPos = sensorBTile.Y + heightOfB + CurrentHeight + 1;
+                        TotalPopY -= YPos - (sensorBTile.Y + heightOfB + CurrentHeight + 1);
                         if (((sensorBTile.myTileInfo.Angle > 90 && sensorBTile.myTileInfo.Angle < 135) || (sensorBTile.myTileInfo.Angle > 225 && sensorBTile.myTileInfo.Angle < 270)))
                         {
                             //re-attach
 
-                            YPos += 2;
+                            TotalPopY += 2;
                             Angle = sensorBTile.myTileInfo.Angle;
                             CurrentFloorMode = FloorMode.CEILING;
                             Jumping = false;
@@ -1329,7 +1384,7 @@ namespace NotSonic.Components
                         }
                         else
                         {
-                            YPos += 2;
+                            TotalPopY += 2;
                             //fall
                             YSpeed = 0;
                             Jumping = false;
