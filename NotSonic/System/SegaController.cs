@@ -38,6 +38,7 @@ namespace NotSonic.System
         // Network stuff
         public NetClient thePeer;
         public int NetID = 0;
+        public int lastSerialized = 0;
 
         public SegaController(params int[] joystickId)
         {
@@ -205,13 +206,21 @@ namespace NotSonic.System
 
         public void SendInputs()
         {
-            
-            // Send on network!
-            var netmsg = thePeer.CreateMessage();
-            netmsg.Write(NetFlags.NETMSG_INPUTS);
-            netmsg.Write(NetID);
-            netmsg.Write(SerializeState());
-            thePeer.SendMessage(netmsg, NetDeliveryMethod.ReliableOrdered);
+            // Serialize input
+            int newinput = SerializeState();
+            // Check to make sure input has changed before sending a packet
+            if(newinput != lastSerialized)
+            {
+                // Send on network!
+                var netmsg = thePeer.CreateMessage();
+                netmsg.Write(NetFlags.NETMSG_INPUTS);
+                netmsg.Write(NetID);
+                netmsg.Write(newinput);
+                thePeer.SendMessage(netmsg, NetDeliveryMethod.ReliableOrdered);
+            }
+
+            // Update last serialized
+            lastSerialized = newinput;
 
             
         }

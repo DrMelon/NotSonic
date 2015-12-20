@@ -1,10 +1,5 @@
-Option C:
-Engineer it MYSELF
-
-Use Image-Based Collision, not 16-int height arrays.
-Easier to build
-easier to test
-easier to load in tbqh
-simply use a 2d array for the collision info, use that/flip it/etc
-
-REWRITE GROUND SENSOR STUFF FIRST, CLEAN IT UP!! WAY UP!!
+notsonic physics fix idea:
+instead of solve wall coll -> solve ground -> solve ceil
+have a totaloffsetx and totaloffsety var, add to that, solving based on the same initial pos vec for each
+then move by offset
+simultaneous collision detection, opens way for minimum distance moving etc
