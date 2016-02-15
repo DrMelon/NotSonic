@@ -1,6 +1,6 @@
+#version 120
 
-
-sampler2D texture;
+uniform sampler2D texture;
 uniform float freezetime;
 uniform float comboamt;
 uniform float maxfreeze;
@@ -32,7 +32,7 @@ vec3 hsv2rgb(vec3 c)
 }
  
 void main() {
-    vec2 pos = gl_TexCoord[0];
+    vec2 pos = gl_TexCoord[0].xy;
 	vec2 scrpos = gl_FragCoord.xy;
 
 	vec4 pixel = texture2D(texture, pos);

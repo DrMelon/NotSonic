@@ -1,6 +1,6 @@
+#version 120
 
-
-sampler2D texture;
+uniform sampler2D texture;
 
 
 float floorpr(float f, float p)
@@ -30,7 +30,7 @@ vec3 hsv2rgb(vec3 c)
 }
  
 void main() {
-    vec2 pos = gl_TexCoord[0];
+    vec2 pos = gl_TexCoord[0].xy;
 
 	vec4 pixel = texture2D(texture, pos);
 	pixel.r = 1.0f;

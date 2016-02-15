@@ -1,10 +1,33 @@
-Option C:
-Engineer it MYSELF
+notsonic physics fix idea:
+instead of solve wall coll -> solve ground -> solve ceil
+have a totaloffsetx and totaloffsety var, add to that, solving based on the same initial pos vec for each
+then move by offset
+simultaneous collision detection, opens way for minimum distance moving etc
 
-Use Image-Based Collision, not 16-int height arrays.
-Easier to build
-easier to test
-easier to load in tbqh
-simply use a 2d array for the collision info, use that/flip it/etc
+palette swapping in shader:
+have real texture
+have palette texture, and replacement palette texture
+read colour for current pix, find in palette tex, replace with replacement texture colour using coordinate from palette tex?
+iterative... not so good. 
+how about instead, using single color channel as x pos along colour strip + palette index offset on y? 
+would require palette cols to be placed at specific indices.
 
-REWRITE GROUND SENSOR STUFF FIRST, CLEAN IT UP!! WAY UP!!
+LUT too heavy-duty, harder to control? 
+
+could use indexed textures, RGB8 png... and use the 256 indexes in a 1d texture. would need to define only 256 cols per
+object tho... maybe too heavy-handed, not as portable. might need a way to "mark" colours in rgb24 
+
+interesting shader on stack exchange:
+"I believe ifs are fast enough for the color space [0...1] to be divided into two:
+
+if (color.r > 0.5) {
+   color.r = (color.r-0.5) * uniform_r + uniform_base_r;
+} else {
+  color.r *=2.0;
+} // this could be vectorised for all colors
+In this way color values between 0 and 0.5 are reserved for normal color values; and 0.5 - 1.0 are reserved for "modulated" values, where 0.5..1.0 maps to any range selected by the user."
+
+
+net effect, allows for colour alteration based on uniform vals; some kind of lookup table for which val means which
+new colour? doing it via a single channel like r helps, because ifs only need evaluated once. g and b are set based on
+result of r's >0.5 decision. 

@@ -25,8 +25,8 @@ namespace NotSonic
             Global.eventList = new List<MessageEvent>();
 
             // Render at 720p.
-            Global.theGame.SetWindowScale(3);
-           // Global.theGame.SetWindowAutoFullscreen(true);
+            Global.theGame.SetWindowScale(2);
+            //Global.theGame.SetWindowAutoFullscreen(false);
             Global.theGame.EnableQuitButton = false;
 
             // Initialize player controls.
@@ -51,6 +51,9 @@ namespace NotSonic
             Assets.GenerateAssetNames();
             Global.theGame.FirstScene = new LevelScene(Assets.MAP_TEST);
             Global.theGame.Color = new Color("5D516E");
+            
+
+            
             
 
             // Begin otter!

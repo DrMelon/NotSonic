@@ -15,6 +15,7 @@ namespace NotSonic.Entities
         public NotSonic.Components.ParticleSystem bubbleParticles;
         public NotSonic.Components.ParticleSystem brakeSmokeParticles;
         public NotSonic.Components.ParticleSystem speedTrailParticles;
+        public NotSonic.System.SegaController myController;
 
         public float SmoothAngle;
         public bool flipReady = false;
@@ -27,7 +28,7 @@ namespace NotSonic.Entities
         Sound comboResetSound = new Sound(Assets.SND_WARP);
         
         
-        public SonicPlayer(List<NotSonic.Components.Tile> tl, float x = 0, float y = 0)
+        public SonicPlayer(NotSonic.System.SegaController ctrl, List<NotSonic.Components.Tile> tl, float x = 0, float y = 0)
         {
             // Set Spawn Loc
             X = x;
@@ -37,7 +38,7 @@ namespace NotSonic.Entities
             this.Collider = new BoxCollider((int)CollisionWidth, (int)CollisionHeight, new int[] { 0 });
             this.Collider.CenterOrigin();
             tileList = tl;
-
+            myController = ctrl;
 
             // Create sprites
             spriteSheet = new Spritemap<string>(Assets.SONIC_SHEET, 40, 40);
@@ -56,6 +57,7 @@ namespace NotSonic.Entities
             // Create movement
             myMovement = new Components.SonicMovement();
             myMovement.TileList = tileList;
+            myMovement.theController = myController;
             AddComponent(myMovement);
 
             // Add to pausable objects group
@@ -71,7 +73,7 @@ namespace NotSonic.Entities
             base.Added();
             // Create particle systems
             speedTrailParticles = new Components.ParticleSystem(0, 0);
-            speedTrailParticles.Initialize(0, 0, 0, 0, 1, 2, Assets.SONIC_SHEET, 40, 40, 1, true, 1, 1);
+            speedTrailParticles.Initialize(0, 0, 0, 0, 1, 10, Assets.SONIC_SHEET, 40, 40, 1, true, 1, 1);
             speedTrailParticles.beginColour.A = 0.25f;
             speedTrailParticles.endColour.A = 0.1f;
             
@@ -84,7 +86,17 @@ namespace NotSonic.Entities
 
         private void UpdateSpeedTrails()
         {
-            speedTrailParticles.Visible = (Math.Max(Math.Abs(myMovement.YSpeed), Math.Abs(myMovement.XSpeed)) >= 10);
+            if((Math.Max(Math.Abs(myMovement.YSpeed), Math.Abs(myMovement.XSpeed)) >= 6))
+            {
+                speedTrailParticles.Visible = true;
+                speedTrailParticles.Start();
+            }
+            else
+            {
+                speedTrailParticles.Visible = false;
+                speedTrailParticles.Stop();
+            }
+            
             speedTrailParticles.X = X;
             speedTrailParticles.Y = Y;
             speedTrailParticles.Update();
