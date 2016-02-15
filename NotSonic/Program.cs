@@ -26,7 +26,7 @@ namespace NotSonic
 
             // Render at 720p.
             Global.theGame.SetWindowScale(3);
-            Global.theGame.SetWindowAutoFullscreen(true);
+           // Global.theGame.SetWindowAutoFullscreen(true);
             Global.theGame.EnableQuitButton = false;
 
             // Initialize player controls.
