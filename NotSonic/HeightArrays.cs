@@ -45,6 +45,7 @@ namespace NotSonic
             public int[] rightHeight;
             public int[] ceilHeight;
             public int[] leftHeight;
+            public Vector2 surfNorm;
         }
 
 
@@ -354,7 +355,9 @@ namespace NotSonic
             }
 
 
-                return newInfo;
+            return newInfo;
+
+
         }
         
     }

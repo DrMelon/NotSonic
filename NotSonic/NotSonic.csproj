@@ -59,6 +59,7 @@
     <Compile Include="Assets.cs" />
     <Compile Include="BadnikTest.cs" />
     <Compile Include="CameraShaker.cs" />
+    <Compile Include="Components\HyperSensor.cs" />
     <Compile Include="Components\ParticleSystem.cs" />
     <Compile Include="Components\Sensor.cs" />
     <Compile Include="Components\SonicMovement.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="SonicTileInfo.cs" />
     <Compile Include="SonicTileInfoDefaults.cs" />
     <Compile Include="System\SegaController.cs" />
+    <Compile Include="TilemapExt.cs" />
     <Compile Include="TitleCard.cs" />
   </ItemGroup>
   <ItemGroup>

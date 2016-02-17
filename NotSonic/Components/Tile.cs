@@ -44,7 +44,7 @@ namespace NotSonic.Components
             FlipY = flipY;
 
             tileImage = new ImageSet(Assets.TILE_SHEET, 16, 16);
-            Graphic = tileImage;
+            Graphic = new Image(16, 16);//tileImage;
             myType = tileType;
             myTileInfo = new SonicTileInfo(myType, flipX, flipY);
             

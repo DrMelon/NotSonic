@@ -381,6 +381,9 @@ namespace NotSonic
                     }
                 }
 
+                
+                
+                
 
                 // Check if player is underwater
                 if (ply.Y > waterLevel)

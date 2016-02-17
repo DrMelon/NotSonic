@@ -104,6 +104,8 @@ namespace NotSonic.Components
                             newCollision.tileHit = tile;
                             newCollision.thisIsNull = false;
 
+                            
+
 
                             lastHeight = HeightArrays.FetchArrayHeight(tile.myType, senseMode);
                             newCollision.tileHit.myTileInfo.Angle = HeightArrays.GetAngleFromArrayHeight(lastHeight, senseMode, moveRight);
