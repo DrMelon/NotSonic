@@ -40,6 +40,7 @@ namespace NotSonic
         Tilemap tilemap;
         Tilemap bgtilemap;
         Tilemap closeTilemap;
+        Tilemap collisionmap;
 
         // Freezelock
         bool freezeLocked = false;
@@ -144,6 +145,8 @@ namespace NotSonic
             AddGraphic(bgtilemap);
 
             AddGraphic(tilemap);
+
+            AddGraphic(collisionmap);
             
             Entity abovePlayerMap = new Entity(0, 0, closeTilemap);
             abovePlayerMap.Layer = thePlayer.Layer - 1;
@@ -152,7 +155,9 @@ namespace NotSonic
             foreach( NotSonic.Entities.SonicPlayer ply in thePlayers)
             {
                 Add(ply);
+                
             }
+
             
                         
             Add(theCamShaker);
@@ -195,6 +200,7 @@ namespace NotSonic
             tilemap = new Tilemap(Assets.TILE_SHEET, tmxMapData.Height * 16, 16);
             bgtilemap = new Tilemap(Assets.TILE_SHEET, tmxMapData.Height * 16, 16);
             closeTilemap = new Tilemap(Assets.TILE_SHEET, tmxMapData.Height * 16, 16);
+            collisionmap = new Tilemap(Assets.TILE_SHEET_ANGLES, tmxMapData.Height * 16, 16);
             Global.maxlvlheight = tmxMapData.Height * 16;
             Global.maxlvlwidth = tmxMapData.Width * 16;
             tilemap.AddLayer("vis", 19);
@@ -203,6 +209,8 @@ namespace NotSonic
             closeTilemap.UsePositions = true;
             bgtilemap.AddLayer("vis", 19);
             bgtilemap.UsePositions = true;
+            collisionmap.AddLayer("vis", 19);
+            collisionmap.UsePositions = true;
 
             // For each tile in the Solid layer, we want to create a Tile object, and use the relevant image.
             for (int i = 0; i < tmxMapData.Layers["Foreground"].Tiles.Count; i++)
@@ -220,6 +228,15 @@ namespace NotSonic
                 if (tmxMapData.Layers["Background"].Tiles[i].Gid != 0)
                 {
                     bgtilemap.SetTile(tmxMapData.Layers["Background"].Tiles[i].X * 16, tmxMapData.Layers["Background"].Tiles[i].Y * 16, tmxMapData.Layers["Background"].Tiles[i].HorizontalFlip, tmxMapData.Layers["Background"].Tiles[i].VerticalFlip);
+                }
+
+            }
+            for (int i = 0; i < tmxMapData.Layers["Solid_Height"].Tiles.Count; i++)
+            {
+                collisionmap.SetTile(tmxMapData.Layers["Solid_Height"].Tiles[i].X * 16, tmxMapData.Layers["Solid_Height"].Tiles[i].Y * 16, tmxMapData.Layers["Solid_Height"].Tiles[i].Gid - tmxMapData.Tilesets["Test_Height"].FirstGid, "base");
+                if (tmxMapData.Layers["Solid_Height"].Tiles[i].Gid != 0)
+                {
+                    collisionmap.SetTile(tmxMapData.Layers["Solid_Height"].Tiles[i].X * 16, tmxMapData.Layers["Solid_Height"].Tiles[i].Y * 16, tmxMapData.Layers["Solid_Height"].Tiles[i].HorizontalFlip, tmxMapData.Layers["Solid_Height"].Tiles[i].VerticalFlip);
                 }
 
             }
@@ -403,8 +420,10 @@ namespace NotSonic
                 }
             }
 
+            thePlayer.myMovement.groundSensorA.CollisionTilemap = collisionmap;
 
             base.Update();
+
 
             // Attempt to send networked phys stuff if networked
             if (thePlayer.myController.thePeer != null)
@@ -495,7 +514,9 @@ namespace NotSonic
                     if(tmObj.Name == "SonicStart")
                     {
                         thePlayer = new Entities.SonicPlayer(Global.playerSession.GetController<NotSonic.System.SegaController>(), null, (float)tmObj.X, (float)tmObj.Y);
+                        
                         thePlayers.Add(thePlayer);
+                        
                     }
                     if(tmObj.Name == "Ring")
                     {

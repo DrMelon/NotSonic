@@ -49,11 +49,48 @@ namespace NotSonic
                 TexY += tilemap.TileHeight;
             }
 
+            TexX = Math.Max(0, TexX);
+            TexY = Math.Max(0, TexY);
 
             outCol = tilemap.Texture.GetPixel(TexX, TexY);
             
 
             return outCol;
+        }
+
+        public static Vector2 SurfaceNormal(Tilemap tilemap, int X, int Y)
+        {
+            Vector2 outVec = new Vector2();
+
+            int Size = 3;
+
+            for (int x = -Size; x < Size; x++)
+            {
+                for (int y = -Size; y < Size; y++)
+                {
+                    if(ReadTilemapPixel(tilemap, X+x, Y+y).R > 0.5f)
+                    {
+                        if (x < 0)
+                        {
+                            outVec -= new Vector2(x, y);
+                        }
+                        else
+                        {
+                            outVec += new Vector2(x, y);
+                        }
+
+                        
+                    }
+                }
+            }
+
+            outVec.Normalize();
+
+            float tmp = outVec.X;
+            outVec.X = outVec.Y;
+            outVec.Y = tmp;
+
+            return -outVec;
         }
     }
 }
