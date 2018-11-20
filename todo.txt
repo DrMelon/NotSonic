@@ -1,3 +1,11 @@
+for future stuff if i go back to this:
+• remove netcode - not a good idea to go in with this for now
+• simplify physics spaghetti and possibly even make testable
+• simplify level editing pipeline and/or placement/processing of collision tiles
+• simplify processing of collision tiles for angles etc. likely use a lookup table for tile id vs angle, simpler that way
+• reduce tile collision overhead, investigate quadtree-otter integration
+• use same quadtree stuff for enemy graph possibly?
+
 notsonic physics fix idea:
 instead of solve wall coll -> solve ground -> solve ceil
 have a totaloffsetx and totaloffsety var, add to that, solving based on the same initial pos vec for each
