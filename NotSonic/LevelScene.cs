@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Otter;
 using TiledSharp;
-using Lidgren.Network;
 
 //----------------
 // Author: J. Brown (DrMelon)
@@ -71,11 +70,6 @@ namespace NotSonic
         // The camera shaking stuff
         CameraShaker theCamShaker = new CameraShaker();
 
-        // DID SOMEONE SAY NETCODE??/ 
-        // THIS IS GONNA BE AWESOME, TERRIBLE, OR BOTH
-        NetServer theServer = null;
-        NetClient theClient = null;
-        
         public LevelScene(string mapFilename)
         {
 
@@ -180,13 +174,6 @@ namespace NotSonic
             Otter.CommandType[] cmdArgs = new Otter.CommandType[1];
             cmdArgs[0] = CommandType.Int;
             Debugger.Instance.RegisterCommand("i", myFunc, cmdArgs);
-            Otter.Debugger.CommandFunction netFunc = new Debugger.CommandFunction(ConCommandNet);
-            Otter.CommandType[] cmdArgs2 = new Otter.CommandType[3];
-            cmdArgs2[0] = CommandType.String;
-            cmdArgs2[1] = CommandType.String;
-            cmdArgs2[2] = CommandType.String;
-            Debugger.Instance.RegisterCommand("network", netFunc, cmdArgs2);
-
         }
 
 
@@ -245,9 +232,6 @@ namespace NotSonic
                 // Set otter tile
                 tilemap.SetTile(tmxMapData.Layers["Solid"].Tiles[i].X * 16, tmxMapData.Layers["Solid"].Tiles[i].Y * 16, tmxMapData.Layers["Solid"].Tiles[i].Gid - 1, "base");
 
-
-
-
                 if (tmxMapData.Layers["Solid"].Tiles[i].Gid != 0)
                 {
                     // Heightmap Data
@@ -286,17 +270,7 @@ namespace NotSonic
                     tileList.Add(newTile);
                 }
 
-
-
-
-
-
-                }
-
-            
-
-            
-            
+            }
             
         }
 
@@ -304,17 +278,13 @@ namespace NotSonic
         {
             base.UpdateFirst();
 
-            // if we're networked, we want to update netplayer controllers
-            //if(theServer != null)
-            //{
-                foreach(NotSonic.Entities.SonicPlayer ply in thePlayers)
+            foreach(NotSonic.Entities.SonicPlayer ply in thePlayers)
+            {
+                if (ply != thePlayer)
                 {
-                    if(ply != thePlayer)
-                    {
-                        ply.myController.UpdateFirst();
-                    }
+                    ply.myController.UpdateFirst();
                 }
-            //}
+            }
         }
 
         public override void Update()
@@ -327,29 +297,7 @@ namespace NotSonic
 
             // Process messages first.
             ProcessMessages();
-            // Attempt to send networked controller stuff if networked
-            if(thePlayer.myController.thePeer != null)
-            {
-               // if ((int)Math.Floor(Timer) % 10 == 0) // send inputs 1/6th of a sec DEBUG
-               // {
-                    thePlayer.myController.SendInputs();
-               // }
-            }
-            if(theServer != null)
-            {
-                // send my inputs to all
-                
-                var newinputmsg = theServer.CreateMessage();
-                newinputmsg.Write(NetFlags.NETMSG_INPUTS);
-                newinputmsg.Write(0);
-                newinputmsg.Write(thePlayer.myController.SerializeState());
-                var recips = theServer.Connections;
-                if (recips.Count > 0)
-                {
-                    theServer.SendMessage(msg: newinputmsg, recipients: recips, method: NetDeliveryMethod.ReliableOrdered, sequenceChannel: 0);
-                }
-                
-            }
+
             // Check freezelock
             CheckFreezeLock();
 
@@ -423,32 +371,6 @@ namespace NotSonic
             thePlayer.myMovement.groundSensorA.CollisionTilemap = collisionmap;
 
             base.Update();
-
-
-            // Attempt to send networked phys stuff if networked
-            if (thePlayer.myController.thePeer != null)
-            {
-                 if ((int)Math.Floor(Timer) % 10 == 0) // send inputs 1/6th of a sec DEBUG
-                 {
-                    var netmsg = thePlayer.myMovement.SerializePhysicalState(thePlayer.myController.thePeer);
-                    thePlayer.myController.thePeer.SendMessage(netmsg, NetDeliveryMethod.UnreliableSequenced);
-                 }
-            }
-            if (theServer != null)
-            {
-                // send my inputs to all
-                if ((int) Math.Floor(Timer) % 10 == 0)
-                {
-                    var newinputmsg = thePlayer.myMovement.SerializePhysicalState(theServer);
-                    var recips = theServer.Connections;
-                    if (recips.Count > 0)
-                    {
-                        theServer.SendMessage(msg: newinputmsg, recipients: recips, method: NetDeliveryMethod.ReliableOrdered, sequenceChannel: 0);
-                    }
-                }
-                
-
-            }
         }
 
         public override void UpdateLast()
@@ -569,213 +491,6 @@ namespace NotSonic
 
             // Messages checked, clear list. 
             Global.eventList.Clear();
-
-            // Check for net messages
-            if (theClient != null)
-            {
-                NetIncomingMessage netmsg;
-                while ((netmsg = theClient.ReadMessage()) != null)
-                {
-                    switch (netmsg.MessageType)
-                    {
-                        case NetIncomingMessageType.Data:
-                            int nettype = netmsg.ReadInt32();
-                            switch (nettype)
-                            {
-                                // handle data
-                                case NetFlags.NETMSG_CONNECTINFO:
-                                    // Set own controller netid
-                                    int netid = netmsg.ReadInt32();
-                                    thePlayer.myController.NetID = netid;
-                                    Global.theGame.Timer = netmsg.ReadFloat();
-                                    break;
-
-                                case NetFlags.NETMSG_PLAYERSPAWN:
-                                    // Spawn a new player in the world.
-                                    NotSonic.System.SegaController newNetController = new System.SegaController(0);
-                                    newNetController.NetID = netmsg.ReadInt32();
-                                    NotSonic.Entities.SonicPlayer newPlayer = new NotSonic.Entities.SonicPlayer(newNetController, null, thePlayer.X, thePlayer.Y);
-
-                                    newPlayer.Graphic.Color = Color.Green;
-                                    Add(newPlayer);
-                                    thePlayers.Add(newPlayer);
-
-
-                                    break;
-
-                                case NetFlags.NETMSG_INPUTS:
-                                    // Input data incoming... find out which player it belongs to.
-                                    int forPlayer = netmsg.ReadInt32();
-                                    // Get inputs, play back on correct player.
-                                    Int32 inputs = netmsg.ReadInt32();
-
-                                    //thePlayers[forPlayer].myController.ReceiveInputs(inputs);
-                                    thePlayers.Find(x => x.myController.NetID == forPlayer).myController.ReceiveInputs(inputs);
-
-                                    break;
-
-                                case NetFlags.NETMSG_PLAYERPHYS:
-                                    // Physics data incoming
-                                    // Get player
-                                    forPlayer = netmsg.ReadInt32();
-                                    thePlayers.Find(x => x.myController.NetID == forPlayer).myMovement.DeserializeState(netmsg);
-
-
-                                    break;
-
-                                default:
-                                    Util.LogTag("NETCLIENT", "Got message of type: " + nettype);
-                                    break;
-                            }
-                            break;
-                        case NetIncomingMessageType.StatusChanged:
-                            // handle status update
-                            if (netmsg.SenderConnection.Status == NetConnectionStatus.Connected)
-                            {
-                                Util.LogTag("netclient", "Connection success!");
-                                // make controller networked (TODO: fetch id from serv, auth)
-                                thePlayer.myController.BeginNetworkingController(theClient);
-                            }
-                            if (netmsg.SenderConnection.Status == NetConnectionStatus.Disconnected)
-                            {
-                                Util.LogTag("netserv", "Disconnected from server.");
-                            }
-                            break;
-                        case NetIncomingMessageType.DebugMessage:
-                            // handle net debug
-                            break;
-                        default:
-                            // unknown messages
-                            Util.LogTag("netclient", "Unknown net message.");
-
-                            break;
-                    }
-                }
-
-            } 
-            if(theServer != null)
-            {
-                NetIncomingMessage netmsg;
-                while ((netmsg = theServer.ReadMessage()) != null)
-                {
-                    switch (netmsg.MessageType)
-                    {
-                        
-                        case NetIncomingMessageType.Data:
-                            // handle data
-                            // unpack data.
-                            int nettype = netmsg.ReadInt32();
-                            switch(nettype)
-                            {
-                                case NetFlags.NETMSG_INPUTS:
-                                    // Input data incoming... find out which player it belongs to.
-                                    int forPlayer = netmsg.ReadInt32();
-                                    // Get inputs, play back on correct player.
-                                    Int32 inputs = netmsg.ReadInt32();
-
-                                    //thePlayers[forPlayer].myController.ReceiveInputs(inputs);
-                                    if (forPlayer != 0)
-                                    {
-                                        thePlayers.Find(x => x.myController.NetID == forPlayer).myController.ReceiveInputs(inputs);
-                                        // send these inputs on to each other connected player, if server
-                                        var newinputmsg = theServer.CreateMessage();
-                                        newinputmsg.Write(nettype);
-                                        newinputmsg.Write(forPlayer);
-                                        newinputmsg.Write(inputs);
-                                        var recips = theServer.Connections.FindAll(x => x != netmsg.SenderConnection);
-                                        if (recips.Count > 0)
-                                        {
-                                            theServer.SendMessage(msg: newinputmsg, recipients: recips, method: NetDeliveryMethod.ReliableOrdered, sequenceChannel: 0);
-                                        }
-
-                                    }
-                                    
-                                    break;
-
-                                case NetFlags.NETMSG_PLAYERPHYS:
-                                    // Physics data incoming
-                                    // Get player
-                                    forPlayer = netmsg.ReadInt32();
-                                    thePlayers.Find(x => x.myController.NetID == forPlayer).myMovement.DeserializeState(netmsg);
-                                    // Pass onto other players
-                                    var newphysmsg = thePlayers.Find(x => x.myController.NetID == forPlayer).myMovement.SerializePhysicalState(theServer);
-                                    
-                                    var recipss = theServer.Connections.FindAll(x => x != netmsg.SenderConnection);
-                                    if (recipss.Count > 0)
-                                    {
-                                        theServer.SendMessage(msg: newphysmsg, recipients: recipss, method: NetDeliveryMethod.UnreliableSequenced, sequenceChannel: 0);
-                                    }
-
-
-                                    break;
-
-                                default:
-                                    break;
-                            }
-
-                            break;
-                        case NetIncomingMessageType.StatusChanged:
-                            // handle status update
-                            if(netmsg.SenderConnection.Status == NetConnectionStatus.Connected)
-                            {
-                                Util.LogTag("netserv", "User connected!");
-                                // Make a sonic
-                                
-                                NotSonic.System.SegaController newNetController = new System.SegaController(0);
-                                newNetController.NetID = thePlayers.Count();
-                                NotSonic.Entities.SonicPlayer newPlayer = new NotSonic.Entities.SonicPlayer(newNetController, null, thePlayer.X, thePlayer.Y);
-                                
-                                newPlayer.Graphic.Color = Color.Green;
-                                Add(newPlayer);
-                                thePlayers.Add(newPlayer);
-
-                                // Signal all connections except this one that a new player arrived.
-                                var newplayermsg = theServer.CreateMessage();
-                                newplayermsg.Write(NetFlags.NETMSG_PLAYERSPAWN);
-                                newplayermsg.Write(newNetController.NetID);
-                                var recips = theServer.Connections.FindAll(x => x != netmsg.SenderConnection);
-                                if(recips.Count > 0)
-                                {
-                                    theServer.SendMessage(msg: newplayermsg, recipients: recips, method: NetDeliveryMethod.ReliableOrdered, sequenceChannel: 0);
-                                }
-                                
-
-                                // Tell the new connection about its id & timestamp
-                                var idmsg = theServer.CreateMessage();
-                                idmsg.Write(NetFlags.NETMSG_CONNECTINFO);
-                                idmsg.Write(newNetController.NetID);
-                                idmsg.Write(Global.theGame.Timer);
-                                theServer.SendMessage(idmsg, netmsg.SenderConnection, NetDeliveryMethod.ReliableOrdered);
-
-                                // Tell the new connection about the other players
-                                foreach (NotSonic.Entities.SonicPlayer ply in thePlayers)
-                                {
-                                    if(ply != newPlayer)
-                                    {
-                                        var existingplayersmsg = theServer.CreateMessage();
-                                        existingplayersmsg.Write(NetFlags.NETMSG_PLAYERSPAWN);
-                                        existingplayersmsg.Write(ply.myController.NetID);
-                                        theServer.SendMessage(existingplayersmsg, netmsg.SenderConnection, NetDeliveryMethod.ReliableOrdered);
-                                    }
-                                }
-                                
-                            }
-                            if(netmsg.SenderConnection.Status == NetConnectionStatus.Disconnected)
-                            {
-                                Util.LogTag("netserv", "User disconnected!");
-                            }
-                            break;
-                        case NetIncomingMessageType.DebugMessage:
-                            // handle net debug
-                            break;
-                        default:
-                            // unknown messages
-                            Util.LogTag("netserv", "Unknown net message.");
-
-                            break;
-                    }
-                }
-            }
         }
 
         public void ProcessMessage(MessageEvent msg)
@@ -850,55 +565,6 @@ namespace NotSonic
                     freezeLocked = false;
                     PauseGroupToggle(Global.GROUP_ACTIVEOBJECTS);
                 }
-            }
-        }
-
-        public void ConCommandNet(params string[] args)
-        {
-            bool cmdfail = false;
-            if(args.Count() == 3)
-            {
-                
-
-                if(args[0] != "host" && args[0] != "client")
-                {
-                    cmdfail = true;
-                }
-
-                int PortNum;
-                
-
-                if(!int.TryParse(args[2], out PortNum))
-                {
-                    cmdfail = true;
-                }
-
-                if(!cmdfail)
-                {
-                    if (args[0] == "host")
-                    {
-                        //begin hosting w/ lidgren
-                        var netcfg = new NetPeerConfiguration("NotSonic") { Port = PortNum };
-                        theServer = new NetServer(netcfg);
-                        theServer.Start();
-                    }
-
-                    if (args[0] == "client")
-                    {
-                        //begin connection w/ lidgren to host
-                        var netcfg = new NetPeerConfiguration("NotSonic");
-                        theClient = new NetClient(netcfg);
-                        theClient.Start();
-                        theClient.Connect(host: args[1], port: PortNum);
-                    }
-                }
-                
-
-            }
-            if(cmdfail)
-            {
-                Util.Log("Incorrect command usage:");
-                Util.Log("network: <host/client> <ip> <port>");
             }
         }
 

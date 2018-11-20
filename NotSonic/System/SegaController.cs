@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Otter;
-using Lidgren.Network;
 
 //----------------
 // Author: J. Brown (DrMelon)
@@ -34,11 +33,6 @@ namespace NotSonic.System
         public Button Down { get { return Button(Controls.Down); } }
         public Button Left { get { return Button(Controls.Left); } }
         public Button Right { get { return Button(Controls.Right); } }
-
-        // Network stuff
-        public NetClient thePeer;
-        public int NetID = 0;
-        public int lastSerialized = 0;
 
         public SegaController(params int[] joystickId)
         {
@@ -87,12 +81,6 @@ namespace NotSonic.System
             Right
         }
 
-        public void BeginNetworkingController(NetClient peer)
-        {
-            thePeer = peer;
-            
-            
-        }
 
         public Int32 SerializeState()
         {
@@ -137,8 +125,8 @@ namespace NotSonic.System
 
         public void DeSerializeState(Int32 bitflags)
         {
-            
-            if((bitflags & (1 << 0)) > 0)
+
+            if ((bitflags & (1 << 0)) > 0)
             {
                 A.ForceState(true);
             }
@@ -204,33 +192,6 @@ namespace NotSonic.System
             }
         }
 
-        public void SendInputs()
-        {
-            // Serialize input
-            int newinput = SerializeState();
-            // Check to make sure input has changed before sending a packet
-            if(newinput != lastSerialized)
-            {
-                // Send on network!
-                var netmsg = thePeer.CreateMessage();
-                netmsg.Write(NetFlags.NETMSG_INPUTS);
-                netmsg.Write(NetID);
-                netmsg.Write(newinput);
-                thePeer.SendMessage(netmsg, NetDeliveryMethod.ReliableOrdered);
-            }
-
-            // Update last serialized
-            lastSerialized = newinput;
-
-            
-        }
-
-        public void ReceiveInputs(Int32 inputs)
-        {
-            
-            DeSerializeState(inputs);
-            
-        }
     }
 }
 

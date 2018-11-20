@@ -1,5 +1,6 @@
 for future stuff if i go back to this:
 • remove netcode - not a good idea to go in with this for now
+• get a newer version of otter in here
 • simplify physics spaghetti and possibly even make testable
 • simplify level editing pipeline and/or placement/processing of collision tiles
 • simplify processing of collision tiles for angles etc. likely use a lookup table for tile id vs angle, simpler that way
