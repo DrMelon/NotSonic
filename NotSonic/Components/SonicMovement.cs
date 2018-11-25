@@ -118,12 +118,12 @@ namespace NotSonic.Components
       
 
         // Net stuff
-        public float DXPos;
-        public float DYPos;
-        public float DXSpeed;
-        public float DYSpeed;
-        public float DGroundSpeed;
-        public float DAngle;
+        public float DXPos = 0;
+        public float DYPos = 0;
+        public float DXSpeed = 0;
+        public float DYSpeed = 0;
+        public float DGroundSpeed = 0;
+        public float DAngle = 0;
 
         #region Public Methods
 

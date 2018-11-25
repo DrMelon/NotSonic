@@ -118,12 +118,12 @@ namespace NotSonic.Components
                             if (CollisionTilemap != null)
                             {
                                 int i;
-                                for (i = (int)BPos1; i < (int)BPos2; i++)
+                                for (i = (int)BPos2; i >= (int)BPos1; i--)
                                 {
                                     if (TilemapExt.ReadTilemapPixel(CollisionTilemap, (int)APos, i).R > 0.5f)
                                     {
                                         // hit! 
-                                        lastHeightHit = (i - (int)BPos1) / 2;
+                                        lastHeightHit = 16 - ((int)BPos2 - i);//(i - (int)BPos1) / 2;
                                         newCollision.thisIsNull = false;
 
 

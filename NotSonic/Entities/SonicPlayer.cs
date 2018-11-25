@@ -12,12 +12,12 @@ namespace NotSonic.Entities
         public Spritemap<string> spriteSheet;
         public NotSonic.Components.SonicMovement myMovement;
         public List<NotSonic.Components.Tile> tileList;
-        public NotSonic.Components.ParticleSystem bubbleParticles;
-        public NotSonic.Components.ParticleSystem brakeSmokeParticles;
+        public NotSonic.Components.ParticleSystem bubbleParticles = null;
+        public NotSonic.Components.ParticleSystem brakeSmokeParticles = null;
         public NotSonic.Components.ParticleSystem speedTrailParticles;
         public NotSonic.System.SegaController myController;
 
-        public float SmoothAngle;
+        public float SmoothAngle = 0;
         public bool flipReady = false;
         public bool GrossMode = false; //gross animation rotation mode
 

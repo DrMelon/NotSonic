@@ -9,7 +9,7 @@ using Otter;
 
 namespace NotSonic
 {
-    class HeightArrays
+    class HeightArrays 
     {
         public static int[] HEIGHT_ARRAY_EMPTY = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         public static int[] HEIGHT_ARRAY_FULL = { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 };
