@@ -27,6 +27,11 @@ namespace Otter {
         /// </summary>
         public float Timer = 0;
 
+        /// <summary>
+        /// The Component's id for the Entity its attached to.
+        /// </summary>
+        public int InstanceId { get; internal set; }
+
         #endregion
 
         #region Public Properties
@@ -78,7 +83,24 @@ namespace Otter {
 
         #endregion
 
+        #region Constructors
+
+        public Component() {
+            InstanceId = -1;
+        }
+
+        #endregion
+
         #region Public Methods
+
+        /// <summary>
+        /// Get the Entity as a specific Type.
+        /// </summary>
+        /// <typeparam name="T">The Type to get.</typeparam>
+        /// <returns>The Entity as Type T</returns>
+        public T GetEntity<T>() where T : Entity {
+            return (T)Entity;
+        }
 
         /// <summary>
         /// Called when the Component is added to the Entity.

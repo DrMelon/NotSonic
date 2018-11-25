@@ -338,7 +338,7 @@ namespace Otter {
         internal override SFML.Graphics.Glyph GetGlyph(char c, int size, bool bold) {
 
             var rect = new SFML.Graphics.IntRect();
-            var bounds = new SFML.Graphics.IntRect();
+            var bounds = new SFML.Graphics.FloatRect();
             var advance = 0;
 
             if (DataType == BitmapFontDataType.None) {
@@ -385,11 +385,11 @@ namespace Otter {
             };
         }
 
-        internal override int GetLineSpacing(int size) {
+        internal override float GetLineSpacing(int size) {
             return LineSpacing;
         }
 
-        public override int GetKerning(char first, char second, int characterSize) {
+        public override float GetKerning(char first, char second, int characterSize) {
             if (!EnableKerning) return 0;
 
             if (!kerningPairs.ContainsKey(first)) {

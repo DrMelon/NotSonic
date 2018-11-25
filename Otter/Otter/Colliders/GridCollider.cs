@@ -314,15 +314,26 @@ namespace Otter {
         /// <summary>
         /// Draw the collider for debug purposes.
         /// </summary>
-        public override void Render() {
-            base.Render();
+        public override void Render(Color color = null) {
+            base.Render(color);
+            if (color == null) color = Color.Red;
 
             if (Entity == null) return;
 
+            float viewLeft = Game.Instance.Scene.CameraX - TileWidth;
+            float viewRight = Game.Instance.Scene.CameraX + Game.Instance.Scene.CameraWidth;
+            float viewTop = Game.Instance.Scene.CameraY - TileHeight;
+            float viewBottom = Game.Instance.Scene.CameraY + Game.Instance.Scene.CameraHeight;
+
             for (int i = 0; i < TileColumns; i++) {
                 for (int j = 0; j < TileRows; j++) {
-                    if (GetTile(i, j)) {
-                        Draw.Rectangle(Left + i * TileWidth + 1, Top + j * TileHeight + 1, TileWidth - 2, TileHeight - 2, Color.None, Color.Red, 1f);
+
+                    if (Left + i * TileWidth > viewLeft && Left + i * TileWidth < viewRight && Top + j * TileHeight > viewTop  &&  Top + j * TileHeight < viewBottom )
+                    {
+                        if (GetTile(i, j))
+                        {
+                            Draw.Rectangle(Left + i * TileWidth + 1, Top + j * TileHeight + 1, TileWidth - 2, TileHeight - 2, Color.None, color, 1f);
+                        }
                     }
                 }
             }

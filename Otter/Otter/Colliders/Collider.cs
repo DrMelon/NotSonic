@@ -137,6 +137,20 @@ namespace Otter {
         #region Public Methods
 
         /// <summary>
+        /// Checks for a collision with a specific point.
+        /// </summary>
+        /// <param name="x">The x position to check.</param>
+        /// <param name="y">The y position to check.</param>
+        /// <param name="px">The x of the point to check.</param>
+        /// <param name="py">The y of the point to check.</param>
+        /// <returns>True if the Collider at position x, y overlaps px, py.</returns>
+        public bool Overlap(float x, float y, int px, int py) {
+            var point = new PointCollider(px, py);
+            var e = new Entity(0, 0, null, point);
+            return OverlapTest(this, point);
+        }
+
+        /// <summary>
         /// Checks for a collision against the specified tags and returns true or false.
         /// </summary>
         /// <param name="x">The x position to check.</param>
@@ -216,6 +230,18 @@ namespace Otter {
         /// <summary>
         /// Checks for a collision against a list of Entities and all of their colliders.
         /// </summary>
+        /// <typeparam name="T">The type of entity to check.</typeparam>
+        /// <param name="x">The x position to check.</param>
+        /// <param name="y">The y position to check.</param>
+        /// <param name="entities">The Entities to check.</param>
+        /// <returns>True if there was a collision.</returns>
+        public bool Overlap<T>(float x, float y, List<T> entities) where T : Entity {
+            return (Collide(x, y, entities.ToList<Entity>()) != null);
+        }
+
+        /// <summary>
+        /// Checks for a collision against a list of Entities and all of their colliders.
+        /// </summary>
         /// <param name="x">The x position to check.</param>
         /// <param name="y">The y position to check.</param>
         /// <param name="entities">The Entities to check.</param>
@@ -226,6 +252,10 @@ namespace Otter {
                 if (c != null) return c;
             }
             return null;
+        }
+
+        public Collider Collide<T>(float x, float y, List<T> entities) where T : Entity {
+            return Collide(x, y, entities.ToList<Entity>());
         }
 
         /// <summary>
@@ -257,6 +287,7 @@ namespace Otter {
                     foreach (Collider c in Entity.Scene.Colliders[t]) {
                         if (c.Entity != null) {
                             if (!c.Entity.Collidable) continue;
+                            if (!c.Collidable) continue;
                             if (c.Entity == Entity) continue;
                         }
                         else { // Emergency back up fix. Colliders with no entity should NOT be checked, or in the list.
@@ -297,6 +328,8 @@ namespace Otter {
         public Collider Collide(float x, float y, Collider c) {
             if (Entity == null) return null;
             if (Entity.Scene == null) return null;
+            if (!c.Entity.Collidable) return null;
+            if (!c.Collidable) return null;
 
             float tempX = Entity.X, tempY = Entity.Y;
             Entity.X = x;
@@ -324,12 +357,14 @@ namespace Otter {
             if (Entity == null) return null;
             if (Entity.Scene == null) return null;
             if (Entity == e) return null; // Can't collide with self
+            if (!Entity.Collidable) return null;
 
             float tempX = Entity.X, tempY = Entity.Y;
             Entity.X = x;
             Entity.Y = y;
 
             foreach (Collider c in e.Colliders) {
+                if (!c.Collidable) continue;
                 if (OverlapTest(this, c)) {
                     Entity.X = tempX;
                     Entity.Y = tempY;
@@ -503,6 +538,7 @@ namespace Otter {
         /// <param name="entities">The list of Entities to check.</param>
         /// <returns>The Entity that was hit.</returns>
         public Entity CollideEntity(float x, float y, List<Entity> entities) {
+            if (Collide(x, y, entities) == null) return null;
             return Collide(x, y, entities).Entity;
         }
 
@@ -514,8 +550,8 @@ namespace Otter {
         /// <param name="y">The y position to check.</param>
         /// <param name="entities">The list of Entities to check.</param>
         /// <returns>The Entity that was hit.</returns>
-        public T CollideEntity<T>(float x, float y, List<Entity> entities) where T : Entity {
-            return (T)CollideEntity(x, y, entities);
+        public T CollideEntity<T>(float x, float y, List<T> entities) where T : Entity {
+            return (T)CollideEntity(x, y, entities.ToList<Entity>()); // This blows up for some reason sometimes?
         }
 
         /// <summary>
@@ -548,6 +584,7 @@ namespace Otter {
                     foreach (var c in Entity.Scene.Colliders[t]) {
                         if (c.Entity != null) {
                             if (!c.Entity.Collidable) continue;
+                            if (!c.Collidable) continue;
                         }
                         if (OverlapTest(this, c)) {
                             collided.Add(c);
@@ -618,7 +655,9 @@ namespace Otter {
             List<Collider> clist = CollideList(x, y, tags);
             foreach (Collider c in clist) {
                 if (!collided.Contains(c.Entity)) {
-                    collided.Add(c.Entity);
+                    if (c.Entity != Entity) {
+                        collided.Add(c.Entity);
+                    }
                 }
             }
 
@@ -686,30 +725,19 @@ namespace Otter {
         /// <summary>
         /// Creates a list of Entities that the Collider has collided with.
         /// </summary>
-        /// <typeparam name="T">The type of list to return.</typeparam>
+        /// <typeparam name="T">The type of Entity.</typeparam>
         /// <param name="x">The x position to check.</param>
         /// <param name="y">The y position to check.</param>
         /// <param name="entities">The Entities to check.</param>
         /// <returns>A list of entities.</returns>
-        public List<T> CollideEntities<T>(float x, float y, List<Entity> entities) {
-            return CollideEntities(x, y, entities).Cast<T>().ToList();
-        }
-
-        /// <summary>
-        /// Creates a list of Entities that the Collider has collided with.
-        /// </summary>
-        /// <param name="x">The x position to check.</param>
-        /// <param name="y">The y position to check.</param>
-        /// <param name="entities">The Entities to check.</param>
-        /// <returns>A list of entities.</returns>
-        public List<Entity> CollideEntities(float x, float y, List<Entity> entities) {
-            var list = new List<Entity>();
+        public List<T> CollideEntities<T>(float x, float y, List<T> entities) where T : Entity {
+            var list = new List<T>();
 
             foreach (var e in entities) {
                 var c = Collide(x, y, e);
                 if (c != null) {
                     if (c.Entity != null) {
-                        list.Add(c.Entity);
+                        list.Add(e);
                     }
                 }
             }
@@ -731,6 +759,7 @@ namespace Otter {
             foreach (int tag in tags) {
                 c = CollideList(x, y, tag);
                 foreach (Collider col in c) {
+                    if (collided.Contains(col.Entity)) continue;
                     collided.Add(col.Entity);
                 }
             }
@@ -755,7 +784,7 @@ namespace Otter {
         /// <summary>
         /// Callback for when the Collider renders (usually for debugging purposes.)
         /// </summary>
-        public virtual void Render() {
+        public virtual void Render(Color color = null) {
 
         }
 
@@ -921,7 +950,6 @@ namespace Otter {
         /// <param name="second">The second collider to test.</param>
         /// <returns>True if overlapping something</returns>
         internal static bool OverlapTest(Collider first, Collider second) {
-
             #region Box vs Box
             if (first is BoxCollider && second is BoxCollider) {
                 if (first.Right <= second.Left) return false;
@@ -1641,6 +1669,13 @@ namespace Otter {
 
                 var poly1 = new Polygon(poly.Polygon);
                 poly1.OffsetPoints(poly.Left, poly.Top);
+
+                // check each point of poly for distance to circle
+                foreach (var p in poly1.Points) {
+                    if (Util.Distance(p.X, p.Y, circ.CenterX, circ.CenterY) < circ.Radius) {
+                        return true;
+                    }
+                }
 
                 //check if center point is in poly
                 if (poly1.ContainsPoint(circ.CenterX, circ.CenterY)) {

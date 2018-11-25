@@ -5,11 +5,9 @@ using System.Reflection;
 namespace Otter {
     public partial class Tween {
         [Flags]
-        private enum Behavior {
-            None,
-            Reflect,
-            Rotation,
-            Round
+        public enum RotationUnit {
+            Degrees,
+            Radians
         }
 
         #region Callbacks
@@ -18,137 +16,164 @@ namespace Otter {
         #endregion
 
         #region Timing
-        protected bool paused;
-        protected float Delay;
-        protected float Duration;
+        public bool Paused { get; private set; }
+        private float Delay, repeatDelay;
+        private float Duration;
 
         private float time;
-        private float elapsed;
         #endregion
 
-        private int repeatCount;
-        private Behavior behavior;
+        private bool firstUpdate;
+        private int repeatCount, timesRepeated;
+        private GlideLerper.Behavior behavior;
 
-        private List<float> start, range, end;
         private List<GlideInfo> vars;
+        private List<GlideLerper> lerpers;
+        private List<object> start, end;
+        private Dictionary<string, int> varHash;
+        private TweenerImpl Parent;
+        private IRemoveTweens Remover;
 
-        protected object Target;
-        private Tween.TweenerImpl parent;
-
+        /// <summary>
+        /// The time remaining before the tween ends or repeats.
+        /// </summary>
         public float TimeRemaining { get { return Duration - time; } }
+
+        /// <summary>
+        /// A value between 0 and 1, where 0 means the tween has not been started and 1 means that it has completed.
+        /// </summary>
         public float Completion { get { var c = time / Duration; return c < 0 ? 0 : (c > 1 ? 1 : c); } }
 
-        public Tween() {
-            elapsed = 0;
+        /// <summary>
+        /// Whether the tween is currently looping.
+        /// </summary>
+        public bool Looping { get { return repeatCount != 0; } }
 
+        /// <summary>
+        /// The object this tween targets. Will be null if the tween represents a timer.
+        /// </summary>
+        public object Target { get; private set; }
+
+        private Tween(object target, float duration, float delay, Tween.TweenerImpl parent) {
+            Target = target;
+            Duration = duration;
+            Delay = delay;
+            Parent = parent;
+            Remover = parent;
+
+            firstUpdate = true;
+
+            varHash = new Dictionary<string, int>();
             vars = new List<GlideInfo>();
-            start = new List<float>();
-            range = new List<float>();
-            end = new List<float>();
+            lerpers = new List<GlideLerper>();
+            start = new List<object>();
+            end = new List<object>();
+            behavior = GlideLerper.Behavior.None;
         }
 
-        internal void Update() {
-            if (paused)
-                return;
+        private void AddLerp(GlideLerper lerper, GlideInfo info, object from, object to) {
+            varHash.Add(info.PropertyName, vars.Count);
+            vars.Add(info);
 
-            if (Delay > 0) {
-                Delay -= elapsed;
-                return;
+            start.Add(from);
+            end.Add(to);
+
+            lerpers.Add(lerper);
+        }
+
+        private void Update(float elapsed) {
+            if (firstUpdate) {
+                firstUpdate = false;
+
+                var i = vars.Count;
+                while (i-- > 0) {
+                    if (lerpers[i] != null)
+                        lerpers[i].Initialize(start[i], end[i], behavior);
+                }
             }
+            else {
+                if (Paused)
+                    return;
 
-            if (time == 0) {
-                if (begin != null)
+                if (Delay > 0) {
+                    Delay -= elapsed;
+                    if (Delay > 0)
+                        return;
+                }
+
+                if (time == 0 && timesRepeated == 0 && begin != null)
                     begin();
-            }
 
-            if (update != null)
-                update();
+                time += elapsed;
+                float setTimeTo = time;
+                float t = time / Duration;
+                bool doComplete = false;
 
-            time += elapsed;
-            float t = time / Duration;
-            bool doComplete = false;
+                if (time >= Duration) {
+                    if (repeatCount != 0) {
+                        setTimeTo = 0;
+                        Delay = repeatDelay;
+                        timesRepeated++;
 
-            if (time >= Duration) {
-                if (repeatCount > 0) {
-                    --repeatCount;
-                    time = t = 0;
-                }
-                else if (repeatCount < 0) {
-                    doComplete = true;
-                    time = t = 0;
-                }
-                else {
-                    time = Duration;
-                    t = 1;
-                    parent.Remove(this);
-                    doComplete = true;
-                }
+                        if (repeatCount > 0)
+                            --repeatCount;
 
-                if (time == 0) {
-                    //	If the timer is zero here, we just restarted.
-                    //	If reflect mode is on, flip start to end
-                    if ((behavior & Behavior.Reflect) == Behavior.Reflect)
-                        Reverse();
-                }
-            }
-
-            if (ease != null)
-                t = ease(t);
-
-            Interpolate(t);
-
-            if (doComplete && complete != null)
-                complete();
-        }
-
-        protected virtual void Interpolate(float t) {
-            int i = vars.Count;
-            while (i-- > 0) {
-                float value = start[i] + range[i] * t;
-                if ((behavior & Behavior.Round) == Behavior.Round) {
-                    value = (float)Math.Round(value);
-                }
-
-                if ((behavior & Behavior.Rotation) == Behavior.Rotation) {
-                    float angle = value % 360.0f;
-
-                    if (angle < 0) {
-                        angle += 360.0f;
+                        if (repeatCount < 0)
+                            doComplete = true;
                     }
-
-                    value = angle;
+                    else {
+                        time = Duration;
+                        t = 1;
+                        Remover.Remove(this);
+                        doComplete = true;
+                    }
                 }
 
-                vars[i].Value = value;
+                if (ease != null)
+                    t = ease(t);
+
+                int i = vars.Count;
+                while (i-- > 0) {
+                    if (vars[i] != null)
+                        vars[i].Value = lerpers[i].Interpolate(t, vars[i].Value, behavior);
+                }
+
+                time = setTimeTo;
+
+                //	If the timer is zero here, we just restarted.
+                //	If reflect mode is on, flip start to end
+                if (time == 0 && behavior.HasFlag(GlideLerper.Behavior.Reflect))
+                    Reverse();
+
+                if (update != null)
+                    update();
+
+                if (doComplete && complete != null)
+                    complete();
             }
         }
 
         #region Behavior
-
         /// <summary>
         /// Apply target values to a starting point before tweening.
         /// </summary>
         /// <param name="values">The values to apply, in an anonymous type ( new { prop1 = 100, prop2 = 0} ).</param>
         /// <returns>A reference to this.</returns>
         public Tween From(object values) {
-            foreach (PropertyInfo property in values.GetType().GetProperties()) {
-                int index = vars.FindIndex(i => String.Compare(i.Name, property.Name, true) == 0);
-                if (index >= 0) {
+            var props = values.GetType().GetProperties();
+            for (int i = 0; i < props.Length; ++i) {
+                var property = props[i];
+                var propValue = property.GetValue(values, null);
+
+                int index = -1;
+                if (varHash.TryGetValue(property.Name, out index)) {
                     //	if we're already tweening this value, adjust the range
-                    var info = vars[index];
-
-                    var to = new GlideInfo(values, property.Name, false);
-                    info.Value = to.Value;
-
-                    start[index] = Convert.ToSingle(info.Value);
-                    range[index] = this.end[index] - start[index];
+                    start[index] = propValue;
                 }
-                else {
-                    //	if we aren't tweening this value, just set it
-                    var info = new GlideInfo(Target, property.Name, true);
-                    var to = new GlideInfo(values, property.Name, false);
-                    info.Value = to.Value;
-                }
+
+                //	if we aren't tweening this value, just set it
+                var info = new GlideInfo(Target, property.Name, true);
+                info.Value = propValue;
             }
 
             return this;
@@ -165,33 +190,36 @@ namespace Otter {
         }
 
         /// <summary>
-        /// Set a function to call when the tween begins (useful when using delays).
+        /// Set a function to call when the tween begins (useful when using delays). Can be called multiple times for compound callbacks.
         /// </summary>
         /// <param name="callback">The function that will be called when the tween starts, after the delay.</param>
         /// <returns>A reference to this.</returns>
         public Tween OnBegin(Action callback) {
-            begin = callback;
+            if (begin == null) begin = callback;
+            else begin += callback;
             return this;
         }
 
         /// <summary>
-        /// Set a function to call when the tween finishes.
+        /// Set a function to call when the tween finishes. Can be called multiple times for compound callbacks.
         /// If the tween repeats infinitely, this will be called each time; otherwise it will only run when the tween is finished repeating.
         /// </summary>
         /// <param name="callback">The function that will be called on tween completion.</param>
         /// <returns>A reference to this.</returns>
         public Tween OnComplete(Action callback) {
-            complete = callback;
+            if (complete == null) complete = callback;
+            else complete += callback;
             return this;
         }
 
         /// <summary>
-        /// Set a function to call as the tween updates.
+        /// Set a function to call as the tween updates. Can be called multiple times for compound callbacks.
         /// </summary>
         /// <param name="callback">The function to use.</param>
         /// <returns>A reference to this.</returns>
         public Tween OnUpdate(Action callback) {
-            update = callback;
+            if (update == null) update = callback;
+            else update += callback;
             return this;
         }
 
@@ -206,11 +234,21 @@ namespace Otter {
         }
 
         /// <summary>
+        /// Set a delay for when the tween repeats.
+        /// </summary>
+        /// <param name="delay">How long to wait before repeating.</param>
+        /// <returns>A reference to this.</returns>
+        public Tween RepeatDelay(float delay) {
+            repeatDelay = delay;
+            return this;
+        }
+
+        /// <summary>
         /// Sets the tween to reverse every other time it repeats. Repeating must be enabled for this to have any effect.
         /// </summary>
         /// <returns>A reference to this.</returns>
         public Tween Reflect() {
-            behavior |= Behavior.Reflect;
+            behavior |= GlideLerper.Behavior.Reflect;
             return this;
         }
 
@@ -218,15 +256,17 @@ namespace Otter {
         /// Swaps the start and end values of the tween.
         /// </summary>
         /// <returns>A reference to this.</returns>
-        public virtual Tween Reverse() {
-            int count = vars.Count;
-            while (count-- > 0) {
-                float s = start[count];
-                float r = range[count];
+        public Tween Reverse() {
+            int i = vars.Count;
+            while (i-- > 0) {
+                var s = start[i];
+                var e = end[i];
 
                 //	Set start to end and end to start
-                start[count] = s + r;
-                range[count] = s - (s + r);
+                start[i] = e;
+                end[i] = s;
+
+                lerpers[i].Initialize(e, s, behavior);
             }
 
             return this;
@@ -236,29 +276,9 @@ namespace Otter {
         /// Whether this tween handles rotation.
         /// </summary>
         /// <returns>A reference to this.</returns>
-        public Tween Rotation() {
-            behavior |= Behavior.Rotation;
-
-            int count = vars.Count;
-            while (count-- > 0) {
-                float angle = start[count];
-                float r = angle + range[count];
-
-                float d = r - angle;
-                float a = (float)Math.Abs(d);
-
-                if (a > 181) {
-                    r = (360 - a) * (d > 0 ? -1 : 1);
-                }
-                else if (a < 179) {
-                    r = d;
-                }
-                else {
-                    r = 180;
-                }
-
-                range[count] = r;
-            }
+        public Tween Rotation(RotationUnit unit = RotationUnit.Degrees) {
+            behavior |= GlideLerper.Behavior.Rotation;
+            behavior |= (unit == RotationUnit.Degrees) ? GlideLerper.Behavior.RotationDegrees : GlideLerper.Behavior.RotationRadians;
 
             return this;
         }
@@ -268,17 +288,41 @@ namespace Otter {
         /// </summary>
         /// <returns>A reference to this.</returns>
         public Tween Round() {
-            behavior |= Behavior.Round;
+            behavior |= GlideLerper.Behavior.Round;
             return this;
         }
         #endregion
 
         #region Control
         /// <summary>
+        /// Cancel tweening given properties.
+        /// </summary>
+        /// <param name="properties"></param>
+        public void Cancel(params string[] properties) {
+            var canceled = 0;
+            for (int i = 0; i < properties.Length; ++i) {
+                var index = 0;
+                if (!varHash.TryGetValue(properties[i], out index))
+                    continue;
+
+                varHash.Remove(properties[i]);
+                vars[index] = null;
+                lerpers[index] = null;
+                start[index] = null;
+                end[index] = null;
+
+                canceled++;
+            }
+
+            if (canceled == vars.Count)
+                Cancel();
+        }
+
+        /// <summary>
         /// Remove tweens from the tweener without calling their complete functions.
         /// </summary>
         public void Cancel() {
-            parent.Remove(this);
+            Remover.Remove(this);
         }
 
         /// <summary>
@@ -287,28 +331,28 @@ namespace Otter {
         public void CancelAndComplete() {
             time = Duration;
             update = null;
-            parent.Remove(this);
+            Remover.Remove(this);
         }
 
         /// <summary>
         /// Set tweens to pause. They won't update and their delays won't tick down.
         /// </summary>
         public void Pause() {
-            paused = true;
+            Paused = true;
         }
 
         /// <summary>
         /// Toggle tweens' paused value.
         /// </summary>
         public void PauseToggle() {
-            paused = !paused;
+            Paused = !Paused;
         }
 
         /// <summary>
         /// Resumes tweens from a paused state.
         /// </summary>
         public void Resume() {
-            paused = false;
+            Paused = false;
         }
         #endregion
     }

@@ -45,12 +45,13 @@ namespace Otter {
         /// <summary>
         /// Draw the collider for debug purposes.
         /// </summary>
-        public override void Render() {
-            base.Render();
+        public override void Render(Color color = null) {
+            base.Render(color);
+            if (color == null) color = Color.Red;
 
             if (Entity == null) return;
 
-            Draw.Circle(Left + 1, Top + 1, Radius - 1, Color.None, Color.Red, 1f);
+            Draw.Circle(Left + 1, Top + 1, Radius - 1, Color.None, color, 1f);
         }
 
         #endregion

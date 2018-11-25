@@ -95,6 +95,11 @@ namespace Otter {
             Debugger.Instance.Log(tag, str);
         }
 
+        public static void LogTag(string tag, string str, params object[] obj) {
+            if (Debugger.Instance == null) return;
+            Debugger.Instance.Log(tag, string.Format(str, obj));
+        }
+
         public static void Log(string str, params object[] obj) {
             if (Debugger.Instance == null) return;
             Debugger.Instance.Log("", string.Format(str, obj));
@@ -106,47 +111,6 @@ namespace Otter {
         public static void ShowDebugger() {
             if (Debugger.Instance == null) return;
             Debugger.Instance.Summon();
-        }
-
-        /// <summary>
-        /// A shortcut function to register a command with the debugger.
-        /// </summary>
-        /// <param name="func">The function to register.</param>
-        /// <param name="types">The list of types for the arguments.</param>
-        public static void RegisterCommand(Debugger.CommandFunction func, params CommandType[] types) {
-            if (Debugger.Instance == null) return;
-            Debugger.Instance.RegisterCommand(func, types);
-        }
-
-        /// <summary>
-        /// A shortcut function to register a command with the debugger.
-        /// </summary>
-        /// <param name="func">The function to register.</param>
-        /// <param name="help">The help text that will appear with the function.</param>
-        /// <param name="types">The list of types for the arguments.</param>
-        public static void RegisterCommand(Debugger.CommandFunction func, string help, params CommandType[] types) {
-            if (Debugger.Instance == null) return;
-            Debugger.Instance.RegisterCommand(func, help, types);
-        }
-
-        public static void RegisterCommand(string name, Debugger.CommandFunction func, string help, params CommandType[] types) {
-            if (Debugger.Instance == null) return;
-            Debugger.Instance.RegisterCommand(name, help, func, types);
-        }
-
-        public static void RegisterInstantCommand(Debugger.CommandFunction func, string help, params CommandType[] types) {
-            if (Debugger.Instance == null) return;
-            Debugger.Instance.RegisterInstantCommand(func, help, types);
-        }
-
-        public static void RegisterInstantCommand(Debugger.CommandFunction func, params CommandType[] types) {
-            if (Debugger.Instance == null) return;
-            Debugger.Instance.RegisterInstantCommand(func, types);
-        }
-
-        public static void RegisterInstantCommand(string name, Debugger.CommandFunction func, string help, params CommandType[] types) {
-            if (Debugger.Instance == null) return;
-            Debugger.Instance.RegisterInstantCommand(name, help, func, types);
         }
 
         /// <summary>
@@ -961,8 +925,17 @@ namespace Otter {
         /// <param name="fieldName">The name of the field.</param>
         /// <returns>The value of the field.</returns>
         public static object GetFieldValue(object source, string fieldName) {
-            var fi = source.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
-            return fi.GetValue(source);
+            return source.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public).GetValue(source);
+        }
+
+        /// <summary>
+        /// Get the static value of a field by name from an object.
+        /// </summary>
+        /// <param name="type">The type to look for the field in.</param>
+        /// <param name="fieldName">The name of the static field.</param>
+        /// <returns>The value of the static field.</returns>
+        public static object GetFieldValue(Type type, string fieldName) {
+            return type.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
         }
 
         /// <summary>
@@ -1086,13 +1059,18 @@ namespace Otter {
         /// </summary>
         /// <param name="type">The type to search for.</param>
         /// <returns>The type found.  Null if no match.</returns>
-        public static Type GetTypeFromAllAssemblies(string type) {
+        public static Type GetTypeFromAllAssemblies(string type, bool ignoreCase = false) {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (var assembly in assemblies) {
                 var types = assembly.GetTypes();
                 foreach (var t in types) {
                     if (t.Name == type) {
                         return t;
+                    }
+                    if (ignoreCase) {
+                        if (t.Name.ToLower() == type) {
+                            return t;
+                        }
                     }
                 }
             }
@@ -1179,6 +1157,34 @@ namespace Otter {
                 }
 
                 return Encoding.UTF8.GetString(mso.ToArray());
+            }
+        }
+
+        /// <summary>
+        /// Compresses a byte array using GZip
+        /// </summary>
+        /// <param name="data">The data to compress</param>
+        /// <returns>The compressed byte array</returns>
+        public static byte[] CompressBytes(byte[] data) {
+            using (var compressedStream = new MemoryStream())
+            using (var zipStream = new GZipStream(compressedStream, CompressionLevel.Optimal)) {
+                zipStream.Write(data, 0, data.Length);
+                zipStream.Close();
+                return compressedStream.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Decompresses a byte array using GZip
+        /// </summary>
+        /// <param name="data">The data to decompress</param>
+        /// <returns>The decompressed byte array</returns>
+        public static byte[] DecompressBytes(byte[] data) {
+            using (var compressedStream = new MemoryStream(data))
+            using (var zipStream = new GZipStream(compressedStream, CompressionMode.Decompress))
+            using (var resultStream = new MemoryStream()) {
+                zipStream.CopyTo(resultStream);
+                return resultStream.ToArray();
             }
         }
 
@@ -1516,6 +1522,23 @@ namespace Otter {
             get {
                 return (int)SFML.Window.VideoMode.DesktopMode.Height;
             }
+        }
+
+        /// <summary>
+        /// Combines Lists of the same type into one list. Does not remove duplicates.
+        /// </summary>
+        /// <typeparam name="T">The type of object.</typeparam>
+        /// <param name="lists">The Lists to combine.</param>
+        /// <returns>One List to rule them all.</returns>
+        public static List<T> ListCombine<T>(params List<T>[] lists) {
+            if (lists.Length == 0) return null;
+            if (lists.Length == 1) return lists[0];
+
+            var list = lists[0];
+            for (int i = 1; i < lists.Length; i++) {
+                list.AddRange(lists[i]);
+            }
+            return list;
         }
 
         /// <summary>

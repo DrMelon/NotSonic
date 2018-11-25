@@ -1,4 +1,5 @@
 ﻿using SFML.Graphics;
+using SFML.System;
 using SFML.Window;
 using System;
 using System.Collections.Generic;
@@ -329,7 +330,7 @@ namespace Otter {
             fill.Size = new Vector2f(Width, Height);
             fill.FillColor = color.SFMLColor;
             fill.Position = new Vector2f(CameraX, CameraY);
-            renderTexture.Draw(fill);
+            renderTexture.Draw(fill); // Sometimes after 20-30 frames, game will freeze here?
         }
 
         /// <summary>
@@ -381,6 +382,17 @@ namespace Otter {
             }
 
             if (AutoClear) Clear();
+        }
+
+        public Image GrabScreenImage()
+        {
+            SFMLDrawable = RenderShaders();
+            var render = new RenderTexture((uint)Width, (uint)Height);
+            render.Draw(SFMLDrawable, states);
+            render.Display();
+            Image bleh = Image.CreateRectangle(Width, Height);
+            bleh.SetTexture(new Texture(render.Texture));
+            return bleh;
         }
 
         /// <summary>
@@ -498,10 +510,11 @@ namespace Otter {
         internal void Draw(Texture texture, float x, float y, float originX, float originY, int width, int height, float scaleX, float scaleY, float angle, Color color = null, BlendMode blend = BlendMode.Alpha, Shader shader = null) {
             states = new RenderStates(Texture.SFMLTexture);
 
-            states.BlendMode = (SFML.Graphics.BlendMode)Blend;
+            //states.BlendMode = (SFML.Graphics.BlendMode)Blend;
+            states.BlendMode = SFMLBlendMode(blend);
 
             if (Shader != null) {
-                states.Shader = Shader.shader;
+                states.Shader = Shader.SFMLShader;
             }
 
             states.Transform.Translate(x - OriginX, y - OriginY);
@@ -541,24 +554,25 @@ namespace Otter {
             states.Transform.Translate(X - OriginX, Y - OriginY);
             states.Transform.Rotate(Angle, OriginX, OriginY);
             states.Transform.Scale(ScaleX, ScaleY, OriginX, OriginY);
-            states.BlendMode = (SFML.Graphics.BlendMode)Blend;
+            //states.BlendMode = (SFML.Graphics.BlendMode)Blend;
+            states.BlendMode = SFMLBlendMode(Blend);
 
             if (Shader != null) {
-                states.Shader = Shader.shader;
+                states.Shader = Shader.SFMLShader;
             }
             else {
                 if (shaders.Count == 1) {
-                    states.Shader = shaders[0].shader;
+                    states.Shader = shaders[0].SFMLShader;
                 }
                 else if (shaders.Count == 2) {
                     states = new RenderStates(renderTexture.Texture);
-                    states.Shader = shaders[0].shader;
+                    states.Shader = shaders[0].SFMLShader;
 
                     Game.Instance.RenderCount++;
                     postProcessA.Draw(SFMLVertices, states);
                     postProcessA.Display();
 
-                    states.Shader = shaders[1].shader;
+                    states.Shader = shaders[1].SFMLShader;
 
                     drawable = new Sprite(postProcessA.Texture);
                     states.Transform.Rotate(Angle, OriginX, OriginY);
@@ -571,7 +585,7 @@ namespace Otter {
                     nextRt = postProcessB;
                     currentRt = postProcessA;
 
-                    states.Shader = shaders[0].shader;
+                    states.Shader = shaders[0].SFMLShader;
 
                     Game.Instance.RenderCount++;
                     postProcessA.Draw(SFMLVertices, states);
@@ -579,7 +593,7 @@ namespace Otter {
 
                     for (int i = 1; i < shaders.Count - 1; i++) {
                         states = RenderStates.Default;
-                        states.Shader = shaders[i].shader;
+                        states.Shader = shaders[i].SFMLShader;
 
                         Game.Instance.RenderCount++;
                         nextRt.Draw(new Sprite(currentRt.Texture), states);
@@ -591,7 +605,7 @@ namespace Otter {
 
                     drawable = new Sprite(currentRt.Texture);
                     currentRt.Display();
-                    states.Shader = shaders[shaders.Count - 1].shader;
+                    states.Shader = shaders[shaders.Count - 1].SFMLShader;
                     states.Transform.Rotate(Angle, OriginX, OriginY);
                     states.Transform.Translate(new Vector2f(X - OriginX, Y - OriginY));
                     states.Transform.Scale(ScaleX, ScaleY, OriginX, OriginY);

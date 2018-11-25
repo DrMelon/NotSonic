@@ -1,4 +1,5 @@
 ﻿using SFML.Graphics;
+using SFML.System;
 using SFML.Window;
 using System;
 using System.Collections.Generic;
@@ -199,6 +200,7 @@ namespace Otter {
         static public string ClearWhitespace(this string str) {
             return Regex.Replace(str, @"\s+", "");
         }
+
         #endregion
 
         #region Dictionary
@@ -261,6 +263,18 @@ namespace Otter {
             }
             return onNull;
         }
+
+        static public void AddOrUpdate<TKey, TValue>(this Dictionary<TKey, TValue> d, TKey key, TValue value) {
+            if (d.ContainsKey(key)) d[key] = value;
+            else d.Add(key, value);
+        }
+
+        static public TValue GetOrAdd<TKey, TValue>(this Dictionary<TKey, TValue> d, TKey key, TValue value = default(TValue)) {
+            if (d.ContainsKey(key)) return d[key];
+            d.Add(key, value);
+            return value;
+        }
+
         #endregion
 
         #region List
@@ -290,6 +304,28 @@ namespace Otter {
             foreach (var i in elements) {
                 l.Add(i);
             }
+        }
+
+        static public void MoveForward<T>(this List<T> list, T item) {
+            var oldIndex = list.IndexOf(item);
+            list.Remove(item);
+            list.InsertOrAdd(oldIndex - 1, item);
+        }
+
+        public static void MoveBackward<T>(this List<T> list, T item) {
+            var oldIndex = list.IndexOf(item);
+            list.Remove(item);
+            list.InsertOrAdd(oldIndex + 1, item);
+        }
+
+        public static void MoveToFront<T>(this List<T> list, T item) {
+            list.Remove(item);
+            list.InsertOrAdd(0, item);
+        }
+
+        public static void MoveToBack<T>(this List<T> list, T item) {
+            list.Remove(item);
+            list.Add(item);
         }
 
         #endregion

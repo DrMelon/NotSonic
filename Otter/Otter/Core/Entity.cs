@@ -107,7 +107,23 @@ namespace Otter {
         /// </summary>
         public float LifeSpan;
 
+        /// <summary>
+        /// Is true if the Entity has been updated by the Scene at least once.
+        /// </summary>
+        public bool UpdatedOnce { get; private set; }
+
         #endregion Public Fields
+
+        #region Public Indexers
+
+        public Component this[int id] {
+            get {
+                if (componentsById.ContainsKey(id)) return componentsById[id];
+                return null;
+            }
+        }
+
+        #endregion
 
         #region Internal Fields
 
@@ -124,8 +140,9 @@ namespace Otter {
 
         private List<Component> componentsToRemove = new List<Component>();
         private List<Component> componentsToAdd = new List<Component>();
-
-        private bool updatedOnce = false;
+        Dictionary<int, Component> componentsById = new Dictionary<int, Component>();
+        int nextComponentId;
+        
 
         #endregion Private Fields
 
@@ -142,6 +159,8 @@ namespace Otter {
         public Entity(float x = 0, float y = 0, Graphic graphic = null, Collider collider = null, string name = "") {
             X = x;
             Y = y;
+
+            InstanceId = -1;
 
             Graphics = new List<Graphic>();
             Components = new List<Component>();
@@ -194,13 +213,14 @@ namespace Otter {
         public Scene Scene { get; internal set; }
 
         /// <summary>
+        /// The int id of the Entity for the Scene its currently in.
+        /// </summary>
+        public int InstanceId { get; internal set; }
+
+        /// <summary>
         /// Returns true if the entity is currently in a Scene, or is queued to be added to a Scene next update.
         /// </summary>
-        public bool IsInScene {
-            get {
-                return Scene != null;
-            }
-        }
+        public bool IsInScene { get { return Scene != null; } }
 
         /// <summary>
         /// The default Surface that the entity should render to.
@@ -297,6 +317,19 @@ namespace Otter {
                 return Graphics[0];
             }
             set { SetGraphic(value); }
+        }
+
+        /// <summary>
+        /// The position of the Entity represented as a Vector2
+        /// </summary>
+        public Vector2 Position {
+            get {
+                return new Vector2(X, Y);
+            }
+            set {
+                X = value.X;
+                Y = value.Y;
+            }
         }
 
         #endregion Public Properties
@@ -512,6 +545,10 @@ namespace Otter {
         /// </summary>
         /// <param name="c"></param>
         public T RemoveComponent<T>(T c) where T : Component {
+            if (componentsToAdd.Contains(c)) {
+                componentsToAdd.Remove(c);
+                return c;
+            }
             componentsToRemove.Add(c);
             return c;
         }
@@ -615,6 +652,18 @@ namespace Otter {
             }
             foreach (var c in componentsToAdd) {
                 if (c is T) return (T)c;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Get the first Component of Type type.
+        /// </summary>
+        /// <param name="type">The Type of Component to look for.</param>
+        /// <returns>The first Component of that Type.</returns>
+        public Component GetComponent(Type type) {
+            foreach (var c in Components) {
+                if (c.GetType() == type) return c;
             }
             return null;
         }
@@ -798,6 +847,10 @@ namespace Otter {
             return Collider.CollideEntities(x, y, tags);
         }
 
+        public List<T> CollideEntities<T>(float x, float y, List<T> entities) where T : Entity {
+            return Collider.CollideEntities(x, y, entities);
+        }
+
         public List<T> CollideEntities<T>(float x, float y, params int[] tags) where T : Entity {
             return Collider.CollideEntities<T>(x, y, tags);
         }
@@ -964,6 +1017,8 @@ namespace Otter {
                 
                 foreach (var c in removing) {
                     Components.Remove(c);
+                    componentsById.Remove(c.InstanceId);
+                    c.InstanceId = -1;
                 }
                 foreach (var c in removing) {
                     c.Removed();
@@ -977,6 +1032,9 @@ namespace Otter {
                 
                 foreach (var c in adding) {
                     Components.Add(c);
+                    var id = GetNextComponentId();
+                    componentsById.Add(id, c);
+                    c.InstanceId = id;
                 }
                 foreach (var c in adding) {
                     c.Added();
@@ -987,7 +1045,7 @@ namespace Otter {
         internal void UpdateFirstInternal() {
             Game.UpdateCount++;
 
-            updatedOnce = true;
+            UpdatedOnce = true;
 
             UpdateComponentLists();
 
@@ -1040,7 +1098,7 @@ namespace Otter {
         }
 
         internal void RenderInternal() {
-            if (!updatedOnce) return; //prevent rendering before update
+            if (!UpdatedOnce) return; //prevent rendering before update
             if (!Visible) return;
             if (Scene == null) return;
 
@@ -1063,6 +1121,12 @@ namespace Otter {
         #endregion Internal Methods
 
         #region Private Methods
+
+        int GetNextComponentId() {
+            var id = nextComponentId;
+            nextComponentId++;
+            return id;
+        }
 
         private void RenderEntity() {
             Prerender();

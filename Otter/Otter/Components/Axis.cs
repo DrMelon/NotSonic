@@ -242,6 +242,30 @@ namespace Otter {
         #region Public Methods
 
         /// <summary>
+        /// Reset the Axis to report no input.
+        /// </summary>
+        public void Reset() {
+            X = 0;
+            Y = 0;
+            LastX = 0;
+            LastY = 0;
+            Left.Reset();
+            Right.Reset();
+            Up.Reset();
+            Down.Reset();
+        }
+
+        /// <summary>
+        /// Clear all registered inputs for the Axis.
+        /// </summary>
+        public void Clear() {
+            Keys.Clear();
+            JoyButtons.Clear();
+            AxesX.Clear();
+            AxesY.Clear();
+        }
+
+        /// <summary>
         /// Add a joystick axis.
         /// </summary>
         /// <param name="x">The x axis of the joystick.</param>
@@ -347,6 +371,14 @@ namespace Otter {
             ForcedInput = true;
             X = x;
             Y = y;
+        }
+
+        /// <summary>
+        /// Force the axis state.
+        /// </summary>
+        /// <param name="xy">The forced x and y state.</param>
+        public void ForceState(Vector2 xy) {
+            ForceState(xy.X, xy.Y);
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using SFML.Graphics;
+using SFML.System;
 using SFML.Window;
 using System.Collections.Generic;
 
@@ -63,6 +64,7 @@ namespace Otter {
                 Color.None};
             for (int i = 0; i < baseColors.Count; i++) {
                 finalColors[i] = new Color(baseColors[i]);
+                finalColors[i] *= Color;
                 finalColors[i].A *= Alpha;
             }
 

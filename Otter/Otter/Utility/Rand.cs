@@ -215,6 +215,15 @@ namespace Otter {
         }
 
         /// <summary>
+        /// Generate a random point in a Rectangle.
+        /// </summary>
+        /// <param name="rect">The Rectangle the point will be in.</param>
+        /// <returns>A random position inside the Rectangle.</returns>
+        public static Vector2 XY(Rectangle rect) {
+            return XY(rect.Left, rect.Right, rect.Top, rect.Bottom);
+        }
+
+        /// <summary>
         /// Generate a random point in a maximum set.
         /// </summary>
         /// <param name="xMax">The maximum X value.</param>
@@ -222,6 +231,28 @@ namespace Otter {
         /// <returns>A random position from 0, 0 to the maximum values.</returns>
         public static Vector2 XY(float xMax, float yMax) {
             return new Vector2(Float(0, xMax), Float(0, yMax));
+        }
+
+        /// <summary>
+        /// Generate a random integer point in a minimum and maximum set.
+        /// </summary>
+        /// <param name="xMin">The minimum X value.</param>
+        /// <param name="xMax">The maximum X value.</param>
+        /// <param name="yMin">The minimum Y value.</param>
+        /// <param name="yMax">The maximum Y value.</param>
+        /// <returns>A random integer position inside the set.</returns>
+        public static Vector2 IntXY(int xMin, int xMax, int yMin, int yMax) {
+            return new Vector2(Int(xMin, xMax), Int(yMin, yMax));
+        }
+
+        /// <summary>
+        /// Generate a random integer point in a minimum and maximum set.
+        /// </summary>
+        /// <param name="xMax">The maximum X value.</param>
+        /// <param name="yMax">The maximum Y value.</param>
+        /// <returns>A random integer position inside the set.</returns>
+        public static Vector2 IntXY(int xMax, int yMax) {
+            return IntXY(0, xMax, 0, yMax);
         }
 
         /// <summary>
@@ -235,7 +266,7 @@ namespace Otter {
         }
 
         /// <summary>
-        /// Choose an elemnt out of an array of objects.
+        /// Choose an element out of an array of objects.
         /// </summary>
         /// <typeparam name="T">The type of object.</typeparam>
         /// <param name="choices">The array of possible choices.</param>

@@ -152,6 +152,11 @@ namespace Otter {
             return value;
         }
 
+        /// <summary>
+        /// Converts a float into a percent value (1 => 100%)
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static int ToPercent(this float value) {
             return Convert.ToInt32(value * 100);
         }
@@ -164,6 +169,18 @@ namespace Otter {
         public static void Each<T>(this IEnumerable<T> iterable, Action<T> callback) {
             foreach (var value in iterable) {
                 callback(value);
+            }
+        }
+
+        /// <summary>
+        /// Iterates over each element backwards in the IEnumerable, passing in the element to the provided callback.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="iterable"></param>
+        /// <param name="callback"></param>
+        public static void EachReverse<T>(this IEnumerable<T> iterable, Action<T> callback) {
+            for (var i = iterable.Count() - 1; i >= 0; i--) {
+                callback(iterable.ElementAt(i));
             }
         }
 

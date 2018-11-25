@@ -10,8 +10,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Otter</RootNamespace>
     <AssemblyName>Otter</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -24,6 +25,8 @@
     <DocumentationFile>
     </DocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>pdbonly</DebugType>
@@ -35,38 +38,37 @@
     <DocumentationFile>
     </DocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);$(OS)</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;Windows_NT</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE;Windows_NT</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'NuGet|x86'">
     <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Otter.XML</DocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="sfmlnet-audio-2">
+    <Reference Include="sfmlnet-audio-2, Version=2.2.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>Lib\sfmlnet-audio-2.dll</HintPath>
     </Reference>
-    <Reference Include="sfmlnet-graphics-2">
+    <Reference Include="sfmlnet-graphics-2, Version=2.2.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>Lib\sfmlnet-graphics-2.dll</HintPath>
     </Reference>
-    <Reference Include="sfmlnet-window-2">
+    <Reference Include="sfmlnet-system-2, Version=2.2.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Lib\sfmlnet-system-2.dll</HintPath>
+    </Reference>
+    <Reference Include="sfmlnet-window-2, Version=2.2.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>Lib\sfmlnet-window-2.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -85,20 +87,17 @@
     <Compile Include="Components\Controllers\Controller.cs" />
     <Compile Include="Components\Controllers\ControllerPS3.cs" />
     <Compile Include="Components\Controllers\ControllerXbox360.cs" />
-    <Compile Include="Components\EventQueue.cs" />
+    <Compile Include="Components\Countdown.cs" />
+    <Compile Include="Components\Events\EventProcessorEvent.cs" />
+    <Compile Include="Components\Events\EventQueue.cs" />
+    <Compile Include="Components\Events\EventStack.cs" />
+    <Compile Include="Components\Events\EventProcessor.cs" />
     <Compile Include="Components\GridCounter.cs" />
     <Compile Include="Components\IRC.cs" />
     <Compile Include="Components\Lerper.cs" />
     <Compile Include="Components\Movement\BasicMovement.cs" />
     <Compile Include="Components\Movement\Movement.cs" />
     <Compile Include="Components\Movement\PlatformingMovement.cs" />
-    <Compile Include="Components\OtterUI\UIElement.cs" />
-    <Compile Include="Components\OtterUI\UIGridMenu.cs" />
-    <Compile Include="Components\OtterUI\UIInputMenu.cs" />
-    <Compile Include="Components\OtterUI\UIListMenu.cs" />
-    <Compile Include="Components\OtterUI\UIManager.cs" />
-    <Compile Include="Components\OtterUI\UIMenu.cs" />
-    <Compile Include="Components\OtterUI\UIValueMenu.cs" />
     <Compile Include="Components\SineWave.cs" />
     <Compile Include="Components\Skeleton.cs" />
     <Compile Include="Components\Snake.cs" />
@@ -108,6 +107,7 @@
     <Compile Include="Core\Game.cs" />
     <Compile Include="Graphics\Anim.cs" />
     <Compile Include="Graphics\Atlas.cs" />
+    <Compile Include="Graphics\Drawables\GraphicList.cs" />
     <Compile Include="Graphics\Text\BitmapFont.cs" />
     <Compile Include="Graphics\Drawables\Decals.cs" />
     <Compile Include="Graphics\Text\Font.cs" />
@@ -119,6 +119,7 @@
     <Compile Include="Graphics\Drawables\NineSlice.cs" />
     <Compile Include="Graphics\Transformation.cs" />
     <Compile Include="Utility\DataSaver.cs" />
+    <Compile Include="Utility\Glide\GlideLerper.cs" />
     <Compile Include="Utility\Glide\Tween.cs" />
     <Compile Include="Utility\Glide\Tweener.cs" />
     <Compile Include="Utility\Polygon.cs" />
@@ -181,17 +182,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="otterlogo.png" />
-    <Content Include="libsndfile-1.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="openal32.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup Condition=" '$(OS)' == 'Windows_NT' ">
-    <Libs Include="csfml-audio-2.dll" />
-    <Libs Include="csfml-graphics-2.dll" />
-    <Libs Include="csfml-window-2.dll" />
   </ItemGroup>
   <ItemGroup Condition=" '$(OS)' == 'OSX' ">
     <Libs Include="libosx/libcsfml-audio.2.0.dylib" />
@@ -204,8 +194,28 @@
     <Libs Include="sfmlnet-window-2.dll.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="@(Libs)">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Include="csfml-audio-2.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="csfml-graphics-2.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="csfml-system-2.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="csfml-window-2.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="openal32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="csfml-network-2.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="libsndfile-1.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -216,4 +226,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'NuGet'">
+    <Exec Command="NuGet\nuget.exe pack Otter.csproj -Prop Configuration=Release -OutputDirectory NuGet\Packages">
+    </Exec>
+  </Target>
 </Project>

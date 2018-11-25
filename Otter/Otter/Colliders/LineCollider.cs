@@ -104,12 +104,13 @@ namespace Otter {
         /// <summary>
         /// Draw the collider for debug purposes.
         /// </summary>
-        public override void Render() {
-            base.Render();
+        public override void Render(Color color = null) {
+            base.Render(color);
+            if (color == null) color = Color.Red;
 
             if (Entity == null) return;
 
-            Draw.Line(Line2.X1, Line2.Y1, Line2.X2, Line2.Y2, Color.Red);
+            Draw.Line(Line2.X1, Line2.Y1, Line2.X2, Line2.Y2, color);
         }
 
         #endregion

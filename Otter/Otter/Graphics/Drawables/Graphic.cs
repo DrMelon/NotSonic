@@ -434,6 +434,10 @@ namespace Otter {
             }
         }
 
+        protected virtual void TextureChanged() {
+
+        }
+
         protected virtual void SFMLRender(Drawable drawable, float x = 0, float y = 0) {
             RenderStates renderStates;
             if (Texture != null) {
@@ -442,9 +446,9 @@ namespace Otter {
             else {
                 renderStates = RenderStates.Default;
             }
-            renderStates.BlendMode = (SFML.Graphics.BlendMode)Blend;
+            renderStates.BlendMode = SFMLBlendMode(Blend);
             if (Shader != null) {
-                renderStates.Shader = Shader.shader;
+                renderStates.Shader = Shader.SFMLShader;
             }
 
             // This is really bad x_x lol
@@ -535,6 +539,7 @@ namespace Otter {
         public void SetTexture(Texture texture) {
             Texture = texture;
             TextureRegion = texture.Region;
+            TextureChanged();
             NeedsUpdate = true;
         }
 
@@ -606,6 +611,7 @@ namespace Otter {
                 renderY = Y + Draw.Target.CameraY * (1 - ScrollY) + y;
             }
 
+
             float
                 screenX = renderX - Draw.Target.CameraX,
                 screenY = renderY - Draw.Target.CameraY;
@@ -616,10 +622,10 @@ namespace Otter {
                 h = Draw.Target.Height + OriginY;
 
             float
-                repeatLeft = Draw.Target.CameraX - (w / zoom - w) * 0.5f,
-                repeatTop = Draw.Target.CameraY - (h / zoom - h) * 0.5f,
-                repeatRight = Draw.Target.CameraX + (w / zoom + w) * 0.5f,
-                repeatBottom = Draw.Target.CameraY + (h / zoom + w) * 0.5f;
+                repeatLeft = Draw.Target.CameraX - (w / zoom - w),
+                repeatTop = Draw.Target.CameraY - (h / zoom - h),
+                repeatRight = Draw.Target.CameraX + (w / zoom + w),
+                repeatBottom = Draw.Target.CameraY + (h / zoom + h);
 
             RepeatSizeX = repeatRight - repeatLeft + OriginX;
             RepeatSizeY = repeatBottom - repeatTop + OriginY;
@@ -642,6 +648,11 @@ namespace Otter {
                     renderX -= ScaledWidth;
                 }
 
+                while(repeatRight - renderX > RepeatSizeX + ScaledWidth)
+                {
+                    renderX += ScaledWidth;
+                }
+
                 while (renderX < repeatRight) {
                     SFMLRender(drawable, renderX, renderY);
                     renderX += ScaledWidth;
@@ -655,7 +666,7 @@ namespace Otter {
 
                 while (renderY < repeatBottom) {
                     SFMLRender(drawable, renderX, renderY);
-                    renderY += Height;
+                    renderY += ScaledHeight;
                 }
             }
 
@@ -695,6 +706,16 @@ namespace Otter {
             if (NeedsUpdate) {
                 UpdateDrawable();
             }
+        }
+
+        internal SFML.Graphics.BlendMode SFMLBlendMode(BlendMode blend) {
+            switch (blend) {
+                case BlendMode.Alpha: return SFML.Graphics.BlendMode.Alpha;
+                case BlendMode.Add: return SFML.Graphics.BlendMode.Add;
+                case BlendMode.Multiply: return SFML.Graphics.BlendMode.Multiply;
+                case BlendMode.None: return SFML.Graphics.BlendMode.None;
+            }
+            return SFML.Graphics.BlendMode.None;
         }
 
         #endregion

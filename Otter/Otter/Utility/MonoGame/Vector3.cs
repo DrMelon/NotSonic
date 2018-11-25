@@ -697,11 +697,11 @@ namespace Otter {
             return value;
         }
         
-        public static explicit operator SFML.Audio.Vector3f(Vector3 vector) {
-            return new SFML.Audio.Vector3f(vector.X, vector.Y, vector.Z);
+        public static explicit operator SFML.System.Vector3f(Vector3 vector) {
+            return new SFML.System.Vector3f(vector.X, vector.Y, vector.Z);
         }
 
-        public static explicit operator Vector3(SFML.Audio.Vector3f vector) {
+        public static explicit operator Vector3(SFML.System.Vector3f vector) {
             return new Vector3(vector.X, vector.Y, vector.Z);
         }
         

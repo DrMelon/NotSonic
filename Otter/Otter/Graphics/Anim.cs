@@ -24,6 +24,57 @@ namespace Otter {
             return f;
         }
 
+        /// <summary>
+        /// Creates an array of frames from a string expression. The expression must be similar to the following format:
+        /// "0,3,7-11,2,5"
+        /// Whitespace is permitted, and commas are optional.
+        /// <param name="input">A string formatted as above, describing the frames to generate.</param>
+        /// </summary>
+        public static int[] ParseFrames(string input) {
+            // Make sure the pattern matches, and alert the user if it doesn't
+            var parse = SyntaxCheck.Match(input);
+            if (!parse.Success)
+                throw new Exception(string.Format("Invalid format: {0}", input));
+
+            // Get all numbers/ranges in the input string.
+            var frames = new List<int>();
+            foreach (Match match in GetMatches.Matches(input)) {
+                var range = GetRange.Match(match.Value);
+                if (range.Success) {
+                    int from = int.Parse(range.Groups[1].Value);
+                    int to = int.Parse(range.Groups[2].Value);
+
+                    // Support ascending and descending ranges
+                    if (from < to) {
+                        while (from <= to)
+                            frames.Add(from++);
+                    }
+                    else {
+                        while (from >= to)
+                            frames.Add(from--);
+                    }
+                }
+                else {
+                    frames.Add(int.Parse(match.Value));
+                }
+            }
+
+            return frames.ToArray();
+        }
+
+        #endregion
+
+        #region Private Static Functions
+
+        // Matches strings containing only numbers and number ranges, separated by single commas and/or whitespace
+        static readonly Regex SyntaxCheck = new Regex(@"^(?:\d+\s*-\s*\d+|\d\s*,?\s*)*$");
+
+        // Extracts a number or number range from a string
+        static readonly Regex GetMatches = new Regex(@"((?:\d+\s*-\s*\d+)|(?:\d+))");
+
+        // Extracts two numbers from a string containing a range
+        static readonly Regex GetRange = new Regex(@"(\d+)-(\d+)");
+
         #endregion
 
         #region Private Fields
@@ -44,7 +95,12 @@ namespace Otter {
         /// <summary>
         /// An action to run when the animation finishes playing.
         /// </summary>
-        public Action OnComplete;
+        public Action OnComplete = delegate { };
+
+        /// <summary>
+        /// An action that is called when the Anim switches to a new frame.
+        /// </summary>
+        public Action OnNewFrame = delegate { };
 
         /// <summary>
         /// Determines if the animation is active (playing.)
@@ -89,6 +145,9 @@ namespace Otter {
             get { return Frames[currentFrame]; }
         }
 
+        /// <summary>
+        /// The current frame index of the animation.
+        /// </summary>
         public int CurrentFrameIndex {
             get { return currentFrame; }
             set { currentFrame = value; }
@@ -123,26 +182,18 @@ namespace Otter {
         /// <summary>
         /// Creates a new Anim with a string of ints for frames, and a string of floats for frameDelays.
         /// </summary>
-        /// <param name="frames">A string of frames separated by a delim character.  Example: "0,1,2,3,4,5"</param>
+        /// <param name="frames">A string of frames separated by a delim character.  Example: "0,1,2-7,9,11"</param>
         /// <param name="frameDelays">A string of floats separated by a delim character.  Example: "0.5f,1,0.5f,1"</param>
         /// <param name="delim">The string of characters to parse the string by.  Default is ","</param>
-        public Anim(string frames, string frameDelays, string delim = ",") {
-            string[] frameParts = Regex.Split(frames.Replace(" ", ""), delim);
-            string[] frameDelaysParts = Regex.Split(frameDelays, delim);
-
-            int[] framesint = new int[frameParts.Length];
-
-            for (int i = 0; i < frameParts.Length; i++) {
-                framesint[i] = int.Parse(frameParts[i]);
-            }
-
+        public Anim(string frames, string frameDelays) {
+            string[] frameDelaysParts = Regex.Split(frameDelays.Replace(" ", ""), ",");
             float[] framedelaysfloat = new float[frameDelaysParts.Length];
 
             for (int i = 0; i < frameDelaysParts.Length; i++) {
                 framedelaysfloat[i] = float.Parse(frameDelaysParts[i]);
             }
 
-            Initialize(framesint, framedelaysfloat);
+            Initialize(ParseFrames(frames), framedelaysfloat);
         }
 
         #endregion
@@ -282,9 +333,7 @@ namespace Otter {
                             currentFrame = Frames.Count - 2;
                         }
                         else {
-                            if (OnComplete != null) {
-                                OnComplete();
-                            }
+                            OnComplete();
                             Stop();
                             currentFrame = Frames.Count - 1;
                         }
@@ -299,13 +348,13 @@ namespace Otter {
                             currentFrame = loopBack + 1;
                         }
                         else {
-                            if (OnComplete != null) {
-                                OnComplete();
-                            }
+                            OnComplete();
                             Stop();
                         }
                     }
                 }
+
+                OnNewFrame();
             }
         }
 

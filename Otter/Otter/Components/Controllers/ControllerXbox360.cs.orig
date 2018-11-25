@@ -69,7 +69,7 @@
             AddButton(Controls.Down);
             AddButton(Controls.Left);
             AddButton(Controls.Right);
-
+            
             AddAxis(Controls.LStick);
             AddAxis(Controls.RStick);
             AddAxis(Controls.DPad);

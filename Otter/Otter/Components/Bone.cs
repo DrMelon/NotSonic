@@ -127,8 +127,14 @@ namespace Otter {
                 flipY = LocalFlipY ^ Parent.FlipY;
                 var pos = new Vector2(Parent.FlipX ? -LocalX - BaseX : LocalX + BaseX, Parent.FlipY ? -LocalY - BaseY : LocalY + BaseY);
 
-                scaleX = Parent.ScaleX * LocalScaleX * BaseScaleX;
-                scaleY = Parent.ScaleY * LocalScaleY * BaseScaleY;
+                if (InheritScale) {
+                    scaleX = Parent.ScaleX * LocalScaleX * BaseScaleX;
+                    scaleY = Parent.ScaleY * LocalScaleY * BaseScaleY;
+                }
+                else {
+                    scaleX = LocalScaleX * BaseScaleX;
+                    scaleY = LocalScaleY * BaseScaleY;
+                }
 
                 pos.X *= Parent.ScaleX;
                 pos.Y *= Parent.ScaleY;
@@ -140,7 +146,7 @@ namespace Otter {
                     rotation = Parent.Rotation + LocalRotation + BaseRotation;
                 }
                 else {
-                    rotation = LocalRotation;
+                    rotation = LocalRotation + BaseRotation;
                 }
 
                 pos = Util.RotateAround(pos.X, pos.Y, Parent.X, Parent.Y, (Parent.FlipX ^ Parent.FlipY ? -Parent.Rotation : Parent.Rotation));
@@ -153,7 +159,7 @@ namespace Otter {
             else {
                 rotation = LocalRotation + BaseRotation;
                 scaleX = LocalScaleX * BaseScaleX;
-                scaleY = LocalScaleY * BaseScaleX;
+                scaleY = LocalScaleY * BaseScaleY;
                 x = LocalX + BaseX;
                 y = LocalY + BaseY;
                 flipX = LocalFlipX;
@@ -220,7 +226,7 @@ namespace Otter {
 
         public override void Render() {
             base.Render();
-            Draw.Circle(X - 3, Y - 3, 3, Color.Black, Color.White, 3);
+            //Draw.Circle(X - 3, Y - 3, 3, Color.Black, Color.White, 3);
         }
 
     }

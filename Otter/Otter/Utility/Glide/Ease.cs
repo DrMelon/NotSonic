@@ -1,7 +1,3 @@
-/*
- * Originally part of #Punk, a port of FlashPunk to C#
- * https://bitbucket.org/jacobalbano/punk/overview
-*/
 using System;
 
 namespace Otter {
@@ -19,6 +15,29 @@ namespace Otter {
         const float B6 = 2.625f / 2.75f;
 
         /// <summary>
+        /// Ease a value to its target and then back. Use this to wrap another easing function.
+        /// </summary>
+        public static Func<float, float> ToAndFro(Func<float, float> easer) {
+            return t => ToAndFro(easer(t));
+        }
+
+        /// <summary>
+        /// Ease a value to its target and then back.
+        /// </summary>
+        public static float ToAndFro(float t) {
+            return t < 0.5f ? t * 2 : 1 + ((t - 0.5f) / 0.5f) * -1;
+        }
+
+        /// <summary>
+        /// Linear.
+        /// </summary>
+        /// <param name="t">Time.</param>
+        /// <returns>Eased timescale.</returns>
+        public static float Linear(float t) {
+            return t;
+        }
+
+        /// <summary>
         /// Elastic in.
         /// </summary>
         /// <param name="t">Time elapsed.</param>
@@ -33,6 +52,7 @@ namespace Otter {
         /// <param name="t">Time elapsed.</param>
         /// <returns>Eased timescale.</returns>
         public static float ElasticOut(float t) {
+            if (t == 1) return 1;
             return (float)(Math.Sin(-13 * PI2 * (t + 1)) * Math.Pow(2, -10 * t) + 1);
         }
 
@@ -163,6 +183,7 @@ namespace Otter {
         /// <param name="t">Time elapsed.</param>
         /// <returns>Eased timescale.</returns>
         public static float SineIn(float t) {
+            if (t == 1) return 1;
             return (float)(-Math.Cos(PI2 * t) + 1);
         }
 
@@ -271,6 +292,7 @@ namespace Otter {
         /// <param name="t">Time elapsed.</param>
         /// <returns>Eased timescale.</returns>
         public static float ExpoOut(float t) {
+            if (t == 1) return 1;
             return (float)(-Math.Pow(2, -10 * t) + 1);
         }
 
@@ -280,6 +302,7 @@ namespace Otter {
         /// <param name="t">Time elapsed.</param>
         /// <returns>Eased timescale.</returns>
         public static float ExpoInOut(float t) {
+            if (t == 1) return 1;
             return (float)(t < .5 ? Math.Pow(2, 10 * (t * 2 - 1)) / 2 : (-Math.Pow(2, -10 * (t * 2 - 1)) + 2) / 2);
         }
 
@@ -312,12 +335,5 @@ namespace Otter {
             t--;
             return (float)((1 - (--t) * (t) * (-2.70158 * t - 1.70158)) / 2 + .5);
         }
-
-        /// <summary>
-        /// Linear.
-        /// </summary>
-        /// <param name="t">Time elapsed.</param>
-        /// <returns>Eased timescale.</returns>
-        public static float Linear(float t) { return t; }
     }
 }

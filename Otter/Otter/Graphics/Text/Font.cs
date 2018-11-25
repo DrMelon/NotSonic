@@ -1,4 +1,5 @@
 ﻿using SFML.Graphics;
+using System;
 using System.IO;
 
 namespace Otter {
@@ -16,7 +17,7 @@ namespace Otter {
             font = Fonts.DefaultFont;
         }
 
-        public override int GetKerning(char first, char second, int characterSize) {
+        public override float GetKerning(char first, char second, int characterSize) {
             return font.GetKerning((uint)first, (uint)second, (uint)characterSize);
         }
     }
@@ -32,7 +33,7 @@ namespace Otter {
             return font.GetGlyph((uint)c, (uint)size, bold);
         }
 
-        internal virtual int GetLineSpacing(int size) {
+        internal virtual float GetLineSpacing(int size) {
             return font.GetLineSpacing((uint)size);
         }
 
@@ -40,7 +41,7 @@ namespace Otter {
             return new Texture(font.GetTexture((uint)size));
         }
 
-        public virtual int GetKerning(char first, char second, int characterSize) {
+        public virtual float GetKerning(char first, char second, int characterSize) {
             return 0;
         }
 

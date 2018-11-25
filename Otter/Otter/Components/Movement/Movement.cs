@@ -32,7 +32,7 @@ namespace Otter {
         /// The main Collider to use for detecting collisions. If this is not set, no collisions will
         /// register at all!
         /// </summary>
-        public Collider Collider;
+        public new Collider Collider;
 
         /// <summary>
         /// An action triggered when there is a collision in the X axis.

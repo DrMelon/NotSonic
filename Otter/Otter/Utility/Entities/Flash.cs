@@ -53,8 +53,7 @@
         /// Create a new Flash.
         /// </summary>
         /// <param name="color">The Color of the Flash.</param>
-        public Flash(Color color)
-            : base(0, 0) {
+        public Flash(Color color) : base(0, 0) {
             Color = color;
         }
 

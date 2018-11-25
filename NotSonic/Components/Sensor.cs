@@ -113,7 +113,7 @@ namespace NotSonic.Components
                             lastHeight = HeightArrays.FetchArrayHeight(tile.myType, senseMode);
                             newCollision.tileHit.myTileInfo.Angle = HeightArrays.GetAngleFromArrayHeight(lastHeight, senseMode, moveRight);
                             
-                            lastHeightHit = lastHeight[Math.Max((int)APos - (int)tile.X, 0)];
+                            lastHeightHit = lastHeight[Math.Min(Math.Max((int)APos - (int)tile.X, 0),15)];
 
                             if (CollisionTilemap != null)
                             {
@@ -141,7 +141,7 @@ namespace NotSonic.Components
                             {
                                 tempNormal = TilemapExt.SurfaceNormal(CollisionTilemap, (int)APos, (int)BPos2 - (int)lastHeightHit);
                             }
-                            
+
 
                             LasthitX = tile.X;
                             LasthitY = tile.Y;
@@ -231,7 +231,7 @@ namespace NotSonic.Components
         }
 
         public void DrawSelf(Color col)
-        { /*
+        { 
             if (verticalSensor)
             {
                 Otter.Draw.Line(APos, BPos1, APos, BPos2, col);
@@ -251,7 +251,7 @@ namespace NotSonic.Components
                     Otter.Draw.Line(LasthitX + i + 1, LasthitY + 16, LasthitX + i + 1, LasthitY + 16 - lastHeight[i], col);
                 }
             }
-            */
+            
 
             if(verticalSensor)
             {

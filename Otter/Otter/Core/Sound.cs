@@ -32,7 +32,7 @@ namespace Otter {
         /// Where the Listener is in 3D space.
         /// </summary>
         public static Vector3 ListenerPosition {
-            set { Listener.Position = (SFML.Audio.Vector3f)value; }
+            set { Listener.Position = (SFML.System.Vector3f)value; }
             get { return (Vector3)Listener.Position; }
         }
 
@@ -40,7 +40,7 @@ namespace Otter {
         /// The Listener's X position.
         /// </summary>
         public static float ListenerX {
-            set { Listener.Position = new SFML.Audio.Vector3f(value, Listener.Position.Y, Listener.Position.Z); }
+            set { Listener.Position = new SFML.System.Vector3f(value, Listener.Position.Y, Listener.Position.Z); }
             get { return Listener.Position.X; }
         }
 
@@ -48,7 +48,7 @@ namespace Otter {
         /// The Listener's Y position.
         /// </summary>
         public static float ListenerY {
-            set { Listener.Position = new SFML.Audio.Vector3f(Listener.Position.X, value, Listener.Position.Z); }
+            set { Listener.Position = new SFML.System.Vector3f(Listener.Position.X, value, Listener.Position.Z); }
             get { return Listener.Position.Y; }
         }
 
@@ -56,7 +56,7 @@ namespace Otter {
         /// The Listener's Z position.
         /// </summary>
         public static float ListenerZ {
-            set { Listener.Position = new SFML.Audio.Vector3f(Listener.Position.X, Listener.Position.Y, value); }
+            set { Listener.Position = new SFML.System.Vector3f(Listener.Position.X, Listener.Position.Y, value); }
             get { return Listener.Position.Z; }
         }
 
@@ -64,7 +64,7 @@ namespace Otter {
         /// What direction the Listener is pointing. Should be a unit vector.
         /// </summary>
         public static Vector3 ListenerDirection {
-            set { Listener.Direction = (SFML.Audio.Vector3f)value; }
+            set { Listener.Direction = (SFML.System.Vector3f)value; }
             get { return (Vector3)Listener.Direction; }
         }
 
@@ -100,8 +100,8 @@ namespace Otter {
         /// The playback offset of the sound in milliseconds.
         /// </summary>
         public int Offset {
-            set { sound.PlayingOffset = new TimeSpan(0, 0, 0, 0, value); }
-            get { return (int)sound.PlayingOffset.TotalMilliseconds; }
+            set { sound.PlayingOffset = SFML.System.Time.FromMilliseconds(value); }
+            get { return (int)sound.PlayingOffset.AsMilliseconds(); }
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace Otter {
         /// The duration of the sound in milliseconds.
         /// </summary>
         public int Duration {
-            get { return (int)sound.SoundBuffer.Duration; }
+            get { return (int)sound.SoundBuffer.Duration.AsMilliseconds(); }
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace Otter {
         /// Where the sound is in 3D space.
         /// </summary>
         public Vector3 Position {
-            set { sound.Position = (SFML.Audio.Vector3f)value; }
+            set { sound.Position = (SFML.System.Vector3f)value; }
             get { return (Vector3)sound.Position; }
         }
 
@@ -140,7 +140,7 @@ namespace Otter {
         /// The sound's X position.
         /// </summary>
         public float X {
-            set { sound.Position = new SFML.Audio.Vector3f(value, sound.Position.Y, sound.Position.Z); }
+            set { sound.Position = new SFML.System.Vector3f(value, sound.Position.Y, sound.Position.Z); }
             get { return sound.Position.X; }
         }
 
@@ -148,7 +148,7 @@ namespace Otter {
         /// The sound's Y position.
         /// </summary>
         public float Y {
-            set { sound.Position = new SFML.Audio.Vector3f(sound.Position.X, value, sound.Position.Z); }
+            set { sound.Position = new SFML.System.Vector3f(sound.Position.X, value, sound.Position.Z); }
             get { return sound.Position.Y; }
         }
 
@@ -156,7 +156,7 @@ namespace Otter {
         /// The sound's Z position.
         /// </summary>
         public float Z {
-            set { sound.Position = new SFML.Audio.Vector3f(sound.Position.X, sound.Position.Y, value); }
+            set { sound.Position = new SFML.System.Vector3f(sound.Position.X, sound.Position.Y, value); }
             get { return sound.Position.Z; }
         }
 

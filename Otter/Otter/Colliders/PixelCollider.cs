@@ -192,8 +192,9 @@ namespace Otter {
         /// <summary>
         /// Draw the collider for debug purposes.
         /// </summary>
-        public override void Render() {
-            base.Render();
+        public override void Render(Color color = null) {
+            base.Render(color);
+            if (color == null) color = Color.Red;
 
             if (Entity == null) return;
 
@@ -202,6 +203,7 @@ namespace Otter {
                 InitializeTexture();
             }
 
+            visibleImage.Color = color;
             Draw.Graphic(visibleImage, Left, Top);
         }
 

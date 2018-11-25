@@ -1,4 +1,5 @@
 ﻿using SFML.Graphics;
+using SFML.System;
 using SFML.Window;
 using System;
 using System.Collections.Generic;
@@ -64,6 +65,8 @@ namespace Otter {
         string iconPath;
         SFML.Graphics.Image iconImage;
 
+        string title;
+
         int sleepTime;
 
         #endregion
@@ -80,11 +83,6 @@ namespace Otter {
         /// will slow down if performance decreases.
         /// </summary>
         public bool FixedFramerate = true;
-
-        /// <summary>
-        /// The title of the game displayed in the window.
-        /// </summary>
-        public string Title;
 
         /// <summary>
         /// If the game is currently being run.
@@ -261,9 +259,51 @@ namespace Otter {
         /// </summary>
         public bool WindowBorder = true;
 
+        /// <summary>
+        /// Determines if the game will log any unhandled exceptions to a text file containing the exception
+        /// and stack trace.  This is useful for collecting crash data from players of your game.  The file
+        /// name will be "crash_X.txt" where X is the timestamp for when the crash occured.
+        /// This must be set before Game.Start() is called!!
+        /// </summary>
+        public bool LogExceptionsToFile;
+
         #endregion
 
         #region Public Properties
+
+        /// <summary>
+        /// The title of the game displayed in the window.
+        /// </summary>
+        public string Title {
+            get { return title; }
+            set {
+                title = value;
+                Window.SetTitle(title);
+            }
+        }
+
+        /// <summary>
+        /// Set the X position of the Window.
+        /// </summary>
+        public int WindowX {
+            get { return Window.Position.X; }
+            set { Window.Position = new Vector2i(value, Window.Position.Y); }
+        }
+
+        /// <summary>
+        /// Set the Y position of the Window.
+        /// </summary>
+        public int WindowY {
+            get { return Window.Position.Y; }
+            set { Window.Position = new Vector2i(Window.Position.X, value); }
+        }
+
+        /// <summary>
+        /// The center of the Game's Surface. (HalfWidth and HalfHeight)
+        /// </summary>
+        public Vector2 Center {
+            get { return new Vector2(HalfWidth, HalfHeight); }
+        }
 
         /// <summary>
         /// The debugger.  Only accessable in Debug mode, otherwise null.
@@ -274,6 +314,11 @@ namespace Otter {
         /// The Coroutine manager.
         /// </summary>
         public Coroutine Coroutine { get; private set; }
+
+        /// <summary>
+        /// The tween manager.
+        /// </summary>
+        public Tweener Tweener { get; private set; }
 
         /// <summary>
         /// True if the debugger is currently open.
@@ -292,6 +337,7 @@ namespace Otter {
 
         /// <summary>
         /// How much time has passed since the last update.
+        /// Will only make sense if FixedFramerate is false.
         /// </summary>
         public float DeltaTime { get; private set; }
 
@@ -525,7 +571,7 @@ namespace Otter {
             cameraAngle = 0;
             Width = width;
             Height = height;
-            Title = title;
+            this.title = title;
             WindowWidth = width;
             WindowHeight = height;
             WindowFullscreen = fullscreen;
@@ -546,6 +592,7 @@ namespace Otter {
             Input = new Input(this);
             DebugInput = new DebugInput(this);
             Coroutine = new Coroutine(this);
+            Tweener = new Tweener();
 
             for (int i = 0; i < fpsLogSize; i++) {
                 fpsTimes.Add(targetFramerate);
@@ -573,6 +620,12 @@ namespace Otter {
         #endregion
 
         #region Private Methods
+
+        void GlobalUnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e) {
+            var ex = (Exception)e.ExceptionObject;
+            var path = string.Format("crash_{0}.txt", DateTime.Now.ToFileTime());
+            File.WriteAllText(path, ex.Message + "\r\n\r\n" + ex.StackTrace + "\r\n\r\nOtter crash log generated at " + DateTime.Now.ToString());
+        }
 
         void UpdateSurfaceSize() {
             float width = WindowWidth;
@@ -605,7 +658,7 @@ namespace Otter {
             if (height < 0) throw new ArgumentException("Height must be greater than 0.");
 
             if (Window != null) {
-                if (Window.IsOpen()) Window.Close();
+                if (Window.IsOpen) Window.Close();
             }
 
             var windowStyle = Styles.Default;
@@ -641,6 +694,8 @@ namespace Otter {
             if (Debugger != null) {
                 Debugger.WindowInit();
             }
+
+            CenterWindow();
         }
 
         void UpdateView() {
@@ -746,8 +801,8 @@ namespace Otter {
 
         void Update() {
             Instance = this;
-            
-            Tweener.Tweener.Update(DeltaTime);
+
+            Tweener.Update(deltaTime);
             if (Coroutine.Running) Coroutine.Update();
             Coroutine.Instance = Coroutine;
             UpdateScenes();
@@ -878,11 +933,23 @@ namespace Otter {
             SetWindow(width, height, true, vsync);
         }
 
+
+        /// <summary>
+        /// Force the creation of a Debugger object (even in Release mode!)
+        /// </summary>
         public void ForceDebugger() {
             if (Debugger != null) return;
             ReleaseModeDebugger = true;
             Debugger = new Debugger(this);
             Debugger.WindowInit();
+        }
+
+        /// <summary>
+        /// Center the window on the monitor that the window was initialized on.
+        /// </summary>
+        public void CenterWindow() {
+            WindowX = (Util.DesktopWidth - WindowWidth) / 2;
+            WindowY = (Util.DesktopHeight - WindowHeight) / 2;
         }
 
         /// <summary>
@@ -983,14 +1050,21 @@ namespace Otter {
                 SetWindow(Width, Height, WindowFullscreen);
             }
 
+            if (LogExceptionsToFile) { // Dump crashes to a file
+                AppDomain.CurrentDomain.UnhandledException += GlobalUnhandledExceptionHandler;
+            }
+
             if (!Active) {
                 Active = true;
                 Init();
                 UpdateScenes();
                 gameTime.Start();
-                while (Window.IsOpen()) {
+                while (Window.IsOpen) {
                     if (Active) {
                         Window.DispatchEvents();
+
+                        frameTime = 1000f / TargetFramerate;
+                        skipTime = frameTime * 2;
 
                         if (ShowDebugger) {
                             Window.SetMouseCursorVisible(true);
@@ -1031,21 +1105,21 @@ namespace Otter {
 
                         if (!ShowDebugger) {
                             if (LockMouse && HasFocus) {
-                                Vector2i m = Window.InternalGetMousePosition();
+                                Vector2i m = SFML.Window.Mouse.GetPosition(Window);
                                 int mx, my;
                                 mx = (int)Util.Clamp(m.X, LockMousePadding, WindowWidth - LockMousePadding);
                                 my = (int)Util.Clamp(m.Y, LockMousePadding, WindowHeight - LockMousePadding);
-                                Window.InternalSetMousePosition(new Vector2i(mx, my));
+                                SFML.Window.Mouse.SetPosition(new Vector2i(mx, my), Window);
                             }
                             else if (LockMouseCenter && HasFocus) {
-                                Vector2i m = Window.InternalGetMousePosition();
+                                Vector2i m = SFML.Window.Mouse.GetPosition(Window);
                                 int mx, my;
                                 mx = WindowWidth / 2;
                                 my = WindowHeight / 2;
                                 MouseDeltaX = m.X - mx;
                                 MouseDeltaY = m.Y - my;
                                 Input.GameMouseUpdate(MouseDeltaX, MouseDeltaY);
-                                Window.InternalSetMousePosition(new Vector2i(mx, my));
+                                SFML.Window.Mouse.SetPosition(new Vector2i(mx, my), Window);
                             }
                         }
 

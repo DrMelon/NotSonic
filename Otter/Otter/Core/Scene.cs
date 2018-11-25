@@ -13,6 +13,7 @@ namespace Otter {
 
         List<Entity> entitiesToAdd = new List<Entity>();
         List<Entity> entitiesToRemove = new List<Entity>();
+        List<Entity> entitiesToRemoveNextFrame = new List<Entity>();
         List<Entity> entitiesToChangeLayer = new List<Entity>();
         List<Entity> entitiesToChangeOrder = new List<Entity>();
 
@@ -29,6 +30,8 @@ namespace Otter {
         internal Dictionary<int, List<Collider>> Colliders = new Dictionary<int, List<Collider>>();
 
         List<Entity> entities = new List<Entity>();
+        Dictionary<int, Entity> entitiesById = new Dictionary<int, Entity>();
+        int nextEntityId = 0;
 
         int entityCount = 0;
 
@@ -147,6 +150,11 @@ namespace Otter {
         public bool UseCameraBounds = false;
 
         /// <summary>
+        /// The Entity that the Scene's camera will follow.
+        /// </summary>
+        public Entity CameraFocus;
+
+        /// <summary>
         /// Determines if the scene will render its graphics or not.
         /// </summary>
         public bool Visible = true;
@@ -195,6 +203,12 @@ namespace Otter {
         public float HalfHeight {
             private set { }
             get { return Height / 2; }
+        }
+
+        public Vector2 Center {
+            get {
+                return new Vector2(HalfWidth, HalfHeight);
+            }
         }
 
         /// <summary>
@@ -283,15 +297,30 @@ namespace Otter {
             }
         }
 
+        /// <summary>
+        /// The width in pixels that the camera is showing with the current zoom.
+        /// </summary>
         public float CameraWidth {
             get {
                 return Game.Width / CameraZoom;
             }
         }
 
+        /// <summary>
+        /// The height in pixels that the camera is showing with the current zoom.
+        /// </summary>
         public float CameraHeight {
             get {
                 return Game.Height / CameraZoom;
+            }
+        }
+
+        /// <summary>
+        /// The bounds of the Scene as a Rectangle.
+        /// </summary>
+        public Rectangle Bounds {
+            get {
+                return new Rectangle(0, 0, Width, Height);
             }
         }
 
@@ -330,6 +359,17 @@ namespace Otter {
                 }
 
                 OnRender();
+            }
+        }
+
+        #endregion
+
+        #region Public Indexers
+
+        public Entity this[int id] {
+            get {
+                if (entitiesById.ContainsKey(id)) return entitiesById[id];
+                return null;
             }
         }
 
@@ -590,6 +630,10 @@ namespace Otter {
             return Remove(GetEntity<T>());
         }
 
+        public void Remove<T>(List<T> entities) where T : Entity {
+            foreach (var e in entities) Remove(e);
+        }
+
         /// <summary>
         /// Remove all entities from the scene.
         /// </summary>
@@ -597,6 +641,29 @@ namespace Otter {
             foreach (var e in entities) {
                 Remove(e);
             }
+        }
+
+        public List<Entity> RemoveMultiple(params Entity[] entities) {
+            var r = new List<Entity>();
+            foreach (var e in entities) {
+                r.Add(Remove(e));
+            }
+            return r;
+        }
+
+        public T RemoveNextFrame<T>(T e) where T : Entity {
+            if (e == null) throw new ArgumentNullException("Entity to remove cannot be null.");
+            if (e.MarkedForRemoval) return e;
+            if (e.Scene == null) return e;
+
+            if (!entitiesToAdd.Contains(e)) {
+                entitiesToRemoveNextFrame.Add(e);
+            }
+
+            //e.MarkedForRemoval = true;
+            e.MarkedForAdd = false;
+
+            return e;
         }
 
         /// <summary>
@@ -624,6 +691,58 @@ namespace Otter {
         public void ClearSurfaces() {
             if (Surfaces == null) Surfaces = new List<Surface>();
             Surfaces.Clear();
+        }
+
+        /// <summary>
+        /// Sends an Entity to the back of its layer. Probably don't use this and change the Entity's layer in the same update.
+        /// </summary>
+        /// <param name="e">The Entity to modify.</param>
+        public void SendToBack(Entity e) {
+            if (!layers.ContainsKey(e.Layer)) return;
+            if (!layers[e.Layer].Contains(e)) return;
+
+            layers[e.Layer].Remove(e);
+            layers[e.Layer].Insert(0, e);
+        }
+
+        /// <summary>
+        /// Sends an Entity further back in its layer. Probably don't use this and change the Entity's layer in the same update.
+        /// </summary>
+        /// <param name="e">The Entity to modify.</param>
+        public void SendBackward(Entity e) {
+            if (!layers.ContainsKey(e.Layer)) return;
+            if (!layers[e.Layer].Contains(e)) return;
+
+            var oldIndex = layers[e.Layer].IndexOf(e);
+            if (oldIndex == 0) return;
+            layers[e.Layer].Remove(e);
+            layers[e.Layer].InsertOrAdd(oldIndex - 1, e); 
+        }
+
+        /// <summary>
+        /// Brings an Entity further forward in its layer.  Probably don't use this and change the Entity's layer in the same update.
+        /// </summary>
+        /// <param name="e">The Entity to modify.</param>
+        public void BringForward(Entity e) {
+            if (!layers.ContainsKey(e.Layer)) return;
+            if (!layers[e.Layer].Contains(e)) return;
+
+            var oldIndex = layers[e.Layer].IndexOf(e);
+            if (oldIndex == layers[e.Layer].Count - 1) return;
+            layers[e.Layer].Remove(e);
+            layers[e.Layer].InsertOrAdd(oldIndex + 1, e);
+        }
+
+        /// <summary>
+        /// Brings an Entity to the front of its layer.  Probably don't use this and change the Entity's layer in the same update.
+        /// </summary>
+        /// <param name="e">The Entity to modify.</param>
+        public void BringToFront(Entity e) {
+            if (!layers.ContainsKey(e.Layer)) return;
+            if (!layers[e.Layer].Contains(e)) return;
+
+            layers[e.Layer].Remove(e);
+            layers[e.Layer].Add(e);
         }
 
         /// <summary>
@@ -705,6 +824,11 @@ namespace Otter {
                     layers[e.Layer].Add(e);
 
                     entities.Add(e);
+
+                    var id = GetNextEntityId();
+                    entitiesById.Add(id, e);
+                    e.InstanceId = id;
+
                     e.MarkedForAdd = false;
 
                     foreach (var c in e.Colliders) {
@@ -716,6 +840,7 @@ namespace Otter {
 
                 foreach (var e in adding) {
                     // Invoke these methods after *all* entities in the queue are actually in the scene.
+                    e.UpdateComponentLists(); // trying this twice? this might break everything.
                     e.Added();
                     e.UpdateComponentLists(); // Add components after e.Added, so that Entity.Scene is not null for components.
                     e.OnAdded(); // Moved OnAdded after UpdateComponentLists so components can hook into OnAdded
@@ -762,6 +887,8 @@ namespace Otter {
                     }
 
                     entities.Remove(e);
+                    entitiesById.Remove(e.InstanceId);
+                    e.InstanceId = -1;
 
                     foreach (var c in e.Colliders) {
                         RemoveColliderInternal(c);
@@ -776,7 +903,11 @@ namespace Otter {
                     e.Scene = null;
                 }
             }
-            
+
+            foreach (var e in entitiesToRemoveNextFrame) {
+                Remove(e);
+            }
+            entitiesToRemoveNextFrame.Clear();
 
             foreach (var group in groupsToPause) {
                 if (!pausedGroups.Contains(group)) {
@@ -878,8 +1009,20 @@ namespace Otter {
         /// </summary>
         /// <param name="group">The group to get.</param>
         /// <returns>All of the entities in the group.</returns>
-        public List<Entity> GetGroupEntities(int group) {
+        public List<Entity> GetEntitiesInGroup(int group) {
             return entities.Where(e => e.Group == group).ToList<Entity>();
+        }
+
+        /// <summary>
+        /// Returns a list of all the Entities in the given layer.
+        /// </summary>
+        /// <param name="layer">The layer to get.</param>
+        /// <returns>All of the entities in the group.</returns>
+        public List<Entity> GetEntitiesInLayer(int layer) {
+            if (layers.ContainsKey(layer)) {
+                return layers[layer];
+            }
+            return new List<Entity>();
         }
 
         /// <summary>
@@ -888,6 +1031,10 @@ namespace Otter {
         /// <typeparam name="T">The type of entity to collect.</typeparam>
         /// <returns>A list of entities of type T.</returns>
         public List<T> GetEntities<T>() where T : Entity {
+            if (typeof(T) == typeof(Entity)) {
+                return entities.Cast<T>().ToList<T>();
+            }
+
             var list = new List<T>();
             foreach (var e in entities) {
                 if (e is T) {
@@ -897,9 +1044,8 @@ namespace Otter {
             return list;
         }
 
-        public List<Graphic> GetGraphics()
-        {
-            return graphics;
+        public List<Entity> GetEntitiesAll() {
+            return entities.ToList<Entity>();
         }
 
         /// <summary>
@@ -1045,6 +1191,7 @@ namespace Otter {
             if (entities.Length == 1) return entities[0];
 
             var validEntities = entities.Where(e => e.Scene == this);
+            if (validEntities.Count() == 0) return null;
 
             var min = validEntities.Min(e => e.Layer);
             var minIndex = validEntities.Where(e => e.Layer == min).Max(e => layers[min].IndexOf(e));
@@ -1062,6 +1209,7 @@ namespace Otter {
             if (entities.Length == 1) return entities[0];
 
             var validEntities = entities.Where(e => e.Scene == this);
+            if (validEntities.Count() == 0) return null;
 
             var max = validEntities.Max(e => e.Layer);
             var maxIndex = validEntities.Where(e => e.Layer == max).Min(e => layers[max].IndexOf(e));
@@ -1091,6 +1239,12 @@ namespace Otter {
         internal float
             cameraX,
             cameraY;
+
+        internal int GetNextEntityId() {
+            var id = nextEntityId;
+            nextEntityId++;
+            return id;
+        }
 
         internal void AddColliderInternal(Collider c) {
             foreach (var tag in c.Tags) {
@@ -1238,6 +1392,11 @@ namespace Otter {
         }
 
         internal void UpdateCamera() {
+            if (CameraFocus != null) {
+                CameraX = CameraFocus.X - Game.HalfWidth;
+                CameraY = CameraFocus.Y - Game.HalfHeight;
+            }
+
             var cx = CameraX;
             var cy = CameraY;
 

@@ -110,6 +110,10 @@ namespace NotSonic
 
         public static float GetAngleFromArrayHeight(int[] arrayheight, int type, bool moveRight)
         {
+
+
+
+
             float firstHeight = 0;
             float lastHeight = 0;
             float firstHeightPos = 0;

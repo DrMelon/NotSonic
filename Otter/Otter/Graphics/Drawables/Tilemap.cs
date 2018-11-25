@@ -1,4 +1,5 @@
 ﻿using SFML.Graphics;
+using SFML.System;
 using SFML.Window;
 using System;
 using System.Collections.Generic;
@@ -421,8 +422,14 @@ namespace Otter {
             SFMLVertices.Clear();
 
             foreach (var layer in TileLayers.Reverse()) {
+                //for (int i = TileLayers.Count - 1; i >= 0; i--) {
+                //    var layer = TileLayers.Values[i];
                 foreach (var tile in layer.Value) {
-                    tile.Alpha = Alpha;
+                    //tile.Alpha = Alpha;
+                    tile.tilemapColor.R = Color.R;
+                    tile.tilemapColor.G = Color.G;
+                    tile.tilemapColor.B = Color.B;
+                    tile.tilemapColor.A = Color.A;
                     tile.AppendVertices(SFMLVertices);
                 }
             }
@@ -1140,7 +1147,7 @@ namespace Otter {
             if (layer == "") layer = DefaultLayerName;
 
             TileLayers[layerNames[layer]].Clear();
-
+            
             NeedsUpdate = true;
         }
 
@@ -1200,6 +1207,26 @@ namespace Otter {
         /// <returns>The depth id of the layer.</returns>
         public int AddLayer(Enum name, int depth = 0) {
             return AddLayer(Util.EnumValueToString(name), depth);
+        }
+
+        /// <summary>
+        /// Remove a layer from the Tilemap and delete that layer's tiles.
+        /// </summary>
+        /// <param name="name">The name of the layer to delete.</param>
+        public void RemoveLayer(string name) {
+            ClearLayer(name);
+            if (name != DefaultLayerName) {
+                TileLayers.Remove(layerNames[name]);
+                layerNames.Remove(name);
+            }
+        }
+
+        /// <summary>
+        /// Remove a layer from the Tilemap and delete that layer's tiles.
+        /// </summary>
+        /// <param name="name">The name of the layer to delete.</param>
+        public void RemoveLayer(Enum name) {
+            RemoveLayer(Util.EnumValueToString(name));
         }
 
         /// <summary>
@@ -1316,6 +1343,12 @@ namespace Otter {
         public bool FlipY;
 
         /// <summary>
+        /// Flips the tile anti-diagonally, equivalent to a 90 degree rotation and a horizontal flip.
+        /// Combined with FlipX and FlipY you can rotate the tile any direction.
+        /// </summary>
+        public bool FlipD;
+
+        /// <summary>
         /// The color of the tile, or the color to tint the texture.
         /// </summary>
         public Color Color;
@@ -1323,7 +1356,10 @@ namespace Otter {
         /// <summary>
         /// The alpha of the tile.
         /// </summary>
-        public float Alpha = 1f;
+        public float Alpha {
+            get { return Color.A; }
+            set { Color.A = value; }
+        }
 
         #endregion
 
@@ -1362,6 +1398,8 @@ namespace Otter {
 
         #region Internal
 
+        internal Color tilemapColor = new Color();
+
         internal Vector2f SFMLPosition {
             get { return new Vector2f(X, Y); }
         }
@@ -1372,7 +1410,7 @@ namespace Otter {
 
         internal Vertex CreateVertex(int x = 0, int y = 0, int tx = 0, int ty = 0) {
             var tileColor = new Color(Color);
-            tileColor.A = Color.A * Alpha;
+            tileColor *= tilemapColor;
             if (TX == -1 || TY == -1) {
                 return new Vertex(new Vector2f(X + x, Y + y), tileColor.SFMLColor);
             }
@@ -1380,36 +1418,59 @@ namespace Otter {
         }
 
         internal void AppendVertices(VertexArray array) {
-            if(!FlipX && !FlipY)
-            {
-                array.Append(CreateVertex(0, 0, 0, 0));
-                array.Append(CreateVertex(Width, 0, Width, 0));
-                array.Append(CreateVertex(Width, Height, Width, Height));
-                array.Append(CreateVertex(0, Height, 0, Height));
+            if (!FlipD) {
+                if (!FlipX && !FlipY) {
+                    array.Append(CreateVertex(0, 0, 0, 0)); //upper-left
+                    array.Append(CreateVertex(Width, 0, Width, 0)); //upper-right
+                    array.Append(CreateVertex(Width, Height, Width, Height)); //lower-right
+                    array.Append(CreateVertex(0, Height, 0, Height)); //lower-left
+                }
+                if (FlipX && FlipY) {
+                    array.Append(CreateVertex(0, 0, Width, Height));
+                    array.Append(CreateVertex(Width, 0, 0, Height));
+                    array.Append(CreateVertex(Width, Height, 0, 0));
+                    array.Append(CreateVertex(0, Height, Width, 0));  
+                }
+                if (FlipX & !FlipY) {
+                    array.Append(CreateVertex(0, 0, Width, 0));
+                    array.Append(CreateVertex(Width, 0, 0, 0));
+                    array.Append(CreateVertex(Width, Height, 0, Height));
+                    array.Append(CreateVertex(0, Height, Width, Height));
+                }
+                if (!FlipX & FlipY) {
+                    array.Append(CreateVertex(0, 0, 0, Height));
+                    array.Append(CreateVertex(Width, 0, Width, Height));
+                    array.Append(CreateVertex(Width, Height, Width, 0));
+                    array.Append(CreateVertex(0, Height, 0, 0));
+                }
             }
-            if(FlipX && FlipY)
-            {
-                array.Append(CreateVertex(0, 0, Width, Height));
-                array.Append(CreateVertex(Width, 0, 0, Height));
-                array.Append(CreateVertex(Width, Height, 0, 0));
-                array.Append(CreateVertex(0, Height, Width, 0));
-            }
-            if(FlipX & !FlipY)
-            {
-                array.Append(CreateVertex(0, 0, Width, 0));
-                array.Append(CreateVertex(Width, 0, 0, 0));
-                array.Append(CreateVertex(Width, Height, 0, Height));
-                array.Append(CreateVertex(0, Height, Width, Height));
-            }
-            if (!FlipX & FlipY)
-            {
-                array.Append(CreateVertex(0, 0, 0, Height));
-                array.Append(CreateVertex(Width, 0, Width, Height));
-                array.Append(CreateVertex(Width, Height, Width, 0));
-                array.Append(CreateVertex(0, Height, 0, 0));
+            else { //swaps lower-left corner with upper-right on all the cases
+                if (!FlipX && !FlipY) {
+                    array.Append(CreateVertex(0, 0, 0, 0)); //upper-left
+                    array.Append(CreateVertex(0, Height, Width, 0)); //upper-right
+                    array.Append(CreateVertex(Width, Height, Width, Height)); //lower-right
+                    array.Append(CreateVertex(Width, 0, 0, Height)); //lower-left
+                }
+                if (FlipX && FlipY) {
+                    array.Append(CreateVertex(0, 0, Width, Height));
+                    array.Append(CreateVertex(0, Height, 0, Height));
+                    array.Append(CreateVertex(Width, Height, 0, 0));
+                    array.Append(CreateVertex(Width, 0, Width, 0));
+                }
+                if (!FlipX & FlipY) {
+                    array.Append(CreateVertex(0, 0, Width, 0));
+                    array.Append(CreateVertex(0, Height, 0, 0));
+                    array.Append(CreateVertex(Width, Height, 0, Height));
+                    array.Append(CreateVertex(Width, 0, Width, Height));
+                }
+                if (FlipX & !FlipY) {
+                    array.Append(CreateVertex(0, 0, 0, Height));
+                    array.Append(CreateVertex(0, Height, Width, Height));
+                    array.Append(CreateVertex(Width, Height, Width, 0));
+                    array.Append(CreateVertex(Width, 0, 0, 0));
+                }
             }
         }
-
         #endregion
         
     }

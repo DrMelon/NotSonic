@@ -131,11 +131,12 @@ namespace Otter {
 
         bool wordWrap = false;
 
-        int advanceSpace;
+        float advanceSpace;
 
         string cachedCleanString = "";
 
         string textString;
+        string parsedString;
 
         List<float> cachedLineWidths = new List<float>();
 
@@ -368,7 +369,7 @@ namespace Otter {
         /// <summary>
         /// The line spacing between each vertical line.
         /// </summary>
-        public int LineSpacing {
+        public float LineSpacing {
             get { return font.GetLineSpacing(charSize); }
         }
 
@@ -431,13 +432,13 @@ namespace Otter {
         /// <summary>
         /// The pixel width of the longest line in the displayed string.
         /// </summary>
-        public int LongestLine {
+        public float LongestLine {
             get {
                 var lines = CleanString.Split('\n');
-                int longest = 0;
+                float longest = 0;
                 for (int i = 0; i < NumLines; i++) {
-                    int pixels = GetLineWidth(i);
-                    longest = Math.Max(longest, pixels);
+                    var width = GetLineWidth(i);
+                    longest = Math.Max(longest, width);
                 }
 
                 return longest;
@@ -470,6 +471,13 @@ namespace Otter {
                 // Force update here to set Width and Height and other stuff
                 UpdateDrawable();
             }
+        }
+
+        /// <summary>
+        /// The character count of the string without formatting commands.
+        /// </summary>
+        public int CharacterCount {
+            get { return chars.Count; }
         }
 
         /// <summary>
@@ -620,9 +628,11 @@ namespace Otter {
             }
         }
 
-        int Advance(Glyph glyph) {
+        float Advance(Glyph glyph) {
             if (Monospaced) return MonospaceWidth;
-            return glyph.Advance;
+            // Note: This is to fix an issue before SFML updates to 2.3!!
+            var bytes = BitConverter.GetBytes(glyph.Advance);
+            return BitConverter.ToSingle(bytes, 0);
         }
 
         Glyph Glyph(char charCode) {
@@ -749,7 +759,14 @@ namespace Otter {
         }
 
         void UpdateCharacterData() {
-            chars.Clear();
+            parsedString = textString;
+
+            if (textString == "") {
+                chars.Clear();
+                return;
+            }
+
+            var oldStringLength = chars.Count;
             cachedCleanString = ""; // Clear clean string cache
             cachedLineWidths.Clear();
             Clear();
@@ -766,6 +783,7 @@ namespace Otter {
             writingText = true;
 
             //create the set of chars with properties and parse commands
+            var charIndex = 0;
             for (var i = 0; i < textString.Length; i++) {
                 var c = textString[i];
                 if (c == CommandOpen) {
@@ -805,36 +823,49 @@ namespace Otter {
                     continue;
                 }
                 if (writingText) {
-                    var rtchar = new RichTextCharacter(c, i) {
-                        SineAmpX = currentSineAmpX,
-                        SineAmpY = currentSineAmpY,
-                        SineRateX = currentSineRateX,
-                        SineRateY = currentSineRateY,
-                        SineOffsetX = currentSineOffsetX,
-                        SineOffsetY = currentSineOffsetY,
-                        OffsetAmount = currentOffsetAmount,
-                        ShadowX = currentShadowX,
-                        ShadowY = currentShadowY,
-                        ShadowColor = currentShadowColor,
-                        OutlineThickness = currentOutlineThickness,
-                        OutlineColor = currentOutlineColor,
-                        Color = currentCharColor,
-                        Color0 = currentCharColor0,
-                        Color1 = currentCharColor1,
-                        Color2 = currentCharColor2,
-                        Color3 = currentCharColor3,
-                        ShakeX = currentShakeX,
-                        ShakeY = currentShakeY,
-                        Timer = timer,
-                        CharOffsetX = currentCharOffsetX,
-                        CharOffsetY = currentCharOffsetY,
-                        ScaleX = currentScaleX,
-                        ScaleY = currentScaleY,
-                        Angle = currentAngle
-                    };
+                    RichTextCharacter rtchar;
+                    if (chars.Count > charIndex) {
+                        rtchar = chars[charIndex];
+                        rtchar.Character = c;
+                    }
+                    else {
+                        rtchar = new RichTextCharacter(c, charIndex);
+                        chars.Add(rtchar);
+                    }
 
-                    chars.Add(rtchar);
+                    rtchar.Timer = timer;
+
+                    rtchar.sineAmpX = currentSineAmpX;
+                    rtchar.sineAmpY = currentSineAmpY;
+                    rtchar.sineRateX = currentSineRateX;
+                    rtchar.sineRateY = currentSineRateY;
+                    rtchar.sineOffsetX = currentSineOffsetX;
+                    rtchar.sineOffsetY = currentSineOffsetY;
+                    rtchar.offsetAmount = currentOffsetAmount;
+                    rtchar.shadowX = currentShadowX;
+                    rtchar.shadowY = currentShadowY;
+                    rtchar.shadowColor = currentShadowColor;
+                    rtchar.outlineThickness = currentOutlineThickness;
+                    rtchar.outlineColor = currentOutlineColor;
+                    rtchar.color = currentCharColor;
+                    rtchar.color0 = currentCharColor0;
+                    rtchar.color1 = currentCharColor1;
+                    rtchar.color2 = currentCharColor2;
+                    rtchar.color3 = currentCharColor3;
+                    rtchar.shakeX = currentShakeX;
+                    rtchar.shakeY = currentShakeY;
+                    rtchar.textureOffsetX = currentCharOffsetX;
+                    rtchar.textureOffsetY = currentCharOffsetY;
+                    rtchar.scaleX = currentScaleX;
+                    rtchar.scaleY = currentScaleY;
+                    rtchar.angle = currentAngle;
+                    
+                    charIndex++;
                 }
+            }
+
+            if (charIndex < oldStringLength) {
+                chars.RemoveRange(charIndex, oldStringLength - charIndex);
             }
 
             Lines = CleanString.Split('\n');
@@ -945,8 +976,8 @@ namespace Otter {
                     var bounds = glyph.Bounds;
 
                     // Char offset only works with default formatted bitmap fonts!!
-                    rect.Top += chars[i].CharOffsetY;
-                    rect.Left += chars[i].CharOffsetX;
+                    rect.Top += chars[i].TextureOffsetY;
+                    rect.Left += chars[i].TextureOffsetX;
 
                     // This is how you do kerning I guess
                     x += font.GetKerning(prevChar, chars[i].Character, FontSize);
@@ -968,6 +999,8 @@ namespace Otter {
                     var v1 = rect.Top;
                     var u2 = rect.Left + rect.Width;
                     var v2 = rect.Top + rect.Height;
+
+                    //Console.WriteLine("{0}, {1}", c, rect);
 
                     var charCenterX = cx + x + bounds.Left + bounds.Width / 2;
                     var charCenterY = cy + y + bounds.Top + bounds.Height / 2;
@@ -1092,11 +1125,11 @@ namespace Otter {
             boundsTop = minY;
         }
 
-        int LineStartPosition(int lineNumber) {
+        float LineStartPosition(int lineNumber) {
             if (TextAlign == TextAlign.Left) return 0;
 
-            int lineStart = 0;
-            int lineLength = GetLineWidth(lineNumber);
+            float lineStart = 0;
+            var lineLength = GetLineWidth(lineNumber);
             switch (TextAlign) {
                 case TextAlign.Center:
                     lineStart = (Width - lineLength) / 2;
@@ -1153,7 +1186,7 @@ namespace Otter {
 
             var writingText = true;
 
-            int pixels = 0;
+            float pixels = 0;
             int lastSpaceIndex = 0;
 
             for (var i = 0; i < str.Length; i++) {
@@ -1177,6 +1210,7 @@ namespace Otter {
                     }
                     else if (c == '\n') {
                         pixels = 0;
+                        lastSpaceIndex = i;
                     }
                     else {
                         pixels += Advance(glyph);
@@ -1194,6 +1228,7 @@ namespace Otter {
                             }
 
                             finalStr = sb.ToString();
+                            str = finalStr;
 
                             // Return the loop to the new line.
                             i = lastSpaceIndex;
@@ -1213,22 +1248,22 @@ namespace Otter {
         /// </summary>
         /// <param name="lineNumber">The line number to check.</param>
         /// <returns>The length of the line in pixels.</returns>
-        public int GetLineWidth(int lineNumber) {
+        public float GetLineWidth(int lineNumber) {
             if (lineNumber < 0 || lineNumber >= NumLines) throw new ArgumentOutOfRangeException("Line doesn't exist in string!");
-            if (lineNumber < cachedLineWidths.Count) return (int)Math.Ceiling(cachedLineWidths[lineNumber]);
+            if (lineNumber < cachedLineWidths.Count) return cachedLineWidths[lineNumber];
             
             //This is very slow on large text objects, but I'm not sure how to get around that!
 
             var line = Lines[lineNumber];
-            int pixels = 0;
+            float width = 0;
             foreach (var c in line) {
                 var glyph = Glyph(c);
                 if (c == '\t') {
-                    pixels += (int)Math.Ceiling(Advance(glyph) * 3 * LetterSpacing);
+                    width += (Advance(glyph) * 3 * LetterSpacing);
                 }
-                pixels += (int)Math.Ceiling(Advance(glyph) * LetterSpacing);
+                width += (Advance(glyph) * LetterSpacing);
             }
-            return pixels;
+            return width;
         }
 
         /// <summary>
@@ -1299,45 +1334,37 @@ namespace Otter {
         float finalShakeY;
         float finalSinX;
         float finalSinY;
+        
+        float activeScaleX = 1;
+        float activeScaleY = 1;
+        float activeAngle;
+        float activeX;
+        float activeY;
+        float activeSineAmpX;
+        float activeSineAmpY;
+        float activeSineRateX;
+        float activeSineRateY;
+        float activeSineOffsetX;
+        float activeSineOffsetY;
+        float activeShakeX;
+        float activeShakeY;
+        float activeShadowX;
+        float activeShadowY;
+        float activeOutlineThickness;
+        int activeTextureOffsetX;
+        int activeTextureOffsetY;
+        float activeOffsetAmount;
+        Color activeColor = Color.White;
+        Color activeColor0 = Color.White;
+        Color activeColor1 = Color.White;
+        Color activeColor2 = Color.White;
+        Color activeColor3 = Color.White;
+        Color activeShadowColor = Color.White;
+        Color activeOutlineColor = Color.White;
 
         #endregion
 
         #region Public Fields
-
-        /// <summary>
-        /// The Color of the character.
-        /// </summary>
-        public Color Color = Color.White;
-
-        /// <summary>
-        /// The Color of the top left corner.
-        /// </summary>
-        public Color Color0 = Color.White;
-
-        /// <summary>
-        /// The Color of the top left corner.
-        /// </summary>
-        public Color Color1 = Color.White;
-
-        /// <summary>
-        /// The Color of the top left corner.
-        /// </summary>
-        public Color Color2 = Color.White;
-
-        /// <summary>
-        /// The Color of the top left corner.
-        /// </summary>
-        public Color Color3 = Color.White;
-
-        /// <summary>
-        /// The Color of the shadow.
-        /// </summary>
-        public Color ShadowColor = Color.Black;
-
-        /// <summary>
-        /// The Color of the outline.
-        /// </summary>
-        public Color OutlineColor = Color.White;
 
         /// <summary>
         /// The character.
@@ -1350,113 +1377,226 @@ namespace Otter {
         public float Timer;
 
         /// <summary>
-        /// The horizontal sine wave amplitude.
-        /// </summary>
-        public float SineAmpX;
-
-        /// <summary>
-        /// The vertical sine wave amplitude.
-        /// </summary>
-        public float SineAmpY;
-
-        /// <summary>
-        /// The horizontal sine wave rate.
-        /// </summary>
-        public float SineRateX = 1;
-
-        /// <summary>
-        /// The vertical sine wave rate.
-        /// </summary>
-        public float SineRateY = 1;
-
-        /// <summary>
-        /// The horizontal sine wave offset.
-        /// </summary>
-        public float SineOffsetX;
-
-        /// <summary>
-        /// The vertical sine wave offset.
-        /// </summary>
-        public float SineOffsetY;
-
-        /// <summary>
         /// The sine wave offset for this specific character.
         /// </summary>
         public float CharOffset;
-
-        /// <summary>
-        /// The X offset of the character.  BitmapFont only.
-        /// </summary>
-        public int CharOffsetX = 0;
-
-        /// <summary>
-        /// The Y offset of the character.  BitmapFont only.
-        /// </summary>
-        public int CharOffsetY = 0;
-
-        /// <summary>
-        /// The offset amount for each character.
-        /// </summary>
-        public float OffsetAmount = 10;
-
-        /// <summary>
-        /// The X position of the shadow.
-        /// </summary>
-        public float ShadowX;
-
-        /// <summary>
-        /// The Y position of the shadow.
-        /// </summary>
-        public float ShadowY;
-
-        /// <summary>
-        /// The outline thickness.
-        /// </summary>
-        public float OutlineThickness;
-
-        /// <summary>
-        /// The amount of horizontal shake.
-        /// </summary>
-        public float ShakeX;
-
-        /// <summary>
-        /// The amount of vertical shake.
-        /// </summary>
-        public float ShakeY;
 
         /// <summary>
         /// Determines if the character is bold.  Not supported yet.
         /// </summary>
         public bool Bold = false;
 
+        #endregion
+
+        #region Public Properties
+
+        /// <summary>
+        /// The Color of the character.
+        /// </summary>
+        public Color Color {
+            get { return color * activeColor; }
+            set { activeColor = value; }
+        }
+
+        /// <summary>
+        /// The Color of the top left corner.
+        /// </summary>
+        public Color Color0 {
+            get { return color0 * activeColor0; }
+            set { activeColor0 = value; }
+        }
+
+        /// <summary>
+        /// The Color of the top left corner.
+        /// </summary>
+        public Color Color1 {
+            get { return color1 * activeColor1; }
+            set { activeColor1 = value; }
+        }
+
+        /// <summary>
+        /// The Color of the top left corner.
+        /// </summary>
+        public Color Color2 {
+            get { return color2 * activeColor2; }
+            set { activeColor2 = value; }
+        }
+
+        /// <summary>
+        /// The Color of the top left corner.
+        /// </summary>
+        public Color Color3 {
+            get { return color3 * activeColor3; }
+            set { activeColor3 = value; }
+        }
+
+        /// <summary>
+        /// The Color of the shadow.
+        /// </summary>
+        public Color ShadowColor {
+            get { return shadowColor * activeShadowColor; }
+            set { activeShadowColor = value; }
+        }
+
+        /// <summary>
+        /// The Color of the outline.
+        /// </summary>
+        public Color OutlineColor {
+            get { return outlineColor * activeShadowColor; }
+            set { activeShadowColor = value; }
+        }
+
+        /// <summary>
+        /// The offset amount for each character.
+        /// </summary>
+        public float OffsetAmount {
+            get { return offsetAmount + activeOffsetAmount; }
+            set { activeOffsetAmount = value; }
+        }
+
+        /// <summary>
+        /// The horizontal texture offset of the character.  BitmapFont only.
+        /// </summary>
+        public int TextureOffsetX {
+            get { return textureOffsetX + activeTextureOffsetX; }
+            set { activeTextureOffsetX = value; }
+        }
+
+        /// <summary>
+        /// The vertical texture offset of the character.  BitmapFont only.
+        /// </summary>
+        public int TextureOffsetY {
+            get { return textureOffsetY + activeTextureOffsetY; }
+            set { activeTextureOffsetY = value; }
+        }
+
+        /// <summary>
+        /// The outline thickness.
+        /// </summary>
+        public float OutlineThickness {
+            get { return outlineThickness + activeOutlineThickness; }
+            set { activeOutlineThickness = value; }
+        }
+
+        /// <summary>
+        /// The horizontal sine wave offset.
+        /// </summary>
+        public float SineOffsetX {
+            get { return sineOffsetX + activeSineOffsetX; }
+            set { activeSineOffsetX = value; }
+        }
+
+        /// <summary>
+        /// The vertical sine wave offset.
+        /// </summary>
+        public float SineOffsetY {
+            get { return sineOffsetY + activeSineOffsetY; }
+            set { activeSineOffsetY = value; }
+        }
+
+        /// <summary>
+        /// The X position of the shadow.
+        /// </summary>
+        public float ShadowX {
+            get { return shadowX + activeShadowX; }
+            set { activeShadowX = value; }
+        }
+
+        /// <summary>
+        /// The Y position of the shadow.
+        /// </summary>
+        public float ShadowY {
+            get { return shadowY + activeShadowY; }
+            set { activeShadowY = value; }
+        }
+
+        /// <summary>
+        /// The horizontal sine wave rate.
+        /// </summary>
+        public float SineRateX {
+            get { return sineRateX + activeSineRateX; }
+            set { activeSineRateX = value; }
+        }
+
+        /// <summary>
+        /// The vertical sine wave rate.
+        /// </summary>
+        public float SineRateY {
+            get { return sineRateY + activeSineRateY; }
+            set { activeSineRateY = value; }
+        }
+
+        /// <summary>
+        /// The amount of horizontal shake.
+        /// </summary>
+        public float ShakeX {
+            get { return shakeX + activeShakeX; }
+            set { activeShakeX = value; }
+        }
+
+        /// <summary>
+        /// The amount of vertical shake.
+        /// </summary>
+        public float ShakeY {
+            get { return shakeY + activeShakeY; }
+            set { activeShakeY = value; }
+        }
+
+        /// <summary>
+        /// The horizontal sine wave amplitude.
+        /// </summary>
+        public float SineAmpX {
+            get { return sineAmpX + activeSineAmpX; }
+            set { activeSineAmpX = value; }
+        }
+
+        /// <summary>
+        /// The vertical sine wave amplitude.
+        /// </summary>
+        public float SineAmpY {
+            get { return sineAmpY + activeSineAmpY; }
+            set { activeSineAmpY = value; }
+        }
+
         /// <summary>
         /// The X scale of the character.
         /// </summary>
-        public float ScaleX = 1;
+        public float ScaleX {
+            get { return scaleX * activeScaleX; }
+            set { activeScaleX = value; }
+        }
 
         /// <summary>
         /// The Y scale of the character.
         /// </summary>
-        public float ScaleY = 1;
+        public float ScaleY {
+            get { return scaleY * activeScaleY; }
+            set { activeScaleY = value; }
+        }
 
         /// <summary>
         /// The angle of the character.
         /// </summary>
-        public float Angle;
+        public float Angle {
+            get { return angle + activeAngle; }
+            set { activeAngle = value; }
+        }
 
         /// <summary>
         /// The X position offset of the character.
         /// </summary>
-        public float X;
+        public float X {
+            get { return x + activeX; }
+            set { activeX = value; }
+        }
 
         /// <summary>
         /// The Y position offset of the character.
         /// </summary>
-        public float Y;
-
-        #endregion
-
-        #region Public Properties
+        public float Y {
+            get { return y + activeY; }
+            set { activeY = value; }
+        }
 
         /// <summary>
         /// The final horizontal offset position of the character when rendered.
@@ -1517,6 +1657,33 @@ namespace Otter {
             col.B *= Color.B;
             col.A *= Color.A;
         }
+
+        internal float scaleX = 1;
+        internal float scaleY = 1;
+        internal float angle;
+        internal float x;
+        internal float y;
+        internal float sineAmpX;
+        internal float sineAmpY;
+        internal float sineRateX = 1;
+        internal float sineRateY = 1;
+        internal float sineOffsetX;
+        internal float sineOffsetY;
+        internal float shakeX;
+        internal float shakeY;
+        internal float shadowX;
+        internal float shadowY;
+        internal float outlineThickness;
+        internal int textureOffsetX;
+        internal int textureOffsetY;
+        internal float offsetAmount = 10;
+        internal Color color = Color.White;
+        internal Color color0 = Color.White;
+        internal Color color1 = Color.White;
+        internal Color color2 = Color.White;
+        internal Color color3 = Color.White;
+        internal Color shadowColor = Color.Black;
+        internal Color outlineColor = Color.White;
 
         #endregion
         

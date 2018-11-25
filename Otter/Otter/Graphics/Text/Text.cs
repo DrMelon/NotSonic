@@ -75,9 +75,8 @@ namespace Otter {
             set {
                 text.DisplayedString = value;
                 NeedsUpdate = true;
-                Width = (int)text.GetLocalBounds().Width;
-                Height = (int)text.GetLocalBounds().Height;
                 Lines = text.DisplayedString.Split('\n').Length;
+                UpdateDrawable();
             }
         }
 
@@ -89,7 +88,7 @@ namespace Otter {
         /// <summary>
         /// The amount of space between each line of text.
         /// </summary>
-        public int LineSpacing {
+        public float LineSpacing {
             get { return text.Font.GetLineSpacing(text.CharacterSize); }
         }
 
@@ -98,7 +97,10 @@ namespace Otter {
         /// </summary>
         public int FontSize {
             get { return (int)text.CharacterSize; }
-            set { text.CharacterSize = (uint)value; }
+            set {
+                text.CharacterSize = (uint)value;
+                UpdateDrawable();
+            }
         }
 
         /// <summary>
@@ -110,6 +112,7 @@ namespace Otter {
                 textStyle = value;
                 text.Style = (SFML.Graphics.Text.Styles)TextStyle;
                 NeedsUpdate = true;
+                UpdateDrawable();
             }
         }
 
@@ -213,6 +216,9 @@ namespace Otter {
             else if (font is Font)
             {
                 this.font = ((Font) font).font;
+            }
+            else if (font is SFML.Graphics.Font) {
+                this.font = (SFML.Graphics.Font)font;
             }
             else
             {

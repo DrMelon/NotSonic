@@ -109,6 +109,29 @@ namespace Otter {
         }
 
         /// <summary>
+        /// Check if an exported file exists for this data.
+        /// </summary>
+        /// <param name="filename">The filename to check.</param>
+        /// <returns>True if the exported file exists, and is verified for encrypted files.</returns>
+        public bool FileExists(string filename = "") {
+            if (filename == "") filename = DefaultFilename;
+
+            filename = DefaultPath + filename;
+            if (File.Exists(filename)) {
+                string loaded = File.ReadAllText(filename);
+
+                if (ExportMode == DataExportMode.Data) {
+                    return Verify(loaded);
+                }
+                else {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Imports the data in the specified file.
         /// </summary>
         /// <param name="filename">The filename.</param>
@@ -125,7 +148,18 @@ namespace Otter {
                 if (Verify(loaded) || !verify) {
                     string[] split = Regex.Split(loaded, ":");
                     loaded = Util.DecompressString(split[1]);
-                    data = Util.StringToDictionary(loaded, KeyDelim, ValueDelim);
+
+                    var splitData = Regex.Split(loaded, ValueDelim);
+
+                    foreach (var s in splitData) {
+                        var entry = Regex.Split(s, KeyDelim);
+                        var key = entry[0];
+                        var value = entry[1];
+                        if (data.ContainsKey(key))
+                            data[key] = value;
+                        else
+                            data.Add(key, value);
+                    }
                 }
                 else {
                     Util.Log("Data load failed: corrupt or modified data.");

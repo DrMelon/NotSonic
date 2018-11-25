@@ -1,8 +1,109 @@
 ﻿using SFML.Audio;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 
 namespace Otter {
+
+    /// <summary>
+    /// Manages files used for game assets.  Can use a packed data file of paths and byte arrays.
+    /// The game will attempt to use local files before the packed data file.
+    /// Packed data is expected as:
+    /// bool: true to continue reading, false to stop
+    /// string: the path of the file that was packed
+    /// int32: the size of the file that was packed
+    /// bytes: the actual data from the file
+    /// </summary>
+    public class Files {
+        /// <summary>
+        /// The unpacked data from a packed data file.  File paths mapped to byte arrays.
+        /// </summary>
+        public static Dictionary<string, byte[]> Data = new Dictionary<string, byte[]>();
+
+        /// <summary>
+        /// The root folder that assets can be found in when loading data.
+        /// </summary>
+        public static string AssetsFolderPrefix = "Assets/";
+        
+        /// <summary>
+        /// Reads data from a uncompressed packed file
+        /// </summary>
+        /// <param name="path">The path to the packed data file.</param>
+        public static void LoadPackedData(string path) {
+            if (!File.Exists(path)) throw new FileNotFoundException("Cannot find packed data file " + path);
+
+            Data.Clear();
+            var bytes = new BinaryReader(File.Open(path, FileMode.Open));
+            int length = (int)bytes.BaseStream.Length;
+            var reading = bytes.ReadBoolean();
+
+            while (reading) {
+                var filepath = bytes.ReadString();
+                var fileSize = bytes.ReadInt32();
+                var data = bytes.ReadBytes(fileSize);
+
+                Data.Add(filepath, data);
+                //Console.WriteLine("Reading data {0}", filepath);
+                reading = bytes.ReadBoolean();
+            }
+        }
+
+        /// <summary>
+        /// Check if a file exists, or if it has been loaded from the packed data.
+        /// </summary>
+        /// <param name="path">The path to check.</param>
+        /// <returns>True if the file exists or if it has been loaded from the packed data.</returns>
+        public static bool FileExists(string path) {
+            if (File.Exists(path)) return true;
+            if (File.Exists(AssetsFolderPrefix + path)) return true;
+            if (Data.ContainsKey(path)) return true;
+            return false;
+        }
+
+        /// <summary>
+        /// Load a file as a memory stream from local files or packed data.
+        /// Probably don't use this a lot it probably is memory leak city.
+        /// </summary>
+        /// <param name="path">The path to load from.</param>
+        /// <returns>The stream.</returns>
+        public static Stream LoadFileStream(string path) {
+            if (FileExists(path)) {
+                return new MemoryStream(LoadFileBytes(path));
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Load a file as a byte array from local files or packed data.
+        /// </summary>
+        /// <param name="path">The path to load from.</param>
+        /// <returns>The byte array of the data from the file.</returns>
+        public static byte[] LoadFileBytes(string path) {
+            if (File.Exists(path)) {
+                return File.ReadAllBytes(path);
+            }
+            if (File.Exists(AssetsFolderPrefix + path)) {
+                return File.ReadAllBytes(AssetsFolderPrefix + path);
+            }
+            if (Data.ContainsKey(path)) {
+                return Data[path];
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Check if a file is being loaded from a local file or the packed data.
+        /// Note that the game will attempt to load from local files before packed data.
+        /// </summary>
+        /// <param name="path">The path to check.</param>
+        /// <returns>True if the data is coming from the packed file.</returns>
+        public static bool IsUsingDataPack(string path) {
+            if (File.Exists(path)) return false;
+            if (File.Exists(AssetsFolderPrefix + path)) return false;
+            return Data.ContainsKey(path);
+        }
+    }
 
     #region Sounds
 
@@ -12,13 +113,14 @@ namespace Otter {
     class Sounds {
         static Dictionary<string, SoundBuffer> sounds = new Dictionary<string, SoundBuffer>();
 
-        public static SoundBuffer Load(string source) {
-            if (!File.Exists(source)) throw new FileNotFoundException(source + " not found.");
-            if (sounds.ContainsKey(source)) {
-                return sounds[source];
+        public static SoundBuffer Load(string path) {
+            //if (!File.Exists(source)) throw new FileNotFoundException(source + " not found.");
+            if (!Files.FileExists(path)) throw new FileNotFoundException(path + " not found.");
+            if (sounds.ContainsKey(path)) {
+                return sounds[path];
             }
-            sounds.Add(source, new SoundBuffer(source));
-            return sounds[source];
+            sounds.Add(path, new SoundBuffer(Files.LoadFileBytes(path)));
+            return sounds[path];
         }
     }
 
@@ -43,13 +145,29 @@ namespace Otter {
         }
         static SFML.Graphics.Font defaultFont;
 
-        internal static SFML.Graphics.Font Load(string source) {
-            if (!File.Exists(source)) throw new FileNotFoundException(source + " not found.");
-            if (fonts.ContainsKey(source)) {
-                return fonts[source];
+        internal static SFML.Graphics.Font Load(string path) {
+            //if (!File.Exists(source)) throw new FileNotFoundException(source + " not found.");
+            if (!Files.FileExists(path)) throw new FileNotFoundException(path + " not found.");
+            if (fonts.ContainsKey(path)) {
+                //return new SFML.Graphics.Font(Files.LoadFileBytes(path)); 
+                return fonts[path];
             }
-            fonts.Add(source, new SFML.Graphics.Font(source));
-            return fonts[source];
+
+            if (Files.IsUsingDataPack(path)) {
+                var stream = new MemoryStream(Files.LoadFileBytes(path));
+                fonts.Add(path, new SFML.Graphics.Font(stream)); // SFML fix? Might be memory leaking when you have a lot of fonts.
+                //stream.Close();
+                //fonts.Add(path, new SFML.Graphics.Font(Files.LoadFileBytes(path))); // SFML fix?
+            }
+            else {
+                if (File.Exists(path)) {
+                    fonts.Add(path, new SFML.Graphics.Font(path)); // Cant load font with bytes from path?
+                }
+                else { // This should work because we already checked FileExists above
+                    fonts.Add(path, new SFML.Graphics.Font(Files.AssetsFolderPrefix + path)); // Cant load font with bytes from path?
+                }
+            }
+            return fonts[path];
         }
 
         internal static SFML.Graphics.Font Load(Stream stream) {
@@ -81,10 +199,10 @@ namespace Otter {
         /// This doesn't really work right now.  Textures in images wont update
         /// if you do this.
         /// </summary>
-        /// <param name="source"></param>
-        public static void Reload(string source) {
-            textures.Remove(source);
-            Load(source);
+        /// <param name="path"></param>
+        public static void Reload(string path) {
+            textures.Remove(path);
+            Load(path);
         }
 
         /// <summary>
@@ -99,35 +217,18 @@ namespace Otter {
             }
         }
 
-        /// <summary>
-        /// Tests to see if a file exists using multiple sources.  This also checks to see if
-        /// the zip file for the game exists and contains the file.
-        /// </summary>
-        /// <param name="source">The filepath.</param>
-        /// <returns>True if the file exists.</returns>
-        public static bool Exists(string source) {
-            if (source == null) {
-                return false;
-            }
-
-            if (File.Exists(source)) {
-                return true;
-            }
-
-            return false;
-        }
-
         #endregion
 
         #region Internal
 
-        internal static SFML.Graphics.Texture Load(string source) {
-            if (!File.Exists(source)) throw new FileNotFoundException("Texture path " + source + " not found.");
-            if (textures.ContainsKey(source)) {
-                return textures[source];
+        internal static SFML.Graphics.Texture Load(string path) {
+            //if (!File.Exists(source)) throw new FileNotFoundException("Texture path " + source + " not found.");
+            if (!Files.FileExists(path)) throw new FileNotFoundException("Texture path " + path + " not found.");
+            if (textures.ContainsKey(path)) {
+                return textures[path];
             }
-            textures.Add(source, new SFML.Graphics.Texture(source));
-            return textures[source];
+            textures.Add(path, new SFML.Graphics.Texture(Files.LoadFileBytes(path)));
+            return textures[path];
         }
 
         internal static SFML.Graphics.Texture Load(Stream stream) {

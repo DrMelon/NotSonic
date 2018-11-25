@@ -28,12 +28,13 @@ namespace Otter {
         /// <summary>
         /// Draw the collider for debug purposes.
         /// </summary>
-        public override void Render() {
-            base.Render();
+        public override void Render(Color color = null) {
+            base.Render(color);
+            if (color == null) color = Color.Red;
 
             if (Entity == null) return;
 
-            Draw.Rectangle(Left, Top, 1, 1, Color.Red);
+            Draw.Rectangle(Left, Top, 1, 1, color);
         }
 
         #endregion

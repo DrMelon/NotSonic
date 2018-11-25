@@ -119,6 +119,12 @@ namespace Otter {
 
         #endregion
 
+        #region Public Static Fields
+
+        public static int ActiveCount = 0;
+
+        #endregion
+
         #region Public Fields
 
         /// <summary>
@@ -485,9 +491,9 @@ namespace Otter {
         /// <param name="x">The x position.</param>
         /// <param name="y">The y position.</param>
         /// <param name="ImageSet">The ImageSet to use for the Particle.</param>
-        public Particle(float x, float y, ImageSet ImageSet)
+        public Particle(float x, float y, ImageSet imageSet)
             : base(x, y) {
-            Image = ImageSet;
+            Image = imageSet;
         }
 
         #endregion
@@ -632,6 +638,8 @@ namespace Otter {
             }
 
             Image.Visible = false;
+
+            ActiveCount++;
         }
 
         /// <summary>
@@ -759,6 +767,13 @@ namespace Otter {
 
             Timer = 0;
             ClearGraphics();
+            ActiveCount--;
+        }
+
+        public override void SceneEnd() {
+            base.SceneEnd();
+
+            RemoveSelf();
         }
 
         #endregion

@@ -6,7 +6,7 @@ namespace Otter {
     /// Class representing a texture. Can perform pixel operations on the CPU, but those will be
     /// pretty slow and shouldn't be used that much.
     /// </summary>
-    public class Texture {
+    public class Texture : IDisposable {
 
         #region Public Fields
 
@@ -270,7 +270,8 @@ namespace Otter {
             CreateImage();
             
             image.SetPixel((uint)x, (uint)y, color.SFMLColor);
-            texture = new SFML.Graphics.Texture(image);
+            //texture = new SFML.Graphics.Texture(image);
+            texture.Update(image);
 
             needsUpdate = true;
         }
@@ -305,6 +306,38 @@ namespace Otter {
             }
         }
 
+        /// <summary>
+        /// Updates the texture with a byte array.
+        /// Note: Updates immediately. Probably not the fastest.
+        /// </summary>
+        /// <param name="bytes">The byte array containing our pixels.</param>
+        public void SetBytes(byte[] bytes) {
+            texture.Update(bytes);
+        }
+
+        /// <summary>
+        /// Updates the texture with a byte array, at the given position and size.
+        /// Note: Updates immediately. Probably not the fastest.
+        /// </summary>
+        /// <param name="bytes">The byte array containing our pixels.</param>
+        /// <param name="width">The width of the section we are updating.</param>
+        /// <param name="height">The height of the section we are updating.</param>
+        /// <param name="x">The X coordinate of the section we are updating.</param>
+        /// <param name="y">The Y coordinate of the section we are updating.</param>
+        public void SetBytes(byte[] bytes, int width, int height, int x = 0, int y = 0) {
+            texture.Update(bytes, (uint)width, (uint)height, (uint)x, (uint)y);
+        }
+
+        /// <summary>
+        /// Dispose the SFML texture to clear up memory probably.
+        /// Warning: might not want to do this since other Textures might be using the same cached texture!
+        /// </summary>
+        public void Dispose() {
+            SFMLTexture.Dispose();
+        }
+
         #endregion Public Methods
+
+        
     }
 }

@@ -31,16 +31,17 @@ namespace Otter {
         /// <summary>
         /// Draw the collider for debug purposes.
         /// </summary>
-        public override void Render() {
-            base.Render();
+        public override void Render(Color color = null) {
+            base.Render(color);
+            if (color == null) color = Color.Red;
 
             if (Entity == null) return;
 
             if (Width <= 2 || Height <= 2) {
-                Draw.Rectangle(Left, Top, Width, Height, Color.Red);
+                Draw.Rectangle(Left, Top, Width, Height, color);
             }
             else {
-                Draw.Rectangle(Left + 1, Top + 1, Width - 2, Height - 2, Color.None, Color.Red, 1f);
+                Draw.Rectangle(Left + 1, Top + 1, Width - 2, Height - 2, Color.None, color, 1f);
             }
         }
 

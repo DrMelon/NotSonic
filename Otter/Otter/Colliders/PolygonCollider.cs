@@ -110,17 +110,18 @@ namespace Otter {
             }
         }
 
-        public override void Render() {
-            base.Render();
+        public override void Render(Color color = null) {
+            base.Render(color);
+            if (color == null) color = Color.Red;
 
             if (Entity == null) return;
 
             graphicVertices = new Vertices();
             graphicVertices.PrimitiveType = VertexPrimitiveType.LinesStrip;
             foreach (var v in Polygon.Points) {
-                graphicVertices.Add(new Vert(v.X, v.Y, Color.Red));
+                graphicVertices.Add(new Vert(v.X, v.Y, color));
             }
-            graphicVertices.Add(new Vert(Polygon.Points[0].X, Polygon.Points[0].Y, Color.Red));
+            graphicVertices.Add(new Vert(Polygon.Points[0].X, Polygon.Points[0].Y, color));
             Draw.Graphic(graphicVertices, Left, Top);
         }
     }

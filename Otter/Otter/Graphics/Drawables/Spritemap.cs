@@ -121,7 +121,7 @@ namespace Otter {
 
         #region Private Methods
 
-        void Initialize(int width, int height) {
+        protected void Initialize(int width, int height) {
             Anims = new Dictionary<TAnimType, Anim>();
 
             // Try batching later.
@@ -138,6 +138,18 @@ namespace Otter {
             Frames = Columns * Rows;
 
             UpdateTextureRegion(0);
+        }
+
+        protected override void TextureChanged() {
+            // Dont do the same stuff as image :I
+        }
+
+        #endregion
+
+        #region Indexers
+
+        public Anim this[TAnimType anim] {
+            get { return Anim(anim); }
         }
 
         #endregion
@@ -158,12 +170,11 @@ namespace Otter {
         /// Adds an animation using a string for frames and a single value for frame delay.
         /// </summary>
         /// <param name="a">The key to store the animation with.</param>
-        /// <param name="frames">The frames of the animation from the sprite sheet.  Example: "1, 3, 1, 2, 4"</param>
+        /// <param name="frames">The frames of the animation from the sprite sheet.  Example: "0,3,7-11,2,5"</param>
         /// <param name="framedelays">The delay between advancing to the next frame.</param>
-        /// <param name="delim">The delimiter to parse the string with.</param>
         /// <returns>The added animation.</returns>
-        public Anim Add(TAnimType a, string frames, float framedelays, string delim = ",") {
-            var anim = new Anim(frames, framedelays.ToString(), delim);
+        public Anim Add(TAnimType a, string frames, float framedelays) {
+            var anim = new Anim(frames, framedelays.ToString());
             Add(a, anim);
             return anim;
         }
@@ -172,12 +183,11 @@ namespace Otter {
         /// Add an animation using a string for frames and a string for framedelays.
         /// </summary>
         /// <param name="a">The key to store the animation with.</param>
-        /// <param name="frames">The frames of the animation from the sprite sheet.  Example: "1, 3, 1, 2, 4"</param>
-        /// <param name="framedelays">The duration of time to show each frame.  Example: "10, 10, 5, 5, 50"</param>
-        /// <param name="delim">The delimiter to parse the string with.</param>
+        /// <param name="frames">The frames of the animation from the sprite sheet.  Example: "0,3,7-11,2,5"</param>
+        /// <param name="framedelays">The duration of time to show each frame.  Example: "10,10,5,5,50"</param>
         /// <returns>The added animation.</returns>
-        public Anim Add(TAnimType a, string frames, string framedelays, string delim = ", ") {
-            var anim = new Anim(frames, framedelays, delim);
+        public Anim Add(TAnimType a, string frames, string framedelays) {
+            var anim = new Anim(frames, framedelays);
             Add(a, anim);
             return anim;
         }
@@ -199,7 +209,7 @@ namespace Otter {
         /// Adds an animation using an array for frames and a single value for frame delay.
         /// </summary>
         /// <param name="a">The key to store the animation with.</param>
-        /// <param name="frames">The frames of the animation from the sprite sheet.  Example: "1, 3, 1, 2, 4"</param>
+        /// <param name="frames">The frames of the animation from the sprite sheet.  Example: "0,3,7-11,2,5"</param>
         /// <param name="framedelays">The delay between advancing to the next frame.</param>
         /// <returns>The added animation.</returns>
         public Anim Add(TAnimType a, int[] frames, float framedelays) {
@@ -250,11 +260,11 @@ namespace Otter {
         /// </summary>
         /// <param name="a">The animation to play.</param>
         /// <param name="forceReset">Resets the animation back to the start before playing even if this is the same animation that was already playing.</param>
-        public void Play(TAnimType a, bool forceReset = false) {
+        public void Play(TAnimType a, bool forceReset = true) {
             Active = true;
             var pastAnim = CurrentAnim;
             CurrentAnim = a;
-            if (Anims[CurrentAnim] != Anims[pastAnim] || forceReset) {
+            if (forceReset) {
                 Anims[CurrentAnim].Reset();
             }
             Anims[CurrentAnim].Active = true;
@@ -363,6 +373,39 @@ namespace Otter {
         }
 
         #endregion
+
+    }
+
+    public class Spritemap : Spritemap<int> {
+        /// <summary>
+        /// Create a new Spritemap from a file path.
+        /// </summary>
+        /// <param name="source">The file path to a texture to use for the sprite sheet.</param>
+        /// <param name="width">The width of the animation.</param>
+        /// <param name="height">The height of the animation.</param>
+        public Spritemap(string source, int width, int height) : base(source, width, height) {
+            Initialize(width, height);
+        }
+
+        /// <summary>
+        /// Create a new Spritemap from a Texture.
+        /// </summary>
+        /// <param name="texture">The Texture to use for the sprite sheet.</param>
+        /// <param name="width">The width of a cell on the sprite sheet.</param>
+        /// <param name="height">The height of a cell on the sprite sheet.</param>
+        public Spritemap(Texture texture, int width, int height) : base(texture, width, height) {
+            Initialize(width, height);
+        }
+
+        /// <summary>
+        /// Create a new Spritemap from an AtlasTexture.
+        /// </summary>
+        /// <param name="texture">The AtlasTexture to use for the sprite sheet.</param>
+        /// <param name="width">The width of a cell on the sprite sheet.</param>
+        /// <param name="height">The height of a cell on the sprite sheet.</param>
+        public Spritemap(AtlasTexture texture, int width, int height) : base(texture, width, height) {
+            Initialize(width, height);
+        }
 
     }
 }

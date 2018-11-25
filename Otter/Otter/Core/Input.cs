@@ -1,4 +1,5 @@
-﻿using SFML.Window;
+﻿using SFML.System;
+using SFML.Window;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -109,11 +110,38 @@ namespace Otter {
             return Key.Unknown;
         }
 
+        /// <summary>
+        /// Get the name of the Joystick.
+        /// </summary>
+        /// <param name="id">The connection id of the Joystick.</param>
+        /// <returns>The name of the Joystick.</returns>
+        public static string GetJoystickName(int id) {
+            return Joystick.GetIdentification((uint)id).Name;
+        }
+
+        /// <summary>
+        /// Get the vendor id of the Joystick.
+        /// </summary>
+        /// <param name="id">The connection id of the Joystick.</param>
+        /// <returns>The vendor id of the Joystick.</returns>
+        public static int GetJoystickVendorId(int id) {
+            return (int)Joystick.GetIdentification((uint)id).VendorId;
+        }
+
+        /// <summary>
+        /// Get the product id of the Joystick.
+        /// </summary>
+        /// <param name="id">The connection id of the Joystick.</param>
+        /// <returns>The name of the Joystick.</returns>
+        public static int GetJoystickProductId(int id) {
+            return (int)Joystick.GetIdentification((uint)id).ProductId;
+        }
+
         #endregion
 
         #region Private Fields
 
-        int mouseWheelDelta, currentMouseWheelDelta;
+        float mouseWheelDelta, currentMouseWheelDelta;
 
         int
             keysPressed,
@@ -156,6 +184,9 @@ namespace Otter {
 
         int gameMouseX;
         int gameMouseY;
+
+        int mouseDeltaBufferX;
+        int mouseDeltaBufferY;
 
         #endregion
 
@@ -200,7 +231,15 @@ namespace Otter {
         /// </summary>
         public List<int> LastButton { get; private set; }
 
-        
+        /// <summary>
+        /// The X movement of the mouse since the last update.  Only updates if the mouse is locked inside the Game window.
+        /// </summary>
+        public int MouseDeltaX { get; private set; }
+
+        /// <summary>
+        /// The Y movement of the mouse since the last update.  Only updates if the mouse is locked inside the Game window.
+        /// </summary>
+        public int MouseDeltaY { get; private set; }
 
         /// <summary>
         /// The current X position of the mouse.
@@ -213,7 +252,7 @@ namespace Otter {
                     pos = gameMouseX;
                 }
                 else {
-                    pos = Game.Window.InternalGetMousePosition().X;
+                    pos = SFML.Window.Mouse.GetPosition(Game.Window).X;
                     pos -= Game.Surface.X - Game.Surface.ScaledWidth * 0.5f;
                     pos /= Game.Surface.ScaleX;
                 }
@@ -233,7 +272,7 @@ namespace Otter {
                     pos = gameMouseY;
                 }
                 else {
-                    pos = Game.Window.InternalGetMousePosition().Y;
+                    pos = SFML.Window.Mouse.GetPosition(Game.Window).Y;
                     pos -= Game.Surface.Y - Game.Surface.ScaledHeight * 0.5f;
                     pos /= Game.Surface.ScaleY;
                 }
@@ -251,14 +290,14 @@ namespace Otter {
                     return gameMouseX;
                 }
 
-                return Game.Window.InternalGetMousePosition().X;
+                return SFML.Window.Mouse.GetPosition(Game.Window).X;
             }
             set {
                 if (Game.LockMouseCenter) {
                     gameMouseX = value;
                 }
                 else {
-                    Game.Window.InternalSetMousePosition(new Vector2i(value, MouseRawY));
+                    SFML.Window.Mouse.SetPosition(new Vector2i(value, MouseRawY), Game.Window);
                 }
             }
         }
@@ -272,14 +311,14 @@ namespace Otter {
                     return gameMouseY;
                 }
 
-                return Game.Window.InternalGetMousePosition().Y;
+                return SFML.Window.Mouse.GetPosition(Game.Window).Y;
             }
             set {
                 if (Game.LockMouseCenter) {
                     gameMouseY = value;
                 }
                 else {
-                    Game.Window.InternalSetMousePosition(new Vector2i(MouseRawX, value));
+                    SFML.Window.Mouse.SetPosition(new Vector2i(MouseRawX, value), Game.Window);
                 }
             }
         }
@@ -301,7 +340,7 @@ namespace Otter {
         /// <summary>
         /// The change in the mouse wheel value this update.
         /// </summary>
-        public int MouseWheelDelta {
+        public float MouseWheelDelta {
             get { return mouseWheelDelta; }
         }
 
@@ -695,10 +734,11 @@ namespace Otter {
             Game.Window.JoystickConnected += OnJoystickConnected;
             Game.Window.JoystickMoved += OnJoystickMoved;
             Game.Window.MouseWheelMoved += OnMouseWheelMoved;
-
         }
 
         internal void GameMouseUpdate(int x, int y) {
+            mouseDeltaBufferX += x;
+            mouseDeltaBufferY += y;
             gameMouseX += x;
             gameMouseY += y;
             gameMouseX = (int)Util.Clamp(gameMouseX, 0, Game.Width);
@@ -789,6 +829,13 @@ namespace Otter {
         internal void Update() {
             // Set instance pointer to this object.
             Instance = this;
+
+            // Do mouse delta stuff for when the mouse is locked in the game window.
+            MouseDeltaX = mouseDeltaBufferX;
+            MouseDeltaY = mouseDeltaBufferY;
+
+            mouseDeltaBufferX = 0;
+            mouseDeltaBufferY = 0;
 
             // Force update all joysticks.
             Joystick.Update();

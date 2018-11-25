@@ -147,6 +147,50 @@ namespace Otter {
             get { return Height / 2f; }
         }
 
+        public float Left {
+            get {
+                float min = Points[0].X;
+                foreach (var p in Points) {
+                    if (p.X > min) continue;
+                    min = p.X;
+                }
+                return min;
+            }
+        }
+
+        public float Right {
+            get {
+                float max = Points[0].X;
+                foreach (var p in Points) {
+                    if (p.X < max) continue;
+                    max = p.X;
+                }
+                return max;
+            }
+        }
+
+        public float Top {
+            get {
+                float min = Points[0].Y;
+                foreach (var p in Points) {
+                    if (p.Y > min) continue;
+                    min = p.Y;
+                }
+                return min;
+            }
+        }
+
+        public float Bottom {
+            get {
+                float max = Points[0].Y;
+                foreach (var p in Points) {
+                    if (p.Y < max) continue;
+                    max = p.Y;
+                }
+                return max;
+            }
+        }
+
         #endregion Public Properties
 
         #region Public Indexers

@@ -15,7 +15,7 @@ namespace Otter {
         #region Private Fields
 
         Dictionary<string, int> ColliderTags = new Dictionary<string, int>();
-        Dictionary<string, string> valueTypes = new Dictionary<string, string>();
+        Dictionary<string, string> levelValueTypes = new Dictionary<string, string>();
         Dictionary<string, string> assetMappings = new Dictionary<string, string>();
 
         #endregion
@@ -132,9 +132,12 @@ namespace Otter {
                 TileMaps.Add(x["Name"].InnerText, x["FilePath"].InnerText);
             }
 
-            var xmlLevelValues = xmlDoc.GetElementsByTagName("ValueDefinition");
-            foreach (XmlElement x in xmlLevelValues) {
-                valueTypes.Add(x.Attributes["Name"].Value, x.Attributes["xsi:type"].Value);
+            //var xmlLevelValues = xmlDoc.GetElementsByTagName("ValueDefinitions");
+            //dirty dirty hack because there should only be one element with that name
+            //and for SOME REASON I can't just grab an XmlElement, I have to grab a NodeList and enumerate it for my element. What gives, microsoft?
+            var xmlLevelValues = xmlDoc.GetElementsByTagName("LevelValueDefinitions")[0] as XmlElement;
+            foreach (XmlElement x in xmlLevelValues.GetElementsByTagName("ValueDefinition")) {
+                levelValueTypes.Add(x.Attributes["Name"].Value, x.Attributes["xsi:type"].Value);
             }
         }
 

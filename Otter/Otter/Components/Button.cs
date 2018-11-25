@@ -47,12 +47,12 @@ namespace Otter {
         /// <summary>
         /// The time passed since the last button press.
         /// </summary>
-        public float LastPressed = 0;
+        public float LastPressed = float.MaxValue;
 
         /// <summary>
         /// The time passed since the last button release.
         /// </summary>
-        public float LastReleased = 0;
+        public float LastReleased = float.MaxValue;
 
         #endregion
 
@@ -107,6 +107,18 @@ namespace Otter {
             }
         }
 
+        /// <summary>
+        /// Returns true if this button is using any JoyButtons from a Joystick.
+        /// </summary>
+        public bool IsUsingJoyButtons {
+            get {
+                foreach (var joyId in JoyButtons) {
+                    if (joyId.Count > 0) return true;
+                }
+                return false;
+            }
+        }
+
         #endregion
 
         #region Constructors
@@ -132,6 +144,25 @@ namespace Otter {
         #endregion
 
         #region Public Methods
+
+        /// <summary>
+        /// Reset the Button to report no input.
+        /// </summary>
+        public void Reset() {
+            buttonsDown = false;
+            prevButtonsDown = false;
+            currentButtonsDown = false;
+        }
+
+        /// <summary>
+        /// Clear all registered inputs for the Button.
+        /// </summary>
+        public void Clear() {
+            Keys.Clear();
+            JoyButtons.Clear();
+            MouseButtons.Clear();
+            MouseWheel.Clear();
+        }
 
         /// <summary>
         /// Add a keyboard Key to the Button.
@@ -228,6 +259,10 @@ namespace Otter {
             base.UpdateFirst();
 
             buttonsDown = false;
+
+            // Fix for buttons that arent being updated.
+            if (LastPressed == float.MaxValue) LastPressed = 0;
+            if (LastReleased == float.MaxValue) LastReleased = 0;
 
             foreach (var k in Keys) {
                 if (Input.Instance.KeyDown(k)) {

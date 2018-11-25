@@ -1,4 +1,5 @@
 ﻿using SFML.Graphics;
+using SFML.System;
 using SFML.Window;
 
 namespace Otter {
@@ -282,6 +283,15 @@ namespace Otter {
             ClippingRegion = TextureRegion;
         }
 
+        protected override void TextureChanged() {
+            base.TextureChanged();
+
+            Width = TextureRegion.Width;
+            Height = TextureRegion.Height;
+
+            ClippingRegion = TextureRegion;
+        }
+
         protected override void UpdateDrawable() {
             base.UpdateDrawable();
 
@@ -296,7 +306,6 @@ namespace Otter {
                 Height = (int)circle.GetLocalBounds().Height;
             }
             else {
-
                 if (isShape) {
                     var rect = new SFML.Graphics.RectangleShape(new Vector2f(rectWidth, rectHeight));
                     rect.OutlineColor = OutlineColor.SFMLColor;
@@ -348,6 +357,9 @@ namespace Otter {
                     SFMLVertices.Append(x1, y2, Color, u1, v2);
                     SFMLVertices.Append(x2, y2, Color, u2, v2);
                     SFMLVertices.Append(x2, y1, Color, u2, v1);
+
+                    Width = TextureRegion.Width;
+                    Height = TextureRegion.Height;
                 }
             }
         }

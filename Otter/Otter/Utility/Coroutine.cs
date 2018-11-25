@@ -109,8 +109,12 @@ namespace Otter
                 if (routines[i].Current is IEnumerator)
                     if (MoveNext((IEnumerator)routines[i].Current))
                         continue;
-                if (!routines[i].MoveNext())
+                if (!routines[i].MoveNext()) {
+                    var key = routineInvertedIds[routines[i]];
+                    routineIds.Remove(key);
+                    routineInvertedIds.Remove(routines[i]);
                     routines.RemoveAt(i--);
+                }
             }
 
             events.Clear();
@@ -196,7 +200,6 @@ namespace Otter
         public IEnumerator WaitForSeconds(float seconds) {
             if (game != null) { // Using the game's delta time.
                 float elapsed = 0;
-
                 while (elapsed < seconds) {
                     elapsed += game.RealDeltaTime * 0.001f;
                     yield return 0;
@@ -204,11 +207,9 @@ namespace Otter
             }
             else { // Using a stopwatch.
                 var watch = Stopwatch.StartNew();
-
                 while (watch.ElapsedMilliseconds / 1000f < seconds) {
                     yield return 0;
                 }
-
                 watch.Stop();
             }
         }
@@ -220,11 +221,28 @@ namespace Otter
         /// <returns></returns>
         public IEnumerator WaitForFrames(int frames) {
             int elapsed = 0;
-
             while (elapsed < frames) {
                 elapsed++;
                 yield return 0;
             }
+        }
+
+        /// <summary>
+        /// Waits for a Tween to complete.
+        /// </summary>
+        /// <param name="tween">The Tween to wait on.</param>
+        /// <returns></returns>
+        public IEnumerator WaitForTween(Tween tween) {
+            while (tween.Completion != 1) yield return 0;
+        }
+
+        /// <summary>
+        /// Waits for an anonymous method that returns true or false.
+        /// </summary>
+        /// <param name="func">The method to run until it returns true.</param>
+        /// <returns></returns>
+        public IEnumerator WaitForDelegate(Func<bool> func) {
+            while (func() != true) yield return 0;
         }
 
         #endregion
