@@ -22,7 +22,7 @@ namespace Otter {
 
         List<int> pausedGroups = new List<int>();
 
-        List<Graphic> graphics = new List<Graphic>();
+        protected List<Graphic> graphics = new List<Graphic>();
 
         SortedDictionary<int, List<Entity>> orders = new SortedDictionary<int, List<Entity>>();
         SortedDictionary<int, List<Entity>> layers = new SortedDictionary<int, List<Entity>>();

@@ -170,10 +170,12 @@ namespace NotSonic
             // Make debug commands, and shaders
 
             Global.theGame.Surface.Shader = LUTShade;
-            Otter.Debugger.CommandFunction myFunc = new Debugger.CommandFunction(Impulse);
+            /*Otter.Debugger.CommandFunction myFunc = new Debugger.CommandFunction(Impulse);
             Otter.CommandType[] cmdArgs = new Otter.CommandType[1];
             cmdArgs[0] = CommandType.Int;
-            Debugger.Instance.RegisterCommand("i", myFunc, cmdArgs);
+            Debugger.Instance.RegisterCommand("i", myFunc, cmdArgs);*/
+
+            
         }
 
 
@@ -568,7 +570,13 @@ namespace NotSonic
             }
         }
 
-        public void Impulse(params string[] target)
+        [OtterCommand (usageText: "Impulse <int>, where <int> is one of the following:\n0: Toggle Debug\n1: Toggle Shaders()\n2: Play Music\n3: Smooth Scaling (Gross Mode)\n4: Spawn Badniks\n5: Toggle SloMo\n6: Record Inputs\n7: Stop Recording Inputs\n8: Play Back Recorded Inputs\n100: (Re)Load Test Map ")]
+        public static void Impulse(string arg)
+        {
+            ((LevelScene)Scene.Instance).DoImpulse(arg);
+        }
+
+        public void DoImpulse(params string[] target)
         {
             // Clone of Valve's Impulse command - accepts an integer, will perform a task based on that integer. So I don't need to register more than one command.
             if(target.Count() > 0)
@@ -670,6 +678,11 @@ namespace NotSonic
 
             }
 
+        }
+
+        public List<Graphic> GetGraphics()
+        {
+            return graphics;
         }
 
         private void MakeBadniks()

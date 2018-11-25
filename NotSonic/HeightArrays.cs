@@ -61,8 +61,6 @@ namespace NotSonic
                 HeightArraysList.Add(ReadTile(i));
             }
 
-            int egg = 0;
-
            
         }
 

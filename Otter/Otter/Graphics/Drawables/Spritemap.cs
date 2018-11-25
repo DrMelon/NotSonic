@@ -260,7 +260,7 @@ namespace Otter {
         /// </summary>
         /// <param name="a">The animation to play.</param>
         /// <param name="forceReset">Resets the animation back to the start before playing even if this is the same animation that was already playing.</param>
-        public void Play(TAnimType a, bool forceReset = true) {
+        public void Play(TAnimType a, bool forceReset = false) {
             Active = true;
             var pastAnim = CurrentAnim;
             CurrentAnim = a;
